@@ -1,10 +1,11 @@
 import { MantineProvider } from '@mantine/core';
-import Dashboard from './pages/Dashboard';
+import { RouterProvider } from 'react-router-dom';
+import routes from './routes';
 
 function App() {
   return (
     <MantineProvider>
-      <Dashboard />
+      <RouterProvider router={routes} />
     </MantineProvider>
   );
 }
