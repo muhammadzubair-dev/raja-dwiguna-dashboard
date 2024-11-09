@@ -1,24 +1,43 @@
 const BASE_URL = 'https://dev.arieslibre.my.id/api/v1';
 
 // fetchHelper.js
-export const fetchRequest = async (path, method = 'GET', body = null) => {
-  const url = `${BASE_URL}${path}`;
+export const fetchRequest = async (path, method = 'GET', options = {}) => {
+  const { query, body, withAuth = true } = options;
 
-  // Prepare options for the fetch request
-  const options = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
+  let url = `${BASE_URL}${path}`;
+
+  // If there are query parameters, append them to the URL for GET requests
+  if (method === 'GET' && query) {
+    const queryString = new URLSearchParams(query).toString();
+    url = `${url}?${queryString}`;
+  }
+
+  // Prepare the request headers
+  const headers = {
+    'Content-Type': 'application/json',
   };
 
-  // If it's a POST, PUT, or DELETE request, we add the body
-  if (body) {
-    options.body = JSON.stringify(body);
+  // If withAuth is true, attach the Authorization header
+  if (withAuth) {
+    const token = localStorage.getItem('token'); // Example, replace with your token retrieval logic
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  // Prepare options for the fetch request
+  const fetchOptions = {
+    method,
+    headers,
+  };
+
+  // If the method is not GET and we have a body, add it to the options
+  if (body && method !== 'GET') {
+    fetchOptions.body = JSON.stringify(body);
   }
 
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(url, fetchOptions);
 
     if (!response.ok) {
       const errorData = await response.json();

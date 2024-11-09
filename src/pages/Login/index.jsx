@@ -13,14 +13,14 @@ import {
 import { hasLength, useForm } from '@mantine/form';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
-import { useLogin } from '../../helpers/apiHelper';
+import { usePostLogin } from '../../helpers/apiHelper';
 import classes from './index.module.css';
 import ErrorMessage from '../../components/ErrorMessage';
 
 function Login() {
   const navigate = useNavigate();
 
-  const { mutate, isLoading, error } = useMutation(useLogin, {
+  const { mutate, isLoading, error } = useMutation(usePostLogin, {
     onSuccess: (data) => {
       localStorage.setItem('token', data.response.token);
       navigate('/');
