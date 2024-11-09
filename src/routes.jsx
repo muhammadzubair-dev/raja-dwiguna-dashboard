@@ -5,11 +5,16 @@ import Login from './pages/Login';
 import Users from './pages/Users';
 import Transactions from './pages/Transactions';
 import NavbarNested from './layouts/NavbarNested';
+import RequireAuth from './layouts/RequireAuth';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <NavbarNested />,
+    element: (
+      <RequireAuth>
+        <NavbarNested />
+      </RequireAuth>
+    ),
     children: [
       {
         index: true,
