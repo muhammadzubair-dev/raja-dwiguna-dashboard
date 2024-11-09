@@ -1,8 +1,6 @@
 import { BarChart } from '@mantine/charts';
 import {
-  Anchor,
   Box,
-  Breadcrumbs,
   Button,
   Card,
   Container,

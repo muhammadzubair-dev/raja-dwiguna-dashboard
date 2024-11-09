@@ -3,11 +3,13 @@ import NavbarColored from './layouts/NavbarColored';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Users from './pages/Users';
+import Transactions from './pages/Transactions';
+import NavbarNested from './layouts/NavbarNested';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <NavbarColored />,
+    element: <NavbarNested />,
     children: [
       {
         index: true,
@@ -15,7 +17,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/transactions',
-        element: <Users />,
+        element: <Transactions />,
       },
       {
         path: '/users',
