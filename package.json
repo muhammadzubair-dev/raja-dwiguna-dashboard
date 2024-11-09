@@ -16,6 +16,7 @@
     "@mantine/form": "^7.13.5",
     "@mantine/hooks": "^7.13.4",
     "@mantine/modals": "^7.13.5",
+    "@mantine/notifications": "^7.13.5",
     "@tabler/icons-react": "^3.21.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",

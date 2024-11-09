@@ -6,6 +6,7 @@ import Users from './pages/Users';
 import Transactions from './pages/Transactions';
 import NavbarNested from './layouts/NavbarNested';
 import RequireAuth from './layouts/RequireAuth';
+import Roles from './pages/Roles';
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: '/users',
         element: <Users />,
+      },
+      {
+        path: '/roles',
+        element: <Roles />,
       },
     ],
   },

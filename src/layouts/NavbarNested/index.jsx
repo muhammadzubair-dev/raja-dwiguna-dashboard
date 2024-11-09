@@ -24,8 +24,8 @@ const mockdata = [
     initiallyOpened: true,
     links: [
       { label: 'Accounts', link: '/users' },
-      { label: 'Roles', link: '/' },
-      { label: 'Log Activities', link: '/' },
+      { label: 'Roles', link: '/roles' },
+      { label: 'Log Activities', link: '/log-activities' },
     ],
   },
 ];

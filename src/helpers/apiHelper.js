@@ -15,3 +15,7 @@ export const useGetUsers = async (query) => {
 export const useGetRoles = async (query) => {
   return fetchRequest(`/role`, 'GET', { query });
 };
+
+export const usePutRole = async (body) => {
+  return fetchRequest(`/role`, 'PUT', { body });
+};
