@@ -34,23 +34,27 @@ function TabBankAccounts() {
     1,
     10
   );
-  const { data, isLoading } = useQuery(['bank-accounts', page, limit], () =>
-    useGetAccountBank({
-      limit,
-      page,
-    })
+  const { data, isLoading, error } = useQuery(
+    ['bank-accounts', page, limit],
+    () =>
+      useGetAccountBank({
+        limit,
+        page,
+      })
   );
 
-  const records = data?.response?.data.map((item) => ({
-    employee_id: item.employee_id,
-    email: item.email,
-    first_name: item.first_name,
-    last_name: item.last_name,
-    phone_number: item.phone_number,
-    created_at: item.created_at,
-    status: item.status,
-    roles: item.list_user_role.map((item) => item.list_role.name),
-  }));
+  // const records = data?.response?.data.map((item) => ({
+  //   employee_id: item.employee_id,
+  //   email: item.email,
+  //   first_name: item.first_name,
+  //   last_name: item.last_name,
+  //   phone_number: item.phone_number,
+  //   created_at: item.created_at,
+  //   status: item.status,
+  //   roles: item.list_user_role.map((item) => item.list_role.name),
+  // }));
+
+  const records = [];
 
   const handleDeleteAccount = (id) => {
     modals.open({
@@ -120,6 +124,9 @@ function TabBankAccounts() {
           onPageChange={handlePageChange}
           recordsPerPageOptions={[10, 20, 50]}
           onRecordsPerPageChange={handleLimitChange}
+          noRecordsText={
+            error ? `Error: ${error?.message}` : 'No records found'
+          }
           records={records}
           columns={[]}
         />
@@ -142,14 +149,12 @@ function TabCategories() {
   );
 
   const records = data?.response?.data.map((item) => ({
-    employee_id: item.employee_id,
-    email: item.email,
-    first_name: item.first_name,
-    last_name: item.last_name,
-    phone_number: item.phone_number,
-    created_at: item.created_at,
+    id: item.id,
+    name: item.name,
+    description: item.description,
     status: item.status,
-    roles: item.list_user_role.map((item) => item.list_role.name),
+    updated_at: item.created_at,
+    created_at: item.created_at,
   }));
 
   const handleDeleteAccount = (id) => {
@@ -224,7 +229,30 @@ function TabCategories() {
           noRecordsText={
             error ? `Error: ${error?.message}` : 'No records found'
           }
-          columns={[]}
+          columns={[
+            { accessor: 'name' },
+            { accessor: 'description' },
+            {
+              accessor: 'status',
+              render: ({ status }) => (
+                <Badge radius="sm" color={status ? 'green' : 'red'}>
+                  {status ? 'Active' : 'Inactive'}
+                </Badge>
+              ),
+            },
+            {
+              accessor: 'updated_at',
+              render: ({ updated_at }) => (
+                <Text>{moment(updated_at).format('YYYY-MM-DD HH:mm')}</Text>
+              ),
+            },
+            {
+              accessor: 'created_at',
+              render: ({ created_at }) => (
+                <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
+              ),
+            },
+          ]}
         />
       </Card>
     </>
@@ -237,11 +265,13 @@ function TabSubCategories() {
     1,
     10
   );
-  const { data, isLoading } = useQuery(['sub-categories', page, limit], () =>
-    useGetSubCategories({
-      limit,
-      page,
-    })
+  const { data, isLoading, error } = useQuery(
+    ['sub-categories', page, limit],
+    () =>
+      useGetSubCategories({
+        limit,
+        page,
+      })
   );
 
   const records = data?.response?.data.map((item) => ({
@@ -289,8 +319,6 @@ function TabSubCategories() {
     });
   };
 
-  console.log(records);
-
   return (
     <>
       <Group justify="space-between" my="lg">
@@ -323,6 +351,9 @@ function TabSubCategories() {
           onPageChange={handlePageChange}
           recordsPerPageOptions={[10, 20, 50]}
           onRecordsPerPageChange={handleLimitChange}
+          noRecordsText={
+            error ? `Error: ${error?.message}` : 'No records found'
+          }
           records={records}
           columns={[
             { accessor: 'name' },

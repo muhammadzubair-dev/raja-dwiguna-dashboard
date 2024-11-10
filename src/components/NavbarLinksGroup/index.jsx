@@ -30,9 +30,6 @@ export function LinksGroup({
       key={link.label}
       onClick={(event) => {
         event.preventDefault();
-        if (link.label === 'Logout') {
-          localStorage.removeItem('token');
-        }
         navigate(link.link);
       }}
     >
@@ -43,7 +40,20 @@ export function LinksGroup({
   return (
     <>
       <UnstyledButton
-        onClick={hasLinks ? () => setOpened((o) => !o) : () => navigate(toLink)}
+        onClick={
+          hasLinks
+            ? () => setOpened((o) => !o)
+            : () => {
+                if (label === 'Logout') {
+                  localStorage.removeItem('token');
+                  setTimeout(() => {
+                    window.location.replace('/');
+                  }, 500);
+                } else {
+                  navigate(toLink);
+                }
+              }
+        }
         className={classes.control}
       >
         <Group justify="space-between" gap={0}>
