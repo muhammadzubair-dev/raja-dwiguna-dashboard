@@ -7,14 +7,14 @@ import {
   Input,
   Tabs,
   Text,
-  Title
+  Title,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {
   IconDownload,
   IconFilter,
   IconPlus,
-  IconSearch
+  IconSearch,
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
@@ -22,6 +22,7 @@ import React from 'react';
 import { useQuery } from 'react-query';
 import {
   useGetAccountBank,
+  useGetCategories,
   useGetSubCategories,
   useGetTransactions,
 } from '../../helpers/apiHelper';
@@ -354,27 +355,6 @@ function TabSubCategories() {
 }
 
 function Settings() {
-  const [opened, { open, close }] = useDisclosure(false);
-  const { page, limit, handlePageChange, handleLimitChange } = usePagination(
-    1,
-    10
-  );
-  const { data, isLoading, refetch } = useQuery(['roles', page, limit], () =>
-    useGetTransactions({
-      limit,
-      page,
-    })
-  );
-
-  const records = data?.response?.data.map((item) => ({
-    id: item.id,
-    name: item.name,
-    status: item.status,
-    updated_at: item.updated_at,
-    created_at: item.created_at,
-    // roles: item.list_user_role.map((item) => item.list_role.name),
-  }));
-
   return (
     <Container size="xl" flex={1} p="xl">
       <Title order={3}>Settings</Title>
