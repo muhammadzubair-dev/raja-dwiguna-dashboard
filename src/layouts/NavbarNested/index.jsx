@@ -9,6 +9,9 @@ import {
   IconLock,
   IconDashboard,
   IconUsers,
+  IconLogout2,
+  IconTransactionDollar,
+  IconCashRegister,
 } from '@tabler/icons-react';
 import UserButton from '../../components/UserButton';
 import LinksGroup from '../../components/NavbarLinksGroup';
@@ -19,6 +22,16 @@ import logoImage from '../../assets/logo.png';
 const mockdata = [
   { label: 'Dashboard', icon: IconDashboard, toLink: '/' },
   {
+    label: 'Finance',
+    icon: IconCashRegister,
+    initiallyOpened: true,
+    links: [
+      { label: 'Transactions', link: '/transactions' },
+      { label: 'Reports', link: '/reports' },
+      { label: 'Settings', link: '/settings' },
+    ],
+  },
+  {
     label: 'Users',
     icon: IconUsers,
     initiallyOpened: true,
@@ -28,6 +41,7 @@ const mockdata = [
       { label: 'Log Activities', link: '/log-activities' },
     ],
   },
+  { label: 'Logout', icon: IconLogout2, toLink: '/login' },
 ];
 
 function NavbarNested() {

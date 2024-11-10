@@ -8,6 +8,8 @@ import NavbarNested from './layouts/NavbarNested';
 import RequireAuth from './layouts/RequireAuth';
 import Roles from './pages/Roles';
 import LogActivities from './pages/LogActivities';
+import MasterCategories from './pages/Settings';
+import Settings from './pages/Settings';
 
 const router = createBrowserRouter([
   {
@@ -25,6 +27,10 @@ const router = createBrowserRouter([
       {
         path: '/transactions',
         element: <Transactions />,
+      },
+      {
+        path: '/settings',
+        element: <Settings />,
       },
       {
         path: '/users',

@@ -13,8 +13,8 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const data = [
   { link: '/', label: 'Dashboard', icon: IconDashboard },
-  { link: '/transactions', label: 'Transactions', icon: IconCashRegister },
   { link: '/users', label: 'Users', icon: IconUsers },
+  { link: '/transactions', label: 'Transactions', icon: IconCashRegister },
 ];
 
 function NavbarColored() {

@@ -30,6 +30,9 @@ export function LinksGroup({
       key={link.label}
       onClick={(event) => {
         event.preventDefault();
+        if (link.label === 'Logout') {
+          localStorage.removeItem('token');
+        }
         navigate(link.link);
       }}
     >

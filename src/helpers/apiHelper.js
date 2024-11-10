@@ -31,3 +31,19 @@ export const useDeleteRole = async (body) => {
 export const useGetLogActivities = async (query) => {
   return fetchRequest(`/log-activity`, 'GET', { query });
 };
+
+export const useGetTransactions = async (query) => {
+  return fetchRequest(`/finance/transaction`, 'GET', { query });
+};
+
+export const useGetCategories = async (query) => {
+  return fetchRequest(`/finance/settings/category`, 'GET', { query });
+};
+
+export const useGetSubCategories = async (query) => {
+  return fetchRequest(`/finance/settings/category/sub`, 'GET', { query });
+};
+
+export const useGetAccountBank = async (query) => {
+  return fetchRequest(`/finance/settings/account`, 'GET', { query });
+};
