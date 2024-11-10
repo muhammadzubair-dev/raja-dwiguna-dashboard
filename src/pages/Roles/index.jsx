@@ -105,8 +105,8 @@ function DeleteRole({ id, name, refetchRoles }) {
   return (
     <>
       <Text size="sm">
-        Are you sure you want to delete Role with {name} ? This action is
-        destructive and you will have to contact support to restore your data.
+        Are you sure you want to delete role {name} ? This action is destructive
+        and you will have to contact support to restore your data.
       </Text>
       <Group justify="flex-end" mt="xl">
         <Button
