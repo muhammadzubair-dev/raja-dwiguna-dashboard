@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { usePostLogin } from '../../helpers/apiHelper';
 import classes from './index.module.css';
 import ErrorMessage from '../../components/ErrorMessage';
+import { useEffect } from 'react';
 
 function Login() {
   const navigate = useNavigate();
@@ -44,6 +45,13 @@ function Login() {
 
     mutate(credentials);
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/'); // Redirect to home if a token is present
+    }
+  }, [navigate]);
 
   return (
     <Container size={420} my={40} pt={100}>
