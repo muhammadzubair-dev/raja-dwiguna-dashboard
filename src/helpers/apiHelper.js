@@ -19,3 +19,11 @@ export const useGetRoles = async (query) => {
 export const usePutRole = async (body) => {
   return fetchRequest(`/role`, 'PUT', { body });
 };
+
+export const usePostRole = async (body) => {
+  return fetchRequest(`/role`, 'POST', { body });
+};
+
+export const useDeleteRole = async (body) => {
+  return fetchRequest(`/role`, 'DELETE', { body });
+};

@@ -10,6 +10,7 @@ import {
   Group,
   Input,
   Radio,
+  Select,
   Tabs,
   Text,
   TextInput,
@@ -31,9 +32,11 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import {
+  useDeleteRole,
   useGetRoles,
   useGetUsers,
   usePostChangeAccountStatus,
+  usePostRole,
   usePutRole,
 } from '../../helpers/apiHelper';
 import usePagination from '../../helpers/usePagination';
@@ -41,17 +44,22 @@ import { modals } from '@mantine/modals';
 import ErrorMessage from '../../components/ErrorMessage';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 
-function EditRole({ id, role }) {
-  const [value, setValue] = useState(role);
-  const { mutate, isLoading, error } = useMutation(usePutRole, {
-    onSuccess: () => {
-      modals.closeAll();
-      notificationSuccess('Role updated successfully');
-    },
-  });
+function AddAndEditRole({ id, role, refetchRoles }) {
+  const isAdd = id && role ? false : true;
+  const [value, setValue] = useState(role || '');
+  const { mutate, isLoading, error } = useMutation(
+    isAdd ? usePostRole : usePutRole,
+    {
+      onSuccess: () => {
+        refetchRoles();
+        modals.closeAll();
+        notificationSuccess(`Role ${isAdd ? 'added' : 'updated'} successfully`);
+      },
+    }
+  );
 
   const handleSave = () => {
-    mutate({ id, name: value });
+    mutate({ name: value, ...(!isAdd && { id }) });
   };
 
   return (
@@ -70,8 +78,46 @@ function EditRole({ id, role }) {
         >
           Cancel
         </Button>
-        <Button onClick={handleSave} isLoading={isLoading}>
+        <Button onClick={handleSave} loading={isLoading}>
           Save
+        </Button>
+      </Group>
+      {error && (
+        <Flex justify="flex-end">
+          <ErrorMessage message={error?.message} />
+        </Flex>
+      )}
+    </>
+  );
+}
+
+function DeleteRole({ id, name, refetchRoles }) {
+  const { mutate, isLoading, error } = useMutation(useDeleteRole, {
+    onSuccess: () => {
+      refetchRoles();
+      modals.closeAll();
+      notificationSuccess(`Role deleted successfully`);
+    },
+  });
+
+  const handleDelete = () => mutate({ id });
+
+  return (
+    <>
+      <Text size="sm">
+        Are you sure you want to delete Role with {name} ? This action is
+        destructive and you will have to contact support to restore your data.
+      </Text>
+      <Group justify="flex-end" mt="xl">
+        <Button
+          variant="outline"
+          color="gray"
+          onClick={() => modals.closeAll()}
+        >
+          No don't delete it
+        </Button>
+        <Button color="red" loading={isLoading} onClick={handleDelete}>
+          Delete account
         </Button>
       </Group>
       {error && (
@@ -88,7 +134,7 @@ function Roles() {
     1,
     10
   );
-  const { data, isLoading } = useQuery(['roles', page, limit], () =>
+  const { data, isLoading, refetch } = useQuery(['roles', page, limit], () =>
     useGetRoles({
       limit,
       page,
@@ -104,31 +150,11 @@ function Roles() {
     // roles: item.list_user_role.map((item) => item.list_role.name),
   }));
 
-  const handleDeleteAccount = (id) => {
+  const handleDeleteRole = (id, name) => {
     modals.open({
       title: 'Delete Account',
       centered: true,
-      children: (
-        <>
-          <Text size="sm">
-            Are you sure you want to delete Account with id {id} ? This action
-            is destructive and you will have to contact support to restore your
-            data.
-          </Text>
-          <Group justify="flex-end" mt="xl">
-            <Button
-              variant="outline"
-              color="gray"
-              onClick={() => modals.closeAll()}
-            >
-              No don't delete it
-            </Button>
-            <Button color="red" onClick={() => modals.closeAll()}>
-              Delete account
-            </Button>
-          </Group>
-        </>
-      ),
+      children: <DeleteRole id={id} name={name} refetchRoles={refetch} />,
     });
   };
 
@@ -136,7 +162,15 @@ function Roles() {
     modals.open({
       title: 'Edit Role',
       centered: true,
-      children: <EditRole id={id} role={role} />,
+      children: <AddAndEditRole id={id} role={role} refetchRoles={refetch} />,
+    });
+  };
+
+  const handleAddRole = () => {
+    modals.open({
+      title: 'Add Role',
+      centered: true,
+      children: <AddAndEditRole refetchRoles={refetch} />,
     });
   };
 
@@ -148,15 +182,20 @@ function Roles() {
       </Text>
 
       <Group justify="space-between" my="lg">
-        <Input
-          placeholder="Search Role"
-          leftSection={<IconSearch size={16} />}
-        />
+        <Flex gap="sm">
+          <Input
+            placeholder="Search Role"
+            leftSection={<IconSearch size={16} />}
+          />
+          <Select placeholder="Select Status" data={['Active', 'Inactive']} />
+        </Flex>
         <Group justify="center">
           <Button leftSection={<IconDownload size={14} />} variant="default">
             Download
           </Button>
-          <Button leftSection={<IconPlus size={18} />}>Role</Button>
+          <Button onClick={handleAddRole} leftSection={<IconPlus size={18} />}>
+            Role
+          </Button>
         </Group>
       </Group>
       <Card withBorder p="lg" pt="0" radius="sm">
@@ -215,7 +254,7 @@ function Roles() {
                       size="sm"
                       variant="subtle"
                       color="red"
-                      onClick={() => handleDeleteAccount(employee_id)}
+                      onClick={() => handleDeleteRole(id, name)}
                     >
                       <IconTrash size={16} />
                     </ActionIcon>

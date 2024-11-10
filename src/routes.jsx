@@ -7,6 +7,7 @@ import Transactions from './pages/Transactions';
 import NavbarNested from './layouts/NavbarNested';
 import RequireAuth from './layouts/RequireAuth';
 import Roles from './pages/Roles';
+import LogActivities from './pages/LogActivities';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
       {
         path: '/roles',
         element: <Roles />,
+      },
+      {
+        path: '/log-activities',
+        element: <LogActivities />,
       },
     ],
   },

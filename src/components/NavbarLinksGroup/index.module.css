@@ -13,6 +13,7 @@
 }
 
 .link {
+  cursor: pointer;
   font-weight: 500;
   display: block;
   text-decoration: none;

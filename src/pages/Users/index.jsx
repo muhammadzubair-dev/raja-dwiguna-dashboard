@@ -73,7 +73,7 @@ function ChangeAccountStatus({ id, status, email }) {
         >
           Cancel
         </Button>
-        <Button onClick={handleSave} isLoading={isLoading}>
+        <Button onClick={handleSave} loading={isLoading}>
           Save
         </Button>
       </Group>
