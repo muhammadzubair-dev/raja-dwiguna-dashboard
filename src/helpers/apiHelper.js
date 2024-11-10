@@ -47,3 +47,11 @@ export const useGetSubCategories = async (query) => {
 export const useGetAccountBank = async (query) => {
   return fetchRequest(`/finance/settings/account`, 'GET', { query });
 };
+
+export const usePostAccountBank = async (body) => {
+  return fetchRequest(`/finance/settings/account`, 'POST', { body });
+};
+
+export const usePutAccountBank = async (body) => {
+  return fetchRequest(`/finance/settings/account`, 'PUT', { body });
+};
