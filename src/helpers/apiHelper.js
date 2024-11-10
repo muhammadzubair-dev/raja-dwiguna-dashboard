@@ -27,3 +27,7 @@ export const usePostRole = async (body) => {
 export const useDeleteRole = async (body) => {
   return fetchRequest(`/role`, 'DELETE', { body });
 };
+
+export const useGetLogActivities = async (query) => {
+  return fetchRequest(`/log-activity`, 'GET', { query });
+};

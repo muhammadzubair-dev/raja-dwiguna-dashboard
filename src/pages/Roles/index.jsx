@@ -178,7 +178,7 @@ function Roles() {
     <Container size="xl" flex={1} p="xl">
       <Title order={3}>Roles</Title>
       <Text size="sm" mb="xl">
-        Detailed Role Users
+        Detailed Role of Users
       </Text>
 
       <Group justify="space-between" my="lg">
