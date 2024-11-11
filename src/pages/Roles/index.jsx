@@ -134,7 +134,7 @@ function Roles() {
     1,
     10
   );
-  const { data, isLoading, refetch } = useQuery(['roles', page, limit], () =>
+  const { data, isLoading, refetch, error } = useQuery(['roles', page, limit], () =>
     useGetRoles({
       limit,
       page,
@@ -209,6 +209,9 @@ function Roles() {
           onPageChange={handlePageChange}
           recordsPerPageOptions={[10, 20, 50]}
           onRecordsPerPageChange={handleLimitChange}
+          noRecordsText={
+            error ? `Error: ${error?.message}` : 'No records found'
+          }
           records={records}
           columns={[
             { accessor: 'id', hidden: true },

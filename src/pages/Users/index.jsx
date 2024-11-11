@@ -36,11 +36,14 @@ import {
 import usePagination from '../../helpers/usePagination';
 import { modals } from '@mantine/modals';
 import ErrorMessage from '../../components/ErrorMessage';
+import { notificationSuccess } from '../../helpers/notificationHelper';
 
-function ChangeAccountStatus({ id, status, email }) {
+function ChangeAccountStatus({ id, status, email, refetchUsers }) {
   const [value, setValue] = useState(status);
   const { mutate, isLoading, error } = useMutation(usePostChangeAccountStatus, {
-    onSuccess: (data) => {
+    onSuccess: () => {
+      refetchUsers();
+      notificationSuccess('Account status changed successfully');
       modals.closeAll();
     },
   });
@@ -92,12 +95,14 @@ function TabContent({ isAccount }) {
     1,
     10
   );
-  const { data, isLoading } = useQuery(['users', page, limit, isAccount], () =>
-    useGetUsers({
-      limit,
-      page,
-      is_account: isAccount,
-    })
+  const { data, isLoading, error, refetch } = useQuery(
+    ['users', page, limit, isAccount],
+    () =>
+      useGetUsers({
+        limit,
+        page,
+        is_account: isAccount,
+      })
   );
 
   const records = data?.response?.data.map((item) => ({
@@ -143,7 +148,14 @@ function TabContent({ isAccount }) {
     modals.open({
       title: 'Change Status',
       centered: true,
-      children: <ChangeAccountStatus id={id} status={status} email={email} />,
+      children: (
+        <ChangeAccountStatus
+          id={id}
+          status={status}
+          email={email}
+          refetchUsers={refetch}
+        />
+      ),
     });
   };
 
@@ -179,6 +191,9 @@ function TabContent({ isAccount }) {
           onPageChange={handlePageChange}
           recordsPerPageOptions={[10, 20, 50]}
           onRecordsPerPageChange={handleLimitChange}
+          noRecordsText={
+            error ? `Error: ${error?.message}` : 'No records found'
+          }
           records={records}
           columns={[
             { accessor: 'employee_id', hidden: true },

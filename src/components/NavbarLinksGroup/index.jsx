@@ -1,16 +1,23 @@
-import { useState } from 'react';
 import {
-  Group,
   Box,
   Collapse,
-  ThemeIcon,
+  Group,
   Text,
+  ThemeIcon,
   UnstyledButton,
   rem,
 } from '@mantine/core';
-import { IconCalendarStats, IconChevronRight } from '@tabler/icons-react';
+import { IconChevronRight } from '@tabler/icons-react';
+import { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import classes from './index.module.css';
-import { useNavigate } from 'react-router-dom';
+
+const activeStyles = {
+  backgroundColor: 'var(--mantine-color-blue-0)',
+  color: 'var(--mantine-color-blue-7)',
+  fontWeight: 700,
+  borderRight: '4px solid var(--mantine-color-blue-7)',
+};
 
 export function LinksGroup({
   icon: Icon,
@@ -20,8 +27,24 @@ export function LinksGroup({
   toLink,
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const hasLinks = Array.isArray(links);
   const [opened, setOpened] = useState(initiallyOpened || false);
+
+  const handleClick = () => {
+    if (hasLinks) {
+      setOpened((prev) => !prev);
+    } else {
+      if (label === 'Logout') {
+        localStorage.removeItem('token');
+        setTimeout(() => {
+          window.location.replace('/');
+        }, 500);
+      } else {
+        navigate(toLink);
+      }
+    }
+  };
 
   const items = (hasLinks ? links : []).map((link) => (
     <Text
@@ -32,6 +55,9 @@ export function LinksGroup({
         event.preventDefault();
         navigate(link.link);
       }}
+      style={{
+        ...(location.pathname === link.link && activeStyles),
+      }}
     >
       {link.label}
     </Text>
@@ -40,21 +66,11 @@ export function LinksGroup({
   return (
     <>
       <UnstyledButton
-        onClick={
-          hasLinks
-            ? () => setOpened((o) => !o)
-            : () => {
-                if (label === 'Logout') {
-                  localStorage.removeItem('token');
-                  setTimeout(() => {
-                    window.location.replace('/');
-                  }, 500);
-                } else {
-                  navigate(toLink);
-                }
-              }
-        }
+        onClick={handleClick}
         className={classes.control}
+        style={{
+          ...(location.pathname === toLink && activeStyles),
+        }}
       >
         <Group justify="space-between" gap={0}>
           <Box style={{ display: 'flex', alignItems: 'center' }}>

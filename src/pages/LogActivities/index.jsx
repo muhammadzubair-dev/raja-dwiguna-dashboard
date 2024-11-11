@@ -30,7 +30,7 @@ function LogActivities() {
     1,
     10
   );
-  const { data, isLoading, refetch } = useQuery(['roles', page, limit], () =>
+  const { data, isLoading, refetch, error } = useQuery(['roles', page, limit], () =>
     useGetLogActivities({
       limit,
       page,
@@ -79,6 +79,9 @@ function LogActivities() {
           onPageChange={handlePageChange}
           recordsPerPageOptions={[10, 20, 50]}
           onRecordsPerPageChange={handleLimitChange}
+          noRecordsText={
+            error ? `Error: ${error?.message}` : 'No records found'
+          }
           records={records}
           columns={[
             { accessor: 'id', hidden: true },

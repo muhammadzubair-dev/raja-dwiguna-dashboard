@@ -24,7 +24,7 @@ const mockdata = [
   {
     label: 'Finance',
     icon: IconCashRegister,
-    initiallyOpened: true,
+    initiallyOpened: false,
     links: [
       { label: 'Transactions', link: '/transactions' },
       { label: 'Reports', link: '/reports' },
@@ -34,7 +34,7 @@ const mockdata = [
   {
     label: 'Users',
     icon: IconUsers,
-    initiallyOpened: true,
+    initiallyOpened: false,
     links: [
       { label: 'Accounts', link: '/users' },
       { label: 'Roles', link: '/roles' },

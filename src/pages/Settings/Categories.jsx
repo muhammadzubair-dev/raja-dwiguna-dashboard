@@ -257,10 +257,10 @@ function Categories() {
           onPageChange={handlePageChange}
           recordsPerPageOptions={[10, 20, 50]}
           onRecordsPerPageChange={handleLimitChange}
-          records={records}
           noRecordsText={
             error ? `Error: ${error?.message}` : 'No records found'
           }
+          records={records}
           columns={[
             {
               accessor: 'is_income',

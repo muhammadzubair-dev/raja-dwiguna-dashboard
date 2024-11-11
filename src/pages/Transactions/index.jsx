@@ -210,7 +210,7 @@ function Transactions() {
     1,
     10
   );
-  const { data, isLoading, refetch } = useQuery(
+  const { data, isLoading, refetch, error } = useQuery(
     ['transactions', page, limit],
     () =>
       useGetTransactions({
@@ -290,6 +290,9 @@ function Transactions() {
           onPageChange={handlePageChange}
           recordsPerPageOptions={[10, 20, 50]}
           onRecordsPerPageChange={handleLimitChange}
+          noRecordsText={
+            error ? `Error: ${error?.message}` : 'No records found'
+          }
           records={records}
           columns={[
             { accessor: 'id', hidden: true },

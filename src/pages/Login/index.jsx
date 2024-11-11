@@ -32,7 +32,7 @@ function Login() {
     mode: 'uncontrolled',
     initialValues: { username: '', password: '' },
     validate: {
-      username: hasLength({ min: 3 }, 'Must be at least 3 characters'),
+      username: hasLength({ min: 1 }, 'Must be at least 3 characters'),
       password: hasLength({ min: 3 }, 'Must be at least 3 characters'),
     },
   });
