@@ -40,6 +40,10 @@ export const useGetCategories = async (query) => {
   return fetchRequest(`/finance/settings/category`, 'GET', { query });
 };
 
+export const useGetOptionCategories = async () => {
+  return fetchRequest(`/options/transaction-category`, 'GET');
+};
+
 export const usePostCategory = async (body) => {
   return fetchRequest(`/finance/settings/category`, 'POST', { body });
 };
@@ -54,6 +58,18 @@ export const useDeleteCategory = async (body) => {
 
 export const useGetSubCategories = async (query) => {
   return fetchRequest(`/finance/settings/category/sub`, 'GET', { query });
+};
+
+export const usePostSubCategory = async (body) => {
+  return fetchRequest(`/finance/settings/category/sub`, 'POST', { body });
+};
+
+export const usePutSubCategory = async (body) => {
+  return fetchRequest(`/finance/settings/category/sub`, 'PUT', { body });
+};
+
+export const useDeleteSubCategory = async (body) => {
+  return fetchRequest(`/finance/settings/category/sub`, 'DELETE', { body });
 };
 
 export const useGetAccountBank = async (query) => {

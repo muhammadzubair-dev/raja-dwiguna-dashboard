@@ -84,7 +84,7 @@ function AddAndEditCategory({ data, refetchCategories }) {
       <Stack gap="xs">
         <TextInput
           withAsterisk
-          label="Account Name"
+          label="Category Name"
           key={form.key('name')}
           {...form.getInputProps('name')}
         />
