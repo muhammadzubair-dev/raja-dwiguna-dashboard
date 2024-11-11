@@ -69,7 +69,6 @@ function AddAndEditCategory({ data, refetchCategories }) {
   );
 
   const handleSave = (values) => {
-    console.log(values);
     const body = {
       ...values,
       is_income: values?.is_income === 'true' ? true : false,
@@ -182,6 +181,7 @@ function Categories() {
 
   const records = data?.response?.data.map((item) => ({
     id: item.id,
+    is_income: item.is_income,
     name: item.name,
     description: item.description,
     status: item.status,
@@ -264,7 +264,7 @@ function Categories() {
           columns={[
             {
               accessor: 'is_income',
-              title: 'Type',
+              title: '',
               render: ({ is_income }) => (
                 <Badge
                   variant="outline"
@@ -299,7 +299,7 @@ function Categories() {
             },
             {
               accessor: 'actions',
-              title: <Box mr={6}></Box>,
+              title: '',
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">

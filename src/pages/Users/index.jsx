@@ -214,7 +214,7 @@ function TabContent({ isAccount }) {
             },
             {
               accessor: 'actions',
-              title: <Box mr={6}></Box>,
+              title: '',
               textAlign: 'right',
               render: ({ employee_id, status, email }) => (
                 <Group gap={4} justify="right" wrap="nowrap">

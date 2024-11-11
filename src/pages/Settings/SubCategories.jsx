@@ -42,7 +42,7 @@ import usePagination from '../../helpers/usePagination';
 function AddAndEditSubCategory({ data, refetchSubCategories }) {
   const isAdd = data ? false : true;
   const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
-    ['sub-categories'],
+    ['categories'],
     () => useGetOptionCategories()
   );
 
@@ -294,7 +294,7 @@ function SubCategories() {
             },
             {
               accessor: 'actions',
-              title: <Box mr={6}></Box>,
+              title: '',
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">

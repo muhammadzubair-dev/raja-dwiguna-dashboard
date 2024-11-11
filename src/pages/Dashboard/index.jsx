@@ -145,7 +145,6 @@ function Dashboard() {
             </Text>
             <DataTable
               verticalSpacing="md"
-              with
               records={[
                 {
                   id: '1323addd-a4ac-4dd2-8de2-6f934969a0f1',
@@ -221,7 +220,6 @@ function Dashboard() {
               <Tabs.Panel value="top-incoming">
                 <DataTable
                   verticalSpacing="md"
-                  with
                   records={[
                     {
                       id: '1323addd-a4ac-4dd2-8de2-6f934969a0f1',

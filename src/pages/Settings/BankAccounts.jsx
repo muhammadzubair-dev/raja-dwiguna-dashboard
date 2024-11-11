@@ -256,7 +256,7 @@ function BankAccounts() {
             },
             {
               accessor: 'actions',
-              title: <Box mr={6}></Box>,
+              title: '',
               textAlign: 'right',
               render: (data) => (
                 <Tooltip label="Edit Account Bank">

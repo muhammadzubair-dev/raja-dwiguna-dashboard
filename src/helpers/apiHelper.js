@@ -36,12 +36,16 @@ export const useGetTransactions = async (query) => {
   return fetchRequest(`/finance/transaction`, 'GET', { query });
 };
 
-export const useGetCategories = async (query) => {
-  return fetchRequest(`/finance/settings/category`, 'GET', { query });
+export const usePostTransaction = async (body) => {
+  return fetchRequest(`/finance/transaction`, 'POST', { body });
 };
 
-export const useGetOptionCategories = async () => {
-  return fetchRequest(`/options/transaction-category`, 'GET');
+export const usePutTransaction = async (body) => {
+  return fetchRequest(`/finance/transaction`, 'PUT', { body });
+};
+
+export const useGetCategories = async (query) => {
+  return fetchRequest(`/finance/settings/category`, 'GET', { query });
 };
 
 export const usePostCategory = async (body) => {
@@ -82,4 +86,12 @@ export const usePostAccountBank = async (body) => {
 
 export const usePutAccountBank = async (body) => {
   return fetchRequest(`/finance/settings/account`, 'PUT', { body });
+};
+
+export const useGetOptionCategories = async () => {
+  return fetchRequest(`/options/transaction-category`, 'GET');
+};
+
+export const useGetOptionAccounts = async () => {
+  return fetchRequest(`/options/account`, 'GET');
 };

@@ -235,7 +235,7 @@ function Roles() {
             },
             {
               accessor: 'actions',
-              title: <Box mr={6}></Box>,
+              title: '',
               textAlign: 'right',
               render: ({ id, name }) => (
                 <Group gap={4} justify="right" wrap="nowrap">
