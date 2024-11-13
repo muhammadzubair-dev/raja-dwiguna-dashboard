@@ -21,10 +21,11 @@ const activeStylesLight = {
 };
 
 const activeStylesDark = {
-  backgroundColor: 'var(--mantine-color-blue-7)',
+  backgroundColor:
+    'light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-8)',
   color: 'var(--mantine-color-white)',
   fontWeight: 700,
-  borderRight: '4px solid var(--mantine-color-white)',
+  borderRight: '4px solid var(--mantine-color-blue-7)',
 };
 
 export function LinksGroup({
@@ -86,7 +87,7 @@ export function LinksGroup({
       >
         <Group justify="space-between" gap={0}>
           <Box style={{ display: 'flex', alignItems: 'center' }}>
-            <ThemeIcon variant="light" size={30}>
+            <ThemeIcon variant={computedColorScheme} size={30}>
               <Icon style={{ width: rem(18), height: rem(18) }} />
             </ThemeIcon>
             <Box ml="md">{label}</Box>

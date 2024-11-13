@@ -56,7 +56,7 @@ function Header() {
           <Text size="sm">{header.subtitle}</Text>
         </Box>
         <ActionIcon onClick={toggleColorScheme}>
-          {computedColorScheme === 'dark' ? (
+          {computedColorScheme === 'light' ? (
             <IconSun style={{ width: '70%', height: '70%' }} />
           ) : (
             <IconMoon style={{ width: '70%', height: '70%' }} />
