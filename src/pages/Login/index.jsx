@@ -1,5 +1,6 @@
 import {
   Anchor,
+  Box,
   Button,
   Checkbox,
   Container,
@@ -9,12 +10,13 @@ import {
   PasswordInput,
   Text,
   TextInput,
+  Title,
 } from '@mantine/core';
 import { hasLength, useForm } from '@mantine/form';
 import { useEffect } from 'react';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
-import logoImage from '../../assets/logo-rds.png';
+import logoImage from '../../assets/logo.png';
 import ErrorMessage from '../../components/ErrorMessage';
 import { usePostLogin } from '../../helpers/apiHelper';
 
@@ -55,13 +57,18 @@ function Login() {
 
   return (
     <Container size={420} my={40} pt={100}>
-      <Flex justify="center">
-        <img height={100} src={logoImage} alt="logo" />
-      </Flex>
-
       <form onSubmit={form.onSubmit(handleLogin)}>
         <Paper withBorder shadow="md" p={30} mt={20} radius="md">
-          <Text c="dimmed" size="sm" ta="center" mb="md">
+          <Flex justify="center" align="center" gap="md">
+            <img height={100} src={logoImage} alt="logo" />
+            <Box>
+              <Title order={2} mb={-10}>
+                Raja Dwiguna
+              </Title>
+              <Title order={2}>Semesta</Title>
+            </Box>
+          </Flex>
+          <Text c="dimmed" size="sm" ta="center" my="md">
             Do not have an account yet?{' '}
             <Anchor size="sm" component="button">
               Create account
