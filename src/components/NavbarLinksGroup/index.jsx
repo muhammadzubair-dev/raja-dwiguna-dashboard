@@ -12,6 +12,7 @@ import { IconChevronRight } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import classes from './index.module.css';
+import { modals } from '@mantine/modals';
 
 const activeStylesLight = {
   backgroundColor: 'var(--mantine-color-blue-0)',
@@ -44,15 +45,28 @@ export function LinksGroup({
   const activeStyles =
     computedColorScheme === 'dark' ? activeStylesDark : activeStylesLight;
 
+  const handleLogout = () =>
+    modals.openConfirmModal({
+      title: 'Logout',
+      centered: true,
+      children: <Text size="sm">Are you sure you want to Logout ?</Text>,
+      labels: { confirm: 'Logout', cancel: "No don't Logout" },
+      confirmProps: { color: 'red' },
+      onCancel: () => modals.closeAll(),
+      onConfirm: () => {
+        localStorage.removeItem('token');
+        setTimeout(() => {
+          window.location.replace('/');
+        }, 500);
+      },
+    });
+
   const handleClick = () => {
     if (hasLinks) {
       setOpened((prev) => !prev);
     } else {
       if (label === 'Logout') {
-        localStorage.removeItem('token');
-        setTimeout(() => {
-          window.location.replace('/');
-        }, 500);
+        handleLogout();
       } else {
         navigate(toLink);
       }

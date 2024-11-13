@@ -153,7 +153,7 @@ function Dashboard() {
                 // },
               ]}
             />
-            <Button variant="outline" color="black" mt="lg" w={200}>
+            <Button variant="outline" mt="lg" w={200}>
               See all Transactions
             </Button>
           </Card>
