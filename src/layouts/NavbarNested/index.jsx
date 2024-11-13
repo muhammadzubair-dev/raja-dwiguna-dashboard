@@ -32,6 +32,7 @@ import classes from './index.module.css';
 import { Outlet } from 'react-router-dom';
 import logoImage from '../../assets/logo.png';
 import Header from '../Header';
+import { useState } from 'react';
 
 const mockdata = [
   { label: 'Dashboard', icon: IconDashboard, toLink: '/' },
@@ -59,15 +60,24 @@ const mockdata = [
 ];
 
 function NavbarNested() {
-  const { setColorScheme } = useMantineColorScheme();
-  const computedColorScheme = useComputedColorScheme('light');
+  const [stateCollapse, setStateCollapse] = useState(mockdata);
 
-  const toggleColorScheme = () => {
-    setColorScheme(computedColorScheme === 'dark' ? 'light' : 'dark');
+  const handleCollapse = (label) => {
+    setStateCollapse((prev) =>
+      prev.map((item) => {
+        if (item.label === label) {
+          // Toggle the clicked section's `initiallyOpened` state
+          return { ...item, initiallyOpened: !item.initiallyOpened };
+        } else {
+          // Collapse all other sections
+          return { ...item, initiallyOpened: false };
+        }
+      })
+    );
   };
 
-  const links = mockdata.map((item) => (
-    <LinksGroup {...item} key={item.label} />
+  const links = stateCollapse.map((item) => (
+    <LinksGroup {...item} key={item.label} onCollapse={handleCollapse} />
   ));
 
   return (

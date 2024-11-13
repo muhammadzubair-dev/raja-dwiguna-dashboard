@@ -88,10 +88,20 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
     })
   );
 
-  const recordsCategory = optionCategories?.response.map(({ id, name }) => ({
-    value: id,
-    label: name,
-  }));
+  const recordsCategory = [
+    {
+      group: 'Income',
+      items: (optionCategories?.response || [])
+        .filter((category) => category.is_income === true)
+        .map(({ id, name }) => ({ value: id, label: name })),
+    },
+    {
+      group: 'Outcome',
+      items: (optionCategories?.response || [])
+        .filter((category) => category.is_income === false)
+        .map(({ id, name }) => ({ value: id, label: name })),
+    },
+  ];
 
   const findSubCategory = optionCategories?.response.find(
     ({ id }) => id === form.values?.category_id
@@ -152,8 +162,14 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
         />
         <Select
           withAsterisk
-          disabled={isLoadingCategories}
-          placeholder={isLoadingCategories ? 'Loading...' : ''}
+          disabled={isLoadingCategories || recordsSubCategory?.length === 0}
+          placeholder={
+            isLoadingCategories
+              ? 'Loading...'
+              : recordsSubCategory?.length === 0
+              ? 'No Sub Category, Please select another Category'
+              : ''
+          }
           label="Sub Category"
           data={recordsSubCategory}
           searchable
@@ -232,6 +248,7 @@ function Transactions() {
     category_id: item.list_category.id,
     sub_category_id: item.list_sub_category.id,
     reference_number: item.reference_number,
+    created_by: item.created_by,
   }));
 
   const handleEditTransaction = (data) => {
@@ -292,8 +309,15 @@ function Transactions() {
           columns={[
             { accessor: 'id', hidden: true },
             {
+              accessor: 'index',
+              title: 'No',
+              textAlign: 'center',
+              width: 40,
+              render: (record) => records.indexOf(record) + 1,
+            },
+            {
               accessor: 'is_income',
-              title: '',
+              title: 'Type',
               render: ({ is_income }) => (
                 <Badge
                   variant="outline"
@@ -304,6 +328,9 @@ function Transactions() {
                 </Badge>
               ),
             },
+            { accessor: 'bank_name' },
+            { accessor: 'category' },
+            { accessor: 'sub_category' },
             {
               accessor: 'amount',
               render: ({ amount }) => (
@@ -316,10 +343,9 @@ function Transactions() {
                 />
               ),
             },
-            { accessor: 'bank_name' },
-            { accessor: 'category' },
-            { accessor: 'sub_category' },
             { accessor: 'description' },
+            { accessor: 'reference_number' },
+            { accessor: 'created_by' },
             {
               accessor: 'created_at',
               render: ({ created_at }) => (

@@ -35,11 +35,11 @@ export function LinksGroup({
   initiallyOpened,
   links,
   toLink,
+  onCollapse,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
   const hasLinks = Array.isArray(links);
-  const [opened, setOpened] = useState(initiallyOpened || false);
   const computedColorScheme = useComputedColorScheme('light');
 
   const activeStyles =
@@ -63,7 +63,7 @@ export function LinksGroup({
 
   const handleClick = () => {
     if (hasLinks) {
-      setOpened((prev) => !prev);
+      onCollapse(label);
     } else {
       if (label === 'Logout') {
         handleLogout();
@@ -113,13 +113,13 @@ export function LinksGroup({
               style={{
                 width: rem(16),
                 height: rem(16),
-                transform: opened ? 'rotate(-90deg)' : 'none',
+                transform: initiallyOpened ? 'rotate(-90deg)' : 'none',
               }}
             />
           )}
         </Group>
       </UnstyledButton>
-      {hasLinks ? <Collapse in={opened}>{items}</Collapse> : null}
+      {hasLinks ? <Collapse in={initiallyOpened}>{items}</Collapse> : null}
     </>
   );
 }
