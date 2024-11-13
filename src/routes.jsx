@@ -10,6 +10,7 @@ import Roles from './pages/Roles';
 import LogActivities from './pages/LogActivities';
 import MasterCategories from './pages/Settings';
 import Settings from './pages/Settings';
+import Reports from './pages/Reports';
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: '/transactions',
         element: <Transactions />,
+      },
+      {
+        path: '/reports',
+        element: <Reports />,
       },
       {
         path: '/settings',

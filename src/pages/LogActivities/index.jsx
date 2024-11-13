@@ -82,6 +82,13 @@ function LogActivities() {
           records={records}
           columns={[
             { accessor: 'id', hidden: true },
+            {
+              accessor: 'index',
+              title: 'No',
+              textAlign: 'center',
+              width: 40,
+              render: (record) => records.indexOf(record) + 1,
+            },
             { accessor: 'user_id' },
             { accessor: 'action' },
             { accessor: 'activity' },

@@ -263,8 +263,15 @@ function Categories() {
           records={records}
           columns={[
             {
+              accessor: 'index',
+              title: 'No',
+              textAlign: 'center',
+              width: 40,
+              render: (record) => records.indexOf(record) + 1,
+            },
+            {
               accessor: 'is_income',
-              title: '',
+              title: 'Type',
               render: ({ is_income }) => (
                 <Badge
                   variant="outline"

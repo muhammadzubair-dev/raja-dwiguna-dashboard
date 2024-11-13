@@ -193,6 +193,7 @@ function SubCategories() {
   const records = data?.response?.data.map((item) => ({
     id: item.id,
     transaction_category_id: item.list_transaction_category.id,
+    category: item.list_transaction_category.name,
     name: item.name,
     description: item.description,
     status: item.status,
@@ -270,7 +271,15 @@ function SubCategories() {
             error ? `Error: ${error?.message}` : 'No records found'
           }
           columns={[
-            { accessor: 'name', title: 'SubCategory' },
+            {
+              accessor: 'index',
+              title: 'No',
+              textAlign: 'center',
+              width: 40,
+              render: (record) => records.indexOf(record) + 1,
+            },
+            { accessor: 'category' },
+            { accessor: 'name', title: 'Sub Category' },
             { accessor: 'description' },
             {
               accessor: 'status',

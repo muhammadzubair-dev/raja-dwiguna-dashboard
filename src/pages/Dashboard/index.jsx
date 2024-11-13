@@ -143,6 +143,13 @@ function Dashboard() {
                 },
               ]}
               columns={[
+                // {
+                //   accessor: 'index',
+                //   title: 'No',
+                //   textAlign: 'center',
+                //   width: 40,
+                //   render: (record) => records.indexOf(record) + 1,
+                // },
                 { accessor: 'category' },
                 { accessor: 'amount' },
                 { accessor: 'createdAt' },
@@ -214,7 +221,17 @@ function Dashboard() {
                       amount: '-',
                     },
                   ]}
-                  columns={[{ accessor: 'category' }, { accessor: 'amount' }]}
+                  columns={[
+                    // {
+                    //   accessor: 'index',
+                    //   title: 'No',
+                    //   textAlign: 'center',
+                    //   width: 40,
+                    //   render: (record) => records.indexOf(record) + 1,
+                    // },
+                    { accessor: 'category' },
+                    { accessor: 'amount' },
+                  ]}
                 />
               </Tabs.Panel>
 

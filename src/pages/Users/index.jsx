@@ -177,7 +177,7 @@ function TabContent({ isAccount }) {
           <Button leftSection={<IconDownload size={14} />} variant="default">
             Download
           </Button>
-          <Button leftSection={<IconPlus size={18} />}>Accounts</Button>
+          {/* <Button leftSection={<IconPlus size={18} />}>Accounts</Button> */}
         </Group>
       </Group>
       <Card withBorder p="0" radius="sm">
@@ -196,6 +196,13 @@ function TabContent({ isAccount }) {
           }
           records={records}
           columns={[
+            {
+              accessor: 'index',
+              title: 'No',
+              textAlign: 'center',
+              width: 40,
+              render: (record) => records.indexOf(record) + 1,
+            },
             { accessor: 'employee_id', hidden: true },
             { accessor: 'email' },
             { accessor: 'first_name' },

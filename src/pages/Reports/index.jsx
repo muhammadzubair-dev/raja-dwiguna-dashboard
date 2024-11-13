@@ -221,7 +221,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
   );
 }
 
-function Transactions() {
+function Reports() {
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
     10
@@ -280,11 +280,8 @@ function Transactions() {
           <Select placeholder="Select Status" data={['Active', 'Inactive']} />
         </Flex>
         <Group justify="center">
-          <Button
-            onClick={handleAddTransaction}
-            leftSection={<IconPlus size={18} />}
-          >
-            Transaction
+          <Button leftSection={<IconDownload size={14} />} variant="default">
+            Download
           </Button>
         </Group>
       </Group>
@@ -375,4 +372,4 @@ function Transactions() {
   );
 }
 
-export default Transactions;
+export default Reports;

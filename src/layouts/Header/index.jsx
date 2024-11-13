@@ -40,6 +40,11 @@ function Header() {
       path: '/transactions',
     },
     {
+      title: 'Reports',
+      subtitle: 'Detailed Reports of Transactions',
+      path: '/reports',
+    },
+    {
       title: 'Settings',
       subtitle: 'Detailed Settings of Financial Transactions',
       path: '/settings',

@@ -212,6 +212,13 @@ function Roles() {
           records={records}
           columns={[
             { accessor: 'id', hidden: true },
+            {
+              accessor: 'index',
+              title: 'No',
+              textAlign: 'center',
+              width: 40,
+              render: (record) => records.indexOf(record) + 1,
+            },
             { accessor: 'name' },
             {
               accessor: 'status',
