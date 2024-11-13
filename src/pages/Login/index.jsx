@@ -3,20 +3,20 @@ import {
   Button,
   Checkbox,
   Container,
+  Flex,
   Group,
   Paper,
   PasswordInput,
   Text,
   TextInput,
-  Title,
 } from '@mantine/core';
 import { hasLength, useForm } from '@mantine/form';
+import { useEffect } from 'react';
 import { useMutation } from 'react-query';
 import { useNavigate } from 'react-router-dom';
-import { usePostLogin } from '../../helpers/apiHelper';
-import classes from './index.module.css';
+import logoImage from '../../assets/logo-rds.png';
 import ErrorMessage from '../../components/ErrorMessage';
-import { useEffect } from 'react';
+import { usePostLogin } from '../../helpers/apiHelper';
 
 function Login() {
   const navigate = useNavigate();
@@ -49,24 +49,24 @@ function Login() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/'); // Redirect to home if a token is present
+      navigate('/');
     }
   }, [navigate]);
 
   return (
     <Container size={420} my={40} pt={100}>
-      <Title ta="center" className={classes.title}>
-        Login
-      </Title>
-      <Text c="dimmed" size="sm" ta="center" mt={5}>
-        Do not have an account yet?{' '}
-        <Anchor size="sm" component="button">
-          Create account
-        </Anchor>
-      </Text>
+      <Flex justify="center">
+        <img height={100} src={logoImage} alt="logo" />
+      </Flex>
 
       <form onSubmit={form.onSubmit(handleLogin)}>
-        <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+        <Paper withBorder shadow="md" p={30} mt={20} radius="md">
+          <Text c="dimmed" size="sm" ta="center" mb="md">
+            Do not have an account yet?{' '}
+            <Anchor size="sm" component="button">
+              Create account
+            </Anchor>
+          </Text>
           <TextInput
             {...form.getInputProps('username')}
             key={form.key('username')}
