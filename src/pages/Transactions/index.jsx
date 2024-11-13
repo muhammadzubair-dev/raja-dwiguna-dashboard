@@ -254,11 +254,6 @@ function Transactions() {
 
   return (
     <Container size="xl" flex={1} p="xl">
-      <Title order={3}>Transactions</Title>
-      <Text size="sm" mb="xl">
-        Detailed Transaction of Users
-      </Text>
-
       <Group justify="space-between" my="lg">
         <Flex gap="sm">
           <Input
@@ -279,7 +274,7 @@ function Transactions() {
           </Button>
         </Group>
       </Group>
-      <Card withBorder p="lg" pt="0" radius="sm">
+      <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"
           minHeight={400}

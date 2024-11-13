@@ -1,4 +1,15 @@
-import { Group, Code, ScrollArea, rem, Flex, Title, Box } from '@mantine/core';
+import {
+  Group,
+  Code,
+  ScrollArea,
+  rem,
+  Flex,
+  Title,
+  Box,
+  useMantineColorScheme,
+  useComputedColorScheme,
+  Button,
+} from '@mantine/core';
 import {
   IconNotes,
   IconCalendarStats,
@@ -12,12 +23,15 @@ import {
   IconLogout2,
   IconTransactionDollar,
   IconCashRegister,
+  IconSun,
+  IconMoon,
 } from '@tabler/icons-react';
 import UserButton from '../../components/UserButton';
 import LinksGroup from '../../components/NavbarLinksGroup';
 import classes from './index.module.css';
 import { Outlet } from 'react-router-dom';
 import logoImage from '../../assets/logo.png';
+import Header from '../Header';
 
 const mockdata = [
   { label: 'Dashboard', icon: IconDashboard, toLink: '/' },
@@ -45,6 +59,13 @@ const mockdata = [
 ];
 
 function NavbarNested() {
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme('light');
+
+  const toggleColorScheme = () => {
+    setColorScheme(computedColorScheme === 'dark' ? 'light' : 'dark');
+  };
+
   const links = mockdata.map((item) => (
     <LinksGroup {...item} key={item.label} />
   ));
@@ -75,7 +96,10 @@ function NavbarNested() {
           <UserButton />
         </div>
       </nav>
-      <Outlet />
+      <Box flex={1}>
+        <Header />
+        <Outlet />
+      </Box>
     </Flex>
   );
 }

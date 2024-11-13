@@ -29,7 +29,7 @@ const data = [
 
 const dataCard = [
   {
-    title: 'Net Profit',
+    title: 'Balance',
     color: 'green',
     icon: <IconBuildingBank size={35} stroke={1.5} />,
   },
@@ -51,13 +51,9 @@ function Dashboard() {
   const [value, setValue] = useState([null, null]);
   return (
     <Container size="xl" flex={1} p="xl">
-      <Title order={3}>Dashboard</Title>
-      <Text size="sm" mb="xl">
-        Monitor and measure your financial performance
-      </Text>
       <Grid gutter="md">
         {dataCard.map(({ title, icon, color }) => (
-          <Grid.Col span={3} key={title}>
+          <Grid.Col span={4} key={title}>
             <Card withBorder p="lg" radius="lg">
               <Stack h={95} justify="center">
                 <Flex gap="lg" align="center">
@@ -79,35 +75,6 @@ function Dashboard() {
             </Card>
           </Grid.Col>
         ))}
-        <Grid.Col span={3}>
-          <Card withBorder radius="lg">
-            <BarChart
-              h={100}
-              data={[
-                {
-                  month: 'Total',
-                  Incoming: 1200,
-                  Outgoing: 900,
-                },
-              ]}
-              dataKey="month"
-              orientation="vertical"
-              withLegend
-              withYAxis={false}
-              // withXAxis={false}
-              gridAxis="none"
-              // yAxisProps={{ width: 80 }}
-              minBarSize={5}
-              // withBarValueLabel
-              barProps={{ radius: 5 }}
-              withTooltip={false}
-              series={[
-                { name: 'Incoming', color: 'blue.6' },
-                { name: 'Outgoing', color: 'red.6' },
-              ]}
-            />
-          </Card>
-        </Grid.Col>
 
         <Grid.Col span={12}>
           <Card withBorder radius="lg">

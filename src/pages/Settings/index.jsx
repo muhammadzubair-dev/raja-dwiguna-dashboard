@@ -7,11 +7,6 @@ import SubCategories from './SubCategories';
 function Settings() {
   return (
     <Container size="xl" flex={1} p="xl">
-      <Title order={3}>Settings</Title>
-      <Text size="sm" mb="xl">
-        Detailed Settings of Financial Transactions
-      </Text>
-
       <Tabs defaultValue="bank-account">
         <Tabs.List>
           <Tabs.Tab value="bank-account">Bank Accounts</Tabs.Tab>

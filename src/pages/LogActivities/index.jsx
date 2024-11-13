@@ -30,11 +30,13 @@ function LogActivities() {
     1,
     10
   );
-  const { data, isLoading, refetch, error } = useQuery(['roles', page, limit], () =>
-    useGetLogActivities({
-      limit,
-      page,
-    })
+  const { data, isLoading, refetch, error } = useQuery(
+    ['roles', page, limit],
+    () =>
+      useGetLogActivities({
+        limit,
+        page,
+      })
   );
 
   const records = data?.response?.data.map((item) => ({
@@ -49,11 +51,6 @@ function LogActivities() {
 
   return (
     <Container size="xl" flex={1} p="xl">
-      <Title order={3}>Log Activities</Title>
-      <Text size="sm" mb="xl">
-        Detailed Log Activities of Users
-      </Text>
-
       <Group justify="space-between" my="lg">
         <Flex gap="sm">
           <Select placeholder="Select Accounts" data={['000001', '000002']} />
@@ -68,7 +65,7 @@ function LogActivities() {
           onChange={setValue}
         />
       </Group>
-      <Card withBorder p="lg" pt="0" radius="sm">
+      <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"
           minHeight={400}

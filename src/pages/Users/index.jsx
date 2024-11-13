@@ -180,7 +180,7 @@ function TabContent({ isAccount }) {
           <Button leftSection={<IconPlus size={18} />}>Accounts</Button>
         </Group>
       </Group>
-      <Card withBorder p="lg" pt="0" radius="sm">
+      <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"
           minHeight={400}
@@ -282,11 +282,6 @@ function TabContent({ isAccount }) {
 function Users() {
   return (
     <Container size="xl" flex={1} p="xl">
-      <Title order={3}>Accounts</Title>
-      <Text size="sm" mb="xl">
-        Detailed User Accounts
-      </Text>
-
       <Tabs defaultValue="Accounts">
         <Tabs.List>
           <Tabs.Tab value="Accounts">Accounts</Tabs.Tab>

@@ -6,17 +6,25 @@ import {
   ThemeIcon,
   UnstyledButton,
   rem,
+  useComputedColorScheme,
 } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import classes from './index.module.css';
 
-const activeStyles = {
+const activeStylesLight = {
   backgroundColor: 'var(--mantine-color-blue-0)',
   color: 'var(--mantine-color-blue-7)',
   fontWeight: 700,
   borderRight: '4px solid var(--mantine-color-blue-7)',
+};
+
+const activeStylesDark = {
+  backgroundColor: 'var(--mantine-color-blue-7)',
+  color: 'var(--mantine-color-white)',
+  fontWeight: 700,
+  borderRight: '4px solid var(--mantine-color-white)',
 };
 
 export function LinksGroup({
@@ -30,6 +38,10 @@ export function LinksGroup({
   const location = useLocation();
   const hasLinks = Array.isArray(links);
   const [opened, setOpened] = useState(initiallyOpened || false);
+  const computedColorScheme = useComputedColorScheme('light');
+
+  const activeStyles =
+    computedColorScheme === 'dark' ? activeStylesDark : activeStylesLight;
 
   const handleClick = () => {
     if (hasLinks) {

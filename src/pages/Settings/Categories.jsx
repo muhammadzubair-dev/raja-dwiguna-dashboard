@@ -246,7 +246,7 @@ function Categories() {
           </Button>
         </Group>
       </Group>
-      <Card withBorder p="lg" pt="0" radius="sm">
+      <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"
           minHeight={400}
