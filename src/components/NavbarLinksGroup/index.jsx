@@ -50,7 +50,7 @@ export function LinksGroup({
       title: 'Logout',
       centered: true,
       children: <Text size="sm">Are you sure you want to Logout ?</Text>,
-      labels: { confirm: 'Logout', cancel: "No don't Logout" },
+      labels: { confirm: 'Logout', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
       onCancel: () => modals.closeAll(),
       onConfirm: () => {

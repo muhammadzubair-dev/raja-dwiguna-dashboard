@@ -1,11 +1,15 @@
 import { BarChart } from '@mantine/charts';
 import {
+  Badge,
   Box,
   Button,
   Card,
   Container,
   Flex,
   Grid,
+  NumberFormatter,
+  NumberInput,
+  Skeleton,
   Stack,
   Tabs,
   Text,
@@ -16,65 +20,234 @@ import {
 import { MonthPickerInput } from '@mantine/dates';
 import { IconBuildingBank, IconCoin, IconMoneybag } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
+import moment from 'moment';
 import { useState } from 'react';
+import { useQuery } from 'react-query';
+import {
+  useGetDashboardIncome,
+  useGetDashboardOutcome,
+  useGetDashboardBalance,
+  useGetDashboardBarChart,
+  useGetDashboardTopIncome,
+  useGetDashboardTopOutcome,
+  useGetTransactions,
+} from '../../helpers/apiHelper';
+import { useNavigate } from 'react-router-dom';
 
-const data = [
-  { month: 'January', Income: 1200, Outgoing: 900 },
-  { month: 'February', Income: 1900, Outgoing: 1200 },
-  { month: 'March', Income: 400, Outgoing: 1000 },
-  { month: 'April', Income: 1000, Outgoing: 200 },
-  { month: 'May', Income: 800, Outgoing: 1400 },
-  { month: 'June', Income: 750, Outgoing: 600 },
-];
+const TEN_MINUTES = 600000;
 
-const dataCard = [
-  {
-    title: 'Balance',
-    color: 'green',
-    icon: <IconBuildingBank size={35} stroke={1.5} />,
-  },
-  {
-    title: 'Total Income',
-    color: 'blue',
-    icon: <IconMoneybag size={35} stroke={1.5} />,
-  },
-  {
-    title: 'Total Outgoing',
-    color: 'red',
-    icon: <IconCoin size={35} stroke={1.5} />,
-  },
+const dataChart = [
+  { month: 'January', Income: 1200, Outcome: 900 },
+  { month: 'February', Income: 1900, Outcome: 1200 },
+  { month: 'March', Income: 400, Outcome: 1000 },
+  { month: 'April', Income: 1000, Outcome: 200 },
+  { month: 'May', Income: 800, Outcome: 1400 },
+  { month: 'June', Income: 750, Outcome: 600 },
 ];
 
 const iconStyle = { width: rem(12), height: rem(12) };
 
 function Dashboard() {
+  const navigate = useNavigate();
+  const start_date = moment().utc().startOf('month').format();
+  const end_date = moment().utc().endOf('month').format();
   const [value, setValue] = useState([null, null]);
+
+  const {
+    data: dataIncome,
+    isLoading: isLoadingIncome,
+    error: errorIncome,
+  } = useQuery(
+    ['dashboard-income', start_date, end_date],
+    () =>
+      useGetDashboardIncome({
+        start_date,
+        end_date,
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const {
+    data: dataOutcome,
+    isLoading: isLoadingOutcome,
+    error: errorOutcome,
+  } = useQuery(
+    ['dashboard-outcome', start_date, end_date],
+    () =>
+      useGetDashboardOutcome({
+        start_date,
+        end_date,
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const {
+    data: dataBalance,
+    isLoading: isLoadingBalance,
+    error: errorBalance,
+  } = useQuery(
+    ['dashboard-balance', start_date, end_date],
+    () =>
+      useGetDashboardBalance({
+        start_date,
+        end_date,
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const {
+    data: dataTopIncome,
+    isLoading: isLoadingTopIncome,
+    error: errorTopIncome,
+  } = useQuery(
+    ['dashboard-top-income', start_date, end_date],
+    () =>
+      useGetDashboardTopIncome({
+        start_date,
+        end_date,
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const {
+    data: dataTopOutcome,
+    isLoading: isLoadingTopOutcome,
+    error: errorTopOutcome,
+  } = useQuery(
+    ['dashboard-top-outcome', start_date, end_date],
+    () =>
+      useGetDashboardTopOutcome({
+        start_date,
+        end_date,
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const {
+    data: dataTransactions,
+    isLoading: isLoadingTransactions,
+    error: errorTransactions,
+  } = useQuery(
+    ['transactions', 1, 4],
+    () =>
+      useGetTransactions({
+        limit: 4,
+        page: 1,
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const recordTransactions = dataTransactions?.response?.data.map((item) => ({
+    id: item.id,
+    amount: item.amount,
+    list_category: item.list_category.is_income,
+    category: item.list_category.name,
+    sub_category: item.list_sub_category.name,
+    bank_name: item.list_account.bank_name,
+    description: item.description,
+    created_at: item.created_at,
+    account_id: item.list_account.id,
+    category_id: item.list_category.id,
+    sub_category_id: item.list_sub_category.id,
+    reference_number: item.reference_number,
+    created_by: item.created_by,
+  }));
+
+  const dataCard = [
+    {
+      title: 'Total Outcome',
+      color: 'red',
+      data: dataOutcome?.response,
+      isLoading: isLoadingOutcome,
+      error: errorOutcome?.message,
+      subtitle: ' transactions for the current month',
+      icon: <IconCoin size={35} stroke={1.5} />,
+    },
+    {
+      title: 'Total Income',
+      color: 'blue',
+      data: dataIncome?.response,
+      isLoading: isLoadingIncome,
+      error: errorIncome?.message,
+      subtitle: ' transactions for the current month',
+      icon: <IconMoneybag size={35} stroke={1.5} />,
+    },
+    {
+      title: 'Balance',
+      color: 'green',
+      data: dataBalance?.response,
+      isLoading: isLoadingBalance,
+      error: errorBalance?.message,
+      subtitle: ' account banks',
+      icon: <IconBuildingBank size={35} stroke={1.5} />,
+    },
+  ];
+
   return (
     <Container size="xl" flex={1} p="xl">
       <Grid gutter="md">
-        {dataCard.map(({ title, icon, color }) => (
-          <Grid.Col span={4} key={title}>
-            <Card withBorder p="lg" radius="lg">
-              <Stack h={95} justify="center">
-                <Flex gap="lg" align="center">
-                  <ThemeIcon radius="lg" size={60} color={color}>
-                    {icon}
-                  </ThemeIcon>
-                  <Box>
-                    <Text c="dimmed">{title}</Text>
-                    <Title order={4}>Rp 12,500k</Title>
-                  </Box>
-                </Flex>
-                <Text c="dimmed" lineClamp={1}>
-                  <Text span c={color} fw="bold" inherit>
-                    250{' '}
-                  </Text>
-                  total transactions for the current month
-                </Text>
-              </Stack>
-            </Card>
-          </Grid.Col>
-        ))}
+        {dataCard.map(
+          ({ title, icon, color, data, isLoading, error, subtitle }) => (
+            <Grid.Col span={4} key={title}>
+              <Card withBorder p="lg" radius="lg">
+                <Stack h={95} justify="center">
+                  <Flex gap="lg" align="center">
+                    <ThemeIcon radius="lg" size={60} color={color}>
+                      {icon}
+                    </ThemeIcon>
+                    <Box>
+                      <Text c="dimmed">{title}</Text>
+                      <Skeleton visible={isLoading}>
+                        <NumberFormatter
+                          style={{ fontSize: 20, fontWeight: 600 }}
+                          value={
+                            error
+                              ? 0
+                              : title === 'Balance'
+                              ? data?.total
+                              : data?.amount
+                          }
+                          prefix="Rp "
+                          decimalScale={2}
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Skeleton>
+                    </Box>
+                  </Flex>
+                  <Skeleton visible={isLoading}>
+                    {error ? (
+                      <Text c="red" lineClamp={1}>
+                        Error:{error}
+                      </Text>
+                    ) : (
+                      <Text size="sm" fw={400} c="dimmed" lineClamp={1}>
+                        <Text span c={color} fw="bold" inherit>
+                          {title === 'Balance'
+                            ? (data?.accounts || []).length
+                            : data?.total}
+                        </Text>
+                        {subtitle}
+                      </Text>
+                    )}
+                  </Skeleton>
+                </Stack>
+              </Card>
+            </Grid.Col>
+          )
+        )}
 
         <Grid.Col span={12}>
           <Card withBorder radius="lg">
@@ -82,7 +255,7 @@ function Dashboard() {
               <Box>
                 <Text>Cash Flow</Text>
                 <Text size="sm" c="dimmed">
-                  Monthly Income and Outgoing
+                  Monthly Income and Outcome
                 </Text>
               </Box>
               <MonthPickerInput
@@ -92,75 +265,91 @@ function Dashboard() {
                 onChange={setValue}
               />
             </Flex>
-            <BarChart
-              h={300}
-              data={data}
-              dataKey="month"
-              withLegend
-              series={[
-                { name: 'Income', color: 'violet.6' },
-                { name: 'Outgoing', color: 'blue.6' },
-              ]}
-            />
+            <Skeleton visible={true}>
+              <BarChart
+                h={300}
+                data={dataChart}
+                dataKey="month"
+                withLegend
+                series={[
+                  { name: 'Income', color: 'violet.6' },
+                  { name: 'Outcome', color: 'blue.6' },
+                ]}
+              />
+            </Skeleton>
           </Card>
         </Grid.Col>
         <Grid.Col span={8}>
           <Card withBorder pb="xl" radius="lg">
             <Text>Recent Transaction</Text>
             <Text size="sm" c="dimmed" mb="xs">
-              Monthly Income and Outgoing
+              Monthly Income and Outcome
             </Text>
+
             <DataTable
               verticalSpacing="md"
-              records={[
-                {
-                  id: '1323addd-a4ac-4dd2-8de2-6f934969a0f1',
-                  category: 'Projects',
-                  amount: '12.000.000',
-                  createdAt: '2024-10-01 15:00',
-                  description: 'lorem ipsum detail',
-                },
-                {
-                  id: '0cf96f1c-62c9-4e3f-97b0-4a2e8fa2bf6b',
-                  category: 'Corruption',
-                  amount: '11.000.000',
-                  createdAt: '2024-10-01 15:00',
-                  description: 'lorem ipsum description',
-                },
-                {
-                  id: '0cf96f1c-62c9-4e3f-97b0-4a2e8fa2bf6c',
-                  category: 'Infaq',
-                  amount: '9.000.000',
-                  createdAt: '2024-10-01 15:00',
-                  description: 'lorem ipsum setyawan',
-                },
-                {
-                  id: '0cf96f1c-62c9-4e3f-97b0-4a2e8fa2bf6d',
-                  category: 'Infaq',
-                  amount: '9.000.000',
-                  createdAt: '2024-10-01 15:00',
-                  description: 'lorem ipsum maulana',
-                },
-              ]}
+              fetching={isLoadingTransactions}
+              records={recordTransactions}
+              minHeight={280}
+              noRecordsText={
+                errorTransactions
+                  ? `Error: ${errorTransactions?.message}`
+                  : 'No records found'
+              }
               columns={[
                 // {
                 //   accessor: 'index',
                 //   title: 'No',
                 //   textAlign: 'center',
                 //   width: 40,
-                //   render: (record) => records.indexOf(record) + 1,
+                //   render: (record) => recordTransactions.indexOf(record) + 1,
                 // },
+                {
+                  accessor: 'is_income',
+                  title: 'Type',
+                  render: ({ is_income }) => (
+                    <Badge
+                      variant="outline"
+                      radius="xl"
+                      color={is_income ? 'green' : 'red'}
+                    >
+                      {is_income ? 'Income' : 'Outcome'}
+                    </Badge>
+                  ),
+                },
+                { accessor: 'bank_name' },
                 { accessor: 'category' },
-                { accessor: 'amount' },
-                { accessor: 'createdAt' },
+                // { accessor: 'sub_category' },
+                {
+                  accessor: 'amount',
+                  render: ({ amount }) => (
+                    <NumberFormatter
+                      value={amount}
+                      prefix="Rp "
+                      decimalScale={2}
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  ),
+                },
                 { accessor: 'description' },
-                // {
-                //   accessor: 'status',
-                //   render: () => <Badge color="green">Success</Badge>,
-                // },
+                // { accessor: 'reference_number' },
+                // { accessor: 'created_by' },
+                {
+                  accessor: 'created_at',
+                  render: ({ created_at }) => (
+                    <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
+                  ),
+                },
               ]}
             />
-            <Button variant="outline" mt="lg" w={200}>
+
+            <Button
+              variant="outline"
+              mt="lg"
+              w={200}
+              onClick={() => navigate('/transactions')}
+            >
               See all Transactions
             </Button>
           </Card>
@@ -184,58 +373,86 @@ function Dashboard() {
                   Incoming
                 </Tabs.Tab>
                 <Tabs.Tab
-                  value="top-outgoing"
+                  value="top-outcome"
                   leftSection={<IconCoin style={iconStyle} />}
                 >
-                  Outgoing
+                  Outcome
                 </Tabs.Tab>
               </Tabs.List>
 
               <Tabs.Panel value="top-incoming">
                 <DataTable
                   verticalSpacing="md"
-                  records={[
-                    {
-                      id: '1323addd-a4ac-4dd2-8de2-6f934969a0f1',
-                      category: 'Isagi Yoichi',
-                      amount: '12.600k',
-                    },
-                    {
-                      id: '0cf96f1c-62c9-4e3f-97b0-4a2e8fa2bf6b',
-                      category: 'Prabowo Subianto',
-                      amount: '10.200k',
-                    },
-                    {
-                      id: '0cf96f1c-62c9-4e3f-97b0-4a2e8fa2bf6z',
-                      category: 'Budi Sudarsono',
-                      amount: '9.700k',
-                    },
-                    {
-                      id: '0cf96f1c-62c9-4e3f-97b0-4a2e8fa2bf6x',
-                      category: '-',
-                      amount: '-',
-                    },
-                    {
-                      id: '0cf96f1c-62c9-4e3f-97b0-4a2e8fa2bf6cS',
-                      category: '-',
-                      amount: '-',
-                    },
-                  ]}
+                  minHeight={325}
+                  fetching={isLoadingTopIncome}
+                  records={dataTopIncome?.response}
+                  noRecordsText={
+                    errorTopIncome
+                      ? `Error: ${errorTopIncome?.message}`
+                      : 'No records found'
+                  }
                   columns={[
-                    // {
-                    //   accessor: 'index',
-                    //   title: 'No',
-                    //   textAlign: 'center',
-                    //   width: 40,
-                    //   render: (record) => records.indexOf(record) + 1,
-                    // },
+                    {
+                      accessor: 'index',
+                      title: 'No',
+                      textAlign: 'center',
+                      width: 40,
+                      render: (record) =>
+                        dataTopIncome?.response.indexOf(record) + 1,
+                    },
                     { accessor: 'category' },
-                    { accessor: 'amount' },
+                    {
+                      accessor: 'amount',
+                      render: ({ amount }) => (
+                        <NumberFormatter
+                          value={amount}
+                          prefix="Rp "
+                          decimalScale={2}
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      ),
+                    },
                   ]}
                 />
               </Tabs.Panel>
 
-              <Tabs.Panel value="top-outgoing">Messages tab content</Tabs.Panel>
+              <Tabs.Panel value="top-outcome">
+                <DataTable
+                  verticalSpacing="md"
+                  minHeight={325}
+                  fetching={isLoadingTopOutcome}
+                  records={dataTopOutcome?.response}
+                  noRecordsText={
+                    errorTopOutcome
+                      ? `Error: ${errorTopOutcome?.message}`
+                      : 'No records found'
+                  }
+                  columns={[
+                    {
+                      accessor: 'index',
+                      title: 'No',
+                      textAlign: 'center',
+                      width: 40,
+                      render: (record) =>
+                        dataTopOutcome?.response.indexOf(record) + 1,
+                    },
+                    { accessor: 'category' },
+                    {
+                      accessor: 'amount',
+                      render: ({ amount }) => (
+                        <NumberFormatter
+                          value={amount}
+                          prefix="Rp "
+                          decimalScale={2}
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      ),
+                    },
+                  ]}
+                />
+              </Tabs.Panel>
             </Tabs>
           </Card>
         </Grid.Col>

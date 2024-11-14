@@ -59,7 +59,7 @@ function Login() {
     <Container size={420} my={40} pt={100}>
       <form onSubmit={form.onSubmit(handleLogin)}>
         <Paper withBorder shadow="md" p={30} mt={20} radius="md">
-          <Flex justify="center" align="center" gap="md">
+          <Flex justify="center" align="center" gap="md" mb="md">
             <img height={100} src={logoImage} alt="logo" />
             <Box>
               <Title order={2} mb={-10}>
@@ -68,12 +68,12 @@ function Login() {
               <Title order={2}>Semesta</Title>
             </Box>
           </Flex>
-          <Text c="dimmed" size="sm" ta="center" my="md">
+          {/* <Text c="dimmed" size="sm" ta="center" my="md">
             Do not have an account yet?{' '}
             <Anchor size="sm" component="button">
               Create account
             </Anchor>
-          </Text>
+          </Text> */}
           <TextInput
             {...form.getInputProps('username')}
             key={form.key('username')}
@@ -91,9 +91,9 @@ function Login() {
           />
           <Group justify="space-between" mt="lg">
             <Checkbox label="Remember me" />
-            <Anchor component="button" size="sm">
+            {/* <Anchor component="button" size="sm">
               Forgot password?
-            </Anchor>
+            </Anchor> */}
           </Group>
           <Button fullWidth mt="xl" type="submit" loading={isLoading}>
             Sign in

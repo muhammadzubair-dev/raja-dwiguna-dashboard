@@ -95,3 +95,27 @@ export const useGetOptionCategories = async () => {
 export const useGetOptionAccounts = async () => {
   return fetchRequest(`/options/account`, 'GET');
 };
+
+export const useGetDashboardIncome = async (query) => {
+  return fetchRequest(`/dashboard/incoming`, 'GET', { query });
+};
+
+export const useGetDashboardOutcome = async (query) => {
+  return fetchRequest(`/dashboard/outcoming`, 'GET', { query });
+};
+
+export const useGetDashboardBalance = async (query) => {
+  return fetchRequest(`/dashboard/current-balance`, 'GET', { query });
+};
+
+export const useGetDashboardBarChart = async (query) => {
+  return fetchRequest(`/dashboard/chart-default-three-month`, 'GET', { query });
+};
+
+export const useGetDashboardTopIncome = async (query) => {
+  return fetchRequest(`/dashboard/top-incoming`, 'GET', { query });
+};
+
+export const useGetDashboardTopOutcome = async (query) => {
+  return fetchRequest(`/dashboard/top-outcoming`, 'GET', { query });
+};
