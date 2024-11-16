@@ -232,7 +232,7 @@ function Dashboard() {
   }, []);
 
   return (
-    <Container flex={1} p="xl">
+    <Container size="xl" flex={1} p="xl">
       <Grid gutter="md">
         {dataCard.map(
           ({ title, icon, color, data, isLoading, error, subtitle }) => (
