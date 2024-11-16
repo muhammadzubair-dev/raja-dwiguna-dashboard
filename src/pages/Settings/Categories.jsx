@@ -224,7 +224,7 @@ function Categories() {
 
   return (
     <>
-      <Group justify="space-between" my="lg">
+      {/* <Group justify="space-between" my="lg">
         <Input
           placeholder="Search User"
           leftSection={<IconSearch size={16} />}
@@ -247,8 +247,16 @@ function Categories() {
             Category
           </Button>
         </Group>
+      </Group> */}
+      <Group justify="flex-end" mb="sm">
+        <Button
+          onClick={handleAddCategory}
+          leftSection={<IconPlus size={18} />}
+        >
+          Category
+        </Button>
       </Group>
-      <Card withBorder p="0" radius="sm">
+      <Card withBorder p="0" radius="sm" mt="sm">
         <DataTable
           verticalSpacing="md"
           minHeight={400}

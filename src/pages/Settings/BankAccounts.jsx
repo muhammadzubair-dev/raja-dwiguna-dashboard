@@ -186,13 +186,13 @@ function BankAccounts() {
 
   return (
     <>
-      <Group justify="space-between" my="lg">
-        <Input
+      {/* <Group justify="space-between" my="lg"> */}
+      {/* <Input
           placeholder="Search Bank Account"
           leftSection={<IconSearch size={16} />}
-        />
-        <Group justify="center">
-          <Button
+        /> */}
+      {/* <Group justify="center"> */}
+      {/* <Button
             onClick={() => {}}
             leftSection={<IconFilter size={14} />}
             variant="default"
@@ -201,15 +201,16 @@ function BankAccounts() {
           </Button>
           <Button leftSection={<IconDownload size={14} />} variant="default">
             Download
-          </Button>
-          <Button
-            onClick={handleAddBankAccount}
-            leftSection={<IconPlus size={18} />}
-          >
-            Bank Account
-          </Button>
-        </Group>
+          </Button> */}
+      <Group justify="flex-end" mb="sm">
+        <Button
+          onClick={handleAddBankAccount}
+          leftSection={<IconPlus size={18} />}
+        >
+          Bank Account
+        </Button>
       </Group>
+      {/* </Group> */}
       <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"

@@ -178,23 +178,12 @@ function Roles() {
 
   return (
     <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
-      <Group justify="space-between" my="lg">
-        {/* <Flex gap="sm">
-          <Input
-            placeholder="Search Role"
-            leftSection={<IconSearch size={16} />}
-          />
-          <Select placeholder="Select Status" data={['Active', 'Inactive']} />
-        </Flex> */}
-        <Group justify="center">
-          {/* <Button leftSection={<IconDownload size={14} />} variant="default">
-            Download
-          </Button> */}
-          <Button onClick={handleAddRole} leftSection={<IconPlus size={18} />}>
-            Role
-          </Button>
-        </Group>
+      <Group mb="sm" justify="flex-end">
+        <Button onClick={handleAddRole} leftSection={<IconPlus size={18} />}>
+          Role
+        </Button>
       </Group>
+
       <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"

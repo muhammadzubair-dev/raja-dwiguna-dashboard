@@ -26,10 +26,6 @@ import {
 import { useQuery } from 'react-query';
 import moment from 'moment';
 
-const iconCalendar = (
-  <IconCalendar style={{ width: rem(18), height: rem(18) }} stroke={1.5} />
-);
-
 function LogActivities() {
   const [value, setValue] = useState([null, null]);
   const [action, setAction] = useState('');
@@ -39,7 +35,7 @@ function LogActivities() {
     10
   );
   const { data, isLoading, refetch, error } = useQuery(
-    ['roles', page, limit],
+    ['log-activities', page, limit],
     () =>
       useGetLogActivities({
         limit,
@@ -89,7 +85,7 @@ function LogActivities() {
         />
         <DatePickerInput
           miw={185}
-          leftSection={iconCalendar}
+          leftSection={<IconCalendar size={16} />}
           leftSectionPointerEvents="none"
           type="range"
           placeholder="Pick dates range"

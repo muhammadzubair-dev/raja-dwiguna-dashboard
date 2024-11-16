@@ -231,7 +231,7 @@ function SubCategories() {
 
   return (
     <>
-      <Group justify="space-between" my="lg">
+      {/* <Group justify="space-between" my="lg">
         <Input
           placeholder="Search User"
           leftSection={<IconSearch size={16} />}
@@ -254,6 +254,14 @@ function SubCategories() {
             SubCategory
           </Button>
         </Group>
+      </Group> */}
+      <Group justify="flex-end" mb="sm">
+        <Button
+          onClick={handleAddSubCategory}
+          leftSection={<IconPlus size={18} />}
+        >
+          Sub Category
+        </Button>
       </Group>
       <Card withBorder p="0" radius="sm">
         <DataTable
