@@ -9,7 +9,8 @@ import {
   TextInput,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import { IconCalendar, IconSearch } from '@tabler/icons-react';
+import { useMediaQuery } from '@mantine/hooks';
+import { IconCalendar, IconFilter, IconSearch } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
 import React, { useState } from 'react';
@@ -25,6 +26,7 @@ function LogActivities() {
   const [user, setUser] = useState('');
   const [action, setAction] = useState('');
   const [value, setValue] = useState([null, null]);
+  const isMobile = useMediaQuery(`(max-width: 1100px)`);
   const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
@@ -72,35 +74,47 @@ function LogActivities() {
       fluid={sizeContainer === 'fluid'}
       p={{ base: 'md', md: 'xl' }}
     >
-      <Flex gap="sm" mb="lg">
-        <Select
-          disabled={isLoadingUsers}
-          placeholder={isLoadingUsers ? 'Loading...' : 'Select User'}
-          data={recordsUsers}
-          onChange={setUser}
-          searchable
-        />
-        <TextInput
-          placeholder="Actions"
-          onChange={(event) => setAction(event.currentTarget.value)}
-        />
-        <DatePickerInput
-          miw={185}
-          leftSection={<IconCalendar size={16} />}
-          leftSectionPointerEvents="none"
-          type="range"
-          placeholder="Pick dates range"
-          value={value}
-          onChange={setValue}
-        />
+      {isMobile ? (
         <Button
-          onClick={refetch}
-          loading={isLoading}
-          leftSection={<IconSearch size={16} />}
+          mb="lg"
+          variant="light"
+          onClick={() => {}}
+          leftSection={<IconFilter size={18} />}
         >
-          Search
+          Filter
         </Button>
-      </Flex>
+      ) : (
+        <Flex gap="sm" mb="lg">
+          <Select
+            disabled={isLoadingUsers}
+            placeholder={isLoadingUsers ? 'Loading...' : 'Select User'}
+            data={recordsUsers}
+            onChange={setUser}
+            searchable
+          />
+          <TextInput
+            placeholder="Actions"
+            onChange={(event) => setAction(event.currentTarget.value)}
+          />
+          <DatePickerInput
+            miw={185}
+            leftSection={<IconCalendar size={16} />}
+            leftSectionPointerEvents="none"
+            type="range"
+            placeholder="Pick dates range"
+            value={value}
+            onChange={setValue}
+          />
+          <Button
+            onClick={refetch}
+            loading={isLoading}
+            leftSection={<IconSearch size={16} />}
+          >
+            Search
+          </Button>
+        </Flex>
+      )}
+
       <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"
@@ -131,6 +145,7 @@ function LogActivities() {
             { accessor: 'activity' },
             {
               accessor: 'status',
+              width: 100,
               render: ({ status }) => (
                 <Badge radius="sm" color={status ? 'green' : 'red'}>
                   {status ? 'Active' : 'Inactive'}
@@ -139,6 +154,7 @@ function LogActivities() {
             },
             {
               accessor: 'created_at',
+              noWrap: true,
               render: ({ created_at }) => (
                 <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
               ),

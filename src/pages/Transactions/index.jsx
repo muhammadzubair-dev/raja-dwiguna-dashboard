@@ -23,6 +23,7 @@ import {
   IconCalendar,
   IconDownload,
   IconEdit,
+  IconFilter,
   IconPlus,
   IconSearch,
 } from '@tabler/icons-react';
@@ -42,6 +43,7 @@ import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 import { DatePickerInput } from '@mantine/dates';
 import useSizeContainer from '../../helpers/useSizeContainer';
+import { useMediaQuery } from '@mantine/hooks';
 
 function AddAndEditTransaction({ data, refetchTransactions }) {
   const isAdd = data ? false : true;
@@ -227,9 +229,10 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
 
 function Transactions() {
   const [isIncome, setIsIncome] = useState(null);
-  const [rangeDates, setRangeDates] = useState([null, null]);
   const [category, setCategory] = useState(null);
   const [subCategory, setSubCategory] = useState(null);
+  const isMobile = useMediaQuery(`(max-width: 1100px)`);
+  const [rangeDates, setRangeDates] = useState([null, null]);
   const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
@@ -241,6 +244,14 @@ function Transactions() {
       useGetTransactions({
         limit,
         page,
+        ...(isIncome === 'Income' && { is_income: true }),
+        ...(isIncome === 'Outcome' && { is_income: false }),
+        ...(category && { category_id: category }),
+        ...(subCategory && { sub_category_id: subCategory }),
+        ...(rangeDates.every((el) => el !== null) && {
+          start_date: `${moment(rangeDates[0]).format('YYYY-MM-DD')}T00:00:00Z`,
+          end_date: `${moment(rangeDates[1]).format('YYYY-MM-DD')}T00:00:00Z`,
+        }),
       })
   );
   const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
@@ -283,18 +294,27 @@ function Transactions() {
   };
 
   const recordsCategory = [
-    {
-      group: 'Income',
-      items: (optionCategories?.response || [])
-        .filter((category) => category.is_income === true)
-        .map(({ id, name }) => ({ value: id, label: name })),
-    },
-    {
-      group: 'Outcome',
-      items: (optionCategories?.response || [])
-        .filter((category) => category.is_income === false)
-        .map(({ id, name }) => ({ value: id, label: name })),
-    },
+    ...(isIncome === 'Income' || isIncome === null
+      ? [
+          {
+            group: 'Income',
+            items: (optionCategories?.response || [])
+              .filter((category) => category.is_income === true)
+              .map(({ id, name }) => ({ value: id, label: name })),
+          },
+        ]
+      : []),
+
+    ...(isIncome === 'Outcome' || isIncome === null
+      ? [
+          {
+            group: 'Outcome',
+            items: (optionCategories?.response || [])
+              .filter((category) => category.is_income === false)
+              .map(({ id, name }) => ({ value: id, label: name })),
+          },
+        ]
+      : []),
   ];
 
   const findSubCategory = optionCategories?.response.find(
@@ -316,53 +336,66 @@ function Transactions() {
       p={{ base: 'md', md: 'xl' }}
     >
       <Group justify="space-between" mb="lg">
-        <Flex gap="sm" wrap="wrap">
-          <Select
-            placeholder="Select Type"
-            data={['Income', 'Outcome']}
-            onChange={setIsIncome}
-            clearable
-          />
-          <Select
-            disabled={isLoadingCategories}
-            placeholder={isLoadingCategories ? 'Loading...' : 'Select Category'}
-            data={recordsCategory}
-            onChange={setCategory}
-            searchable
-            clearable
-          />
-          <Select
-            disabled={isLoadingCategories || recordsSubCategory?.length === 0}
-            placeholder={
-              isLoadingCategories
-                ? 'Loading...'
-                : recordsSubCategory?.length === 0
-                ? 'No Sub Category, Please select another Category'
-                : 'Select Sub Category'
-            }
-            data={recordsSubCategory}
-            onChange={setSubCategory}
-            searchable
-            clearable
-          />
-          <DatePickerInput
-            miw={185}
-            leftSection={<IconCalendar size={16} />}
-            leftSectionPointerEvents="none"
-            type="range"
-            placeholder="Pick dates range"
-            value={rangeDates}
-            onChange={setRangeDates}
-            clearable
-          />
+        {isMobile ? (
           <Button
-            onClick={refetch}
-            loading={isLoading}
-            leftSection={<IconSearch size={16} />}
+            variant="light"
+            onClick={() => {}}
+            leftSection={<IconFilter size={18} />}
           >
-            Search
+            Filter
           </Button>
-        </Flex>
+        ) : (
+          <Flex gap="sm" wrap="wrap">
+            <Select
+              placeholder="Select Type"
+              data={['Income', 'Outcome']}
+              onChange={setIsIncome}
+              clearable
+            />
+            <Select
+              disabled={isLoadingCategories}
+              placeholder={
+                isLoadingCategories ? 'Loading...' : 'Select Category'
+              }
+              data={recordsCategory}
+              onChange={setCategory}
+              searchable
+              clearable
+            />
+            <Select
+              disabled={isLoadingCategories || recordsSubCategory?.length === 0}
+              placeholder={
+                isLoadingCategories
+                  ? 'Loading...'
+                  : recordsSubCategory?.length === 0
+                  ? 'No Sub Category, Please select another Category'
+                  : 'Select Sub Category'
+              }
+              data={recordsSubCategory}
+              onChange={setSubCategory}
+              searchable
+              clearable
+            />
+            <DatePickerInput
+              miw={185}
+              leftSection={<IconCalendar size={16} />}
+              leftSectionPointerEvents="none"
+              type="range"
+              placeholder="Pick dates range"
+              value={rangeDates}
+              onChange={setRangeDates}
+              clearable
+            />
+            <Button
+              onClick={refetch}
+              loading={isLoading}
+              leftSection={<IconSearch size={16} />}
+            >
+              Search
+            </Button>
+          </Flex>
+        )}
+
         <Group justify="center">
           <Button
             onClick={handleAddTransaction}
@@ -427,11 +460,13 @@ function Transactions() {
                 />
               ),
             },
-            { accessor: 'description' },
+            {
+              accessor: 'description',
+              ...(sizeContainer !== 'fluid' && { width: 250, ellipsis: true }),
+            },
             {
               accessor: 'reference_number',
-              width: 150,
-              ellipsis: true,
+              ...(sizeContainer !== 'fluid' && { width: 150, ellipsis: true }),
             },
             { accessor: 'created_by', noWrap: true },
             {

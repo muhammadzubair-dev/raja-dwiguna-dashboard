@@ -5,8 +5,8 @@ import {
   Container,
   Drawer,
   Flex,
+  Group,
   SegmentedControl,
-  Stack,
   Text,
   Title,
   useComputedColorScheme,
@@ -86,16 +86,16 @@ function Header({ onClickMenu, isMobile }) {
           <Title order={3}>{header.title}</Title>
           <Text size="sm">{header.subtitle}</Text>
         </Box>
-        <Stack gap="xs">
+        <Group gap="xs" justify="flex-end" w={131}>
+          <ActionIcon size="lg" onClick={open}>
+            <IconSettings size={20} />
+          </ActionIcon>
           {isMobile && (
             <ActionIcon size="lg" onClick={onClickMenu}>
               <IconMenu2 />
             </ActionIcon>
           )}
-          <ActionIcon size="lg" onClick={open}>
-            <IconSettings size={20} />
-          </ActionIcon>
-        </Stack>
+        </Group>
       </Flex>
       <Drawer
         opened={opened}
