@@ -96,6 +96,10 @@ export const useGetOptionAccounts = async () => {
   return fetchRequest(`/options/account`, 'GET');
 };
 
+export const useGetOptionUsers = async () => {
+  return fetchRequest(`/options/user`, 'GET');
+};
+
 export const useGetDashboardIncome = async (query) => {
   return fetchRequest(`/dashboard/incoming`, 'GET', { query });
 };

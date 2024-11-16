@@ -412,6 +412,7 @@ function Dashboard() {
             variant="outline"
             mt="xs"
             w={200}
+            radius="md"
             onClick={() => navigate('/transactions')}
           >
             See all Transactions

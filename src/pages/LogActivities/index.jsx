@@ -1,5 +1,6 @@
 import {
   Badge,
+  Button,
   Card,
   Container,
   Flex,
@@ -7,6 +8,7 @@ import {
   Input,
   Select,
   Text,
+  TextInput,
   Title,
   Tooltip,
   rem,
@@ -16,7 +18,11 @@ import { IconCalendar, IconSearch } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import React, { useState } from 'react';
 import usePagination from '../../helpers/usePagination';
-import { useGetLogActivities } from '../../helpers/apiHelper';
+import {
+  useGetLogActivities,
+  useGetOptionAccounts,
+  useGetOptionUsers,
+} from '../../helpers/apiHelper';
 import { useQuery } from 'react-query';
 import moment from 'moment';
 
@@ -26,6 +32,8 @@ const iconCalendar = (
 
 function LogActivities() {
   const [value, setValue] = useState([null, null]);
+  const [action, setAction] = useState('');
+  const [user, setUser] = useState('');
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
     10
@@ -36,7 +44,18 @@ function LogActivities() {
       useGetLogActivities({
         limit,
         page,
+        ...(user && { user_id: user }),
+        ...(action && { action: action }),
+        ...(value.every((el) => el !== null) && {
+          start_date: `${moment(value[0]).format('YYYY-MM-DD')}T00:00:00Z`,
+          end_date: `${moment(value[1]).format('YYYY-MM-DD')}T00:00:00Z`,
+        }),
       })
+  );
+
+  const { data: optionUsers, isLoading: isLoadingUsers } = useQuery(
+    ['users'],
+    () => useGetOptionUsers()
   );
 
   const records = data?.response?.data.map((item) => ({
@@ -49,14 +68,27 @@ function LogActivities() {
     // roles: item.list_user_role.map((item) => item.list_role.name),
   }));
 
+  const recordsUsers = optionUsers?.response.map((item) => ({
+    value: item.id,
+    label: item.name,
+  }));
+
   return (
     <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
-      <Group justify="space-between" my="lg">
-        <Flex gap="sm">
-          <Select placeholder="Select Accounts" data={['000001', '000002']} />
-          <Select placeholder="Select Actions" data={['000001', '000002']} />
-        </Flex>
+      <Flex gap="sm" mb="lg">
+        <Select
+          disabled={isLoadingUsers}
+          placeholder={isLoadingUsers ? 'Loading...' : 'Select User'}
+          data={recordsUsers}
+          onChange={setUser}
+          searchable
+        />
+        <TextInput
+          placeholder="Actions"
+          onChange={(event) => setAction(event.currentTarget.value)}
+        />
         <DatePickerInput
+          miw={185}
           leftSection={iconCalendar}
           leftSectionPointerEvents="none"
           type="range"
@@ -64,7 +96,14 @@ function LogActivities() {
           value={value}
           onChange={setValue}
         />
-      </Group>
+        <Button
+          onClick={refetch}
+          loading={isLoading}
+          leftSection={<IconSearch size={16} />}
+        >
+          Search
+        </Button>
+      </Flex>
       <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"

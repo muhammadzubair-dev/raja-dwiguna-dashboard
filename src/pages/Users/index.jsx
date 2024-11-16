@@ -161,7 +161,7 @@ function TabContent({ isAccount }) {
 
   return (
     <>
-      <Group justify="space-between" my="lg">
+      {/* <Group justify="space-between" my="lg">
         <Input
           placeholder="Search User"
           leftSection={<IconSearch size={16} />}
@@ -177,10 +177,10 @@ function TabContent({ isAccount }) {
           <Button leftSection={<IconDownload size={14} />} variant="default">
             Download
           </Button>
-          {/* <Button leftSection={<IconPlus size={18} />}>Accounts</Button> */}
+          <Button leftSection={<IconPlus size={18} />}>Accounts</Button>
         </Group>
-      </Group>
-      <Card withBorder p="0" radius="sm">
+      </Group> */}
+      <Card withBorder p="0" radius="sm" mt="sm">
         <DataTable
           verticalSpacing="md"
           minHeight={400}
