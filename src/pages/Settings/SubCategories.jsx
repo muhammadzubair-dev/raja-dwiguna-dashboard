@@ -276,7 +276,8 @@ function SubCategories() {
               title: 'No',
               textAlign: 'center',
               width: 40,
-              render: (record) => records.indexOf(record) + 1,
+              render: (record) =>
+                records.indexOf(record) + 1 + limit * (page - 1),
             },
             { accessor: 'category' },
             { accessor: 'name', title: 'Sub Category' },

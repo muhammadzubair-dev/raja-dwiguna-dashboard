@@ -343,12 +343,13 @@ function Dashboard() {
           </Card>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 8 }}>
-          <Card withBorder pb="xl" radius="lg">
-            <Text>Recent Transaction</Text>
-            <Text size="sm" c="dimmed" mb="xs">
-              Monthly Income and Outcome
-            </Text>
-
+          <Card withBorder radius="lg" p="0" pb={4}>
+            <Box p="md" pb={4}>
+              <Text>Recent Transaction</Text>
+              <Text size="sm" c="dimmed" mb="xs">
+                Monthly Income and Outcome
+              </Text>
+            </Box>
             <DataTable
               verticalSpacing="md"
               fetching={isLoadingTransactions}
@@ -406,22 +407,21 @@ function Dashboard() {
                 },
               ]}
             />
-
-            <Button
-              variant="outline"
-              mt="lg"
-              w={200}
-              onClick={() => navigate('/transactions')}
-            >
-              See all Transactions
-            </Button>
           </Card>
+          <Button
+            variant="outline"
+            mt="xs"
+            w={200}
+            onClick={() => navigate('/transactions')}
+          >
+            See all Transactions
+          </Button>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 4 }}>
-          <Card withBorder radius="lg">
-            <Text ta="right" mb="md">
-              Top Transactions
-            </Text>
+          <Card withBorder p={0} radius="lg" pb={6}>
+            <Box p="md" pb="0">
+              <Text mb="md">Top Transactions</Text>
+            </Box>
             <Tabs
               defaultValue="top-incoming"
               classcategorys={{

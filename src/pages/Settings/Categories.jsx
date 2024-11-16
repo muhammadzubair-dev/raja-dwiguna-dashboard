@@ -269,7 +269,8 @@ function Categories() {
               title: 'No',
               textAlign: 'center',
               width: 40,
-              render: (record) => records.indexOf(record) + 1,
+              render: (record) =>
+                records.indexOf(record) + 1 + limit * (page - 1),
             },
             {
               accessor: 'is_income',

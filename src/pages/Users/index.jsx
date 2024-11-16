@@ -201,7 +201,8 @@ function TabContent({ isAccount }) {
               title: 'No',
               textAlign: 'center',
               width: 40,
-              render: (record) => records.indexOf(record) + 1,
+              render: (record) =>
+                records.indexOf(record) + 1 + limit * (page - 1),
             },
             { accessor: 'employee_id', hidden: true },
             { accessor: 'email' },
