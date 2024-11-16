@@ -10,13 +10,11 @@ import {
   Flex,
   Grid,
   NumberFormatter,
-  NumberInput,
   Skeleton,
   Stack,
   Tabs,
   Text,
   ThemeIcon,
-  Title,
   rem,
 } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
@@ -28,18 +26,19 @@ import {
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from 'react-query';
+import { useNavigate } from 'react-router-dom';
 import {
-  useGetDashboardIncome,
-  useGetDashboardOutcome,
   useGetDashboardBalance,
   useGetDashboardBarChart,
+  useGetDashboardIncome,
+  useGetDashboardOutcome,
   useGetDashboardTopIncome,
   useGetDashboardTopOutcome,
   useGetTransactions,
 } from '../../helpers/apiHelper';
-import { useNavigate } from 'react-router-dom';
+import shortCurrency from '../../helpers/shortCurrency';
 
 const TEN_MINUTES = 600000;
 
@@ -47,8 +46,10 @@ const iconStyle = { width: rem(12), height: rem(12) };
 
 function Dashboard() {
   const navigate = useNavigate();
-  const start_date = moment().utc().startOf('month').format();
-  const end_date = moment().utc().endOf('month').format();
+  const start_date = `${moment()
+    .startOf('month')
+    .format('YYYY-MM-DD')}T00:00:00Z`;
+  const end_date = `${moment().endOf('month').format('YYYY-MM-DD')}T00:00:00Z`;
   const start_date_prev_six_month = moment()
     .startOf('month')
     .subtract(6, 'months');
@@ -117,8 +118,10 @@ function Dashboard() {
     ['dashboard-BarChart'],
     () =>
       useGetDashboardBarChart({
-        start_date: moment(valueBarChart[0]).utc().format(),
-        end_date: moment(valueBarChart[1]).utc().format(),
+        start_date: `${moment(valueBarChart[0]).format(
+          'YYYY-MM-DD'
+        )}T00:00:00Z`,
+        end_date: `${moment(valueBarChart[1]).format('YYYY-MM-DD')}T00:00:00Z`,
         formatter: 'month',
       }),
     {
@@ -322,8 +325,9 @@ function Dashboard() {
               ) : (
                 <BarChart
                   h={300}
-                  valueFormatter={(value) =>
-                    new Intl.NumberFormat('id-ID').format(value)
+                  valueFormatter={
+                    (value) => shortCurrency(value)
+                    // new Intl.NumberFormat('id-ID').format(value)
                   }
                   data={recordBarChart || []}
                   dataKey="month"
