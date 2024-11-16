@@ -209,7 +209,7 @@ function Dashboard() {
     },
     {
       title: 'Total Income',
-      color: 'blue',
+      color: 'green',
       data: dataIncome?.response,
       isLoading: isLoadingIncome,
       error: errorIncome?.message,
@@ -218,7 +218,7 @@ function Dashboard() {
     },
     {
       title: 'Balance',
-      color: 'green',
+      color: 'blue',
       data: dataBalance?.response,
       isLoading: isLoadingBalance,
       error: errorBalance?.message,
@@ -325,8 +325,8 @@ function Dashboard() {
                   dataKey="month"
                   withLegend
                   series={[
-                    { name: 'Income', color: 'violet.6' },
-                    { name: 'Outcome', color: 'blue.6' },
+                    { name: 'Income', color: 'green' },
+                    { name: 'Outcome', color: 'red' },
                   ]}
                 />
               )}
