@@ -1,9 +1,11 @@
 import { BarChart } from '@mantine/charts';
 import {
+  ActionIcon,
   Badge,
   Box,
   Button,
   Card,
+  Center,
   Container,
   Flex,
   Grid,
@@ -18,10 +20,15 @@ import {
   rem,
 } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
-import { IconBuildingBank, IconCoin, IconMoneybag } from '@tabler/icons-react';
+import {
+  IconBuildingBank,
+  IconCoin,
+  IconMoneybag,
+  IconSearch,
+} from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import {
   useGetDashboardIncome,
@@ -36,22 +43,22 @@ import { useNavigate } from 'react-router-dom';
 
 const TEN_MINUTES = 600000;
 
-const dataChart = [
-  { month: 'January', Income: 1200, Outcome: 900 },
-  { month: 'February', Income: 1900, Outcome: 1200 },
-  { month: 'March', Income: 400, Outcome: 1000 },
-  { month: 'April', Income: 1000, Outcome: 200 },
-  { month: 'May', Income: 800, Outcome: 1400 },
-  { month: 'June', Income: 750, Outcome: 600 },
-];
-
 const iconStyle = { width: rem(12), height: rem(12) };
 
 function Dashboard() {
   const navigate = useNavigate();
   const start_date = moment().utc().startOf('month').format();
   const end_date = moment().utc().endOf('month').format();
-  const [value, setValue] = useState([null, null]);
+  const start_date_prev_six_month = moment()
+    .startOf('month')
+    .subtract(6, 'months');
+
+  const start_date_prev_current_month = moment().endOf('month');
+
+  const [valueBarChart, setValueBarChart] = useState([
+    start_date_prev_six_month,
+    start_date_prev_current_month,
+  ]);
 
   const {
     data: dataIncome,
@@ -98,6 +105,25 @@ function Dashboard() {
       }),
     {
       refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const {
+    data: dataBarChart,
+    isLoading: isLoadingBarChart,
+    error: errorBarChart,
+    refetch: refetchBarChart,
+  } = useQuery(
+    ['dashboard-BarChart'],
+    () =>
+      useGetDashboardBarChart({
+        start_date: moment(valueBarChart[0]).utc().format(),
+        end_date: moment(valueBarChart[1]).utc().format(),
+        formatter: 'month',
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+      enabled: false,
     }
   );
 
@@ -162,7 +188,13 @@ function Dashboard() {
     category_id: item.list_category.id,
     sub_category_id: item.list_sub_category.id,
     reference_number: item.reference_number,
-    created_by: item.created_by,
+    created_by: item.list_employee.email,
+  }));
+
+  const recordBarChart = dataBarChart?.response?.map((item) => ({
+    month: item.date,
+    Income: item.incoming,
+    Outcome: item.outcoming,
   }));
 
   const dataCard = [
@@ -195,8 +227,12 @@ function Dashboard() {
     },
   ];
 
+  useEffect(() => {
+    refetchBarChart();
+  }, []);
+
   return (
-    <Container size="xl" flex={1} p="xl">
+    <Container flex={1} p="xl">
       <Grid gutter="md">
         {dataCard.map(
           ({ title, icon, color, data, isLoading, error, subtitle }) => (
@@ -258,24 +294,42 @@ function Dashboard() {
                   Monthly Income and Outcome
                 </Text>
               </Box>
-              <MonthPickerInput
-                type="range"
-                placeholder="Select month range"
-                value={value}
-                onChange={setValue}
-              />
+              <Flex gap={4} align="flex-start">
+                <MonthPickerInput
+                  type="range"
+                  placeholder="Select month range"
+                  value={valueBarChart}
+                  onChange={setValueBarChart}
+                  disabled={isLoadingBarChart}
+                  rightSection={
+                    <ActionIcon
+                      variant="subtle"
+                      loading={isLoadingBarChart}
+                      onClick={refetchBarChart}
+                    >
+                      <IconSearch size={14} />
+                    </ActionIcon>
+                  }
+                />
+              </Flex>
             </Flex>
-            <Skeleton visible={true}>
-              <BarChart
-                h={300}
-                data={dataChart}
-                dataKey="month"
-                withLegend
-                series={[
-                  { name: 'Income', color: 'violet.6' },
-                  { name: 'Outcome', color: 'blue.6' },
-                ]}
-              />
+            <Skeleton visible={isLoadingBarChart}>
+              {errorBarChart ? (
+                <Center h={300}>
+                  <Text c="red">Error: {errorBarChart?.message}</Text>
+                </Center>
+              ) : (
+                <BarChart
+                  h={300}
+                  data={recordBarChart || []}
+                  dataKey="month"
+                  withLegend
+                  series={[
+                    { name: 'Income', color: 'violet.6' },
+                    { name: 'Outcome', color: 'blue.6' },
+                  ]}
+                />
+              )}
             </Skeleton>
           </Card>
         </Grid.Col>
@@ -334,7 +388,7 @@ function Dashboard() {
                 },
                 { accessor: 'description' },
                 // { accessor: 'reference_number' },
-                // { accessor: 'created_by' },
+                { accessor: 'created_by' },
                 {
                   accessor: 'created_at',
                   render: ({ created_at }) => (

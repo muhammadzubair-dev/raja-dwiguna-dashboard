@@ -248,7 +248,7 @@ function Reports() {
     category_id: item.list_category.id,
     sub_category_id: item.list_sub_category.id,
     reference_number: item.reference_number,
-    created_by: item.created_by,
+    created_by: item.list_employee.email,
   }));
 
   const handleEditTransaction = (data) => {
