@@ -98,7 +98,9 @@ function AddAndEditCategory({ data, refetchCategories }) {
           {...form.getInputProps('is_income')}
         >
           <Group mt="xs" justify="flex-start" gap="xs">
-            <Chip value="true">Income</Chip>
+            <Chip value="true" color="green">
+              Income
+            </Chip>
             <Chip value="false" color="red">
               Outcome
             </Chip>

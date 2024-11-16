@@ -100,6 +100,7 @@ function AddAndEditBankAccount({ data, refetchBankAccounts }) {
           {...form.getInputProps('name')}
         />
         <NumberInput
+          allowNegative={false}
           withAsterisk
           allowDecimal={false}
           label="Account Number"
@@ -107,6 +108,7 @@ function AddAndEditBankAccount({ data, refetchBankAccounts }) {
           {...form.getInputProps('account_number')}
         />
         <NumberInput
+          allowNegative={false}
           withAsterisk
           disabled={!isAdd}
           prefix="Rp "

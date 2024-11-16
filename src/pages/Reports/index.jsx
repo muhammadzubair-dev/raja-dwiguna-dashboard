@@ -177,6 +177,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
           {...form.getInputProps('sub_category_id')}
         />
         <NumberInput
+          allowNegative={false}
           withAsterisk
           prefix="Rp "
           thousandSeparator="."

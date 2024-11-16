@@ -177,6 +177,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
           {...form.getInputProps('sub_category_id')}
         />
         <NumberInput
+          allowNegative={false}
           withAsterisk
           prefix="Rp "
           thousandSeparator="."
@@ -238,7 +239,7 @@ function Transactions() {
   const records = data?.response?.data.map((item) => ({
     id: item.id,
     amount: item.amount,
-    list_category: item.list_category.is_income,
+    is_income: item.list_category.is_income,
     category: item.list_category.name,
     sub_category: item.list_sub_category.name,
     bank_name: item.list_account.bank_name,
