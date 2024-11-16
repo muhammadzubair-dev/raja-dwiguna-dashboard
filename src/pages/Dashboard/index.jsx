@@ -123,7 +123,6 @@ function Dashboard() {
       }),
     {
       refetchInterval: TEN_MINUTES,
-      enabled: false,
     }
   );
 
@@ -227,10 +226,6 @@ function Dashboard() {
     },
   ];
 
-  useEffect(() => {
-    refetchBarChart();
-  }, []);
-
   return (
     <Container size="xl" flex={1} p="xl">
       <Grid gutter="md">
@@ -296,6 +291,7 @@ function Dashboard() {
               </Box>
               <Flex gap={4} align="flex-start">
                 <MonthPickerInput
+                  miw={250}
                   type="range"
                   placeholder="Select month range"
                   value={valueBarChart}
