@@ -317,9 +317,13 @@ function Dashboard() {
               ) : (
                 <BarChart
                   h={300}
+                  valueFormatter={(value) =>
+                    new Intl.NumberFormat('id-ID').format(value)
+                  }
                   data={recordBarChart || []}
                   dataKey="month"
                   withLegend
+                  barProps={{ radius: 10 }}
                   series={[
                     { name: 'Income', color: 'green' },
                     { name: 'Outcome', color: 'red' },
