@@ -227,11 +227,11 @@ function Dashboard() {
   ];
 
   return (
-    <Container size="xl" flex={1} p="xl">
+    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
       <Grid gutter="md">
         {dataCard.map(
           ({ title, icon, color, data, isLoading, error, subtitle }) => (
-            <Grid.Col span={4} key={title}>
+            <Grid.Col span={{ base: 12, md: 4 }} key={title}>
               <Card withBorder p="lg" radius="lg">
                 <Stack h={95} justify="center">
                   <Flex gap="lg" align="center">
@@ -282,7 +282,12 @@ function Dashboard() {
 
         <Grid.Col span={12}>
           <Card withBorder radius="lg">
-            <Flex justify="space-between" mb="xl">
+            <Flex
+              justify="space-between"
+              mb="xl"
+              gap="md"
+              direction={{ base: 'column', md: 'row' }}
+            >
               <Box>
                 <Text>Cash Flow</Text>
                 <Text size="sm" c="dimmed">
@@ -333,7 +338,7 @@ function Dashboard() {
             </Skeleton>
           </Card>
         </Grid.Col>
-        <Grid.Col span={8}>
+        <Grid.Col span={{ base: 12, md: 8 }}>
           <Card withBorder pb="xl" radius="lg">
             <Text>Recent Transaction</Text>
             <Text size="sm" c="dimmed" mb="xs">
@@ -408,7 +413,7 @@ function Dashboard() {
             </Button>
           </Card>
         </Grid.Col>
-        <Grid.Col span={4}>
+        <Grid.Col span={{ base: 12, md: 4 }}>
           <Card withBorder radius="lg">
             <Text ta="right" mb="md">
               Top Transactions

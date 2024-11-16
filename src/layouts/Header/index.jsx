@@ -3,16 +3,24 @@ import {
   Box,
   Container,
   Flex,
+  Group,
+  Stack,
   Text,
   Title,
   useComputedColorScheme,
   useMantineColorScheme,
 } from '@mantine/core';
-import { IconMoon, IconSun } from '@tabler/icons-react';
+import {
+  IconMenu2,
+  IconMoon,
+  IconMoonFilled,
+  IconSun,
+  IconSunFilled,
+} from '@tabler/icons-react';
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 
-function Header() {
+function Header({ onClickMenu, isMobile }) {
   const location = useLocation();
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light');
@@ -54,19 +62,26 @@ function Header() {
   const header = headers.find((item) => item.path.includes(location.pathname));
 
   return (
-    <Container size="xl" flex={1} p="xl" pb={0}>
-      <Flex justify="space-between" align="start" gap="md">
+    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }} pb={0}>
+      <Flex justify="space-between" align="start" gap="xl">
         <Box>
           <Title order={3}>{header.title}</Title>
           <Text size="sm">{header.subtitle}</Text>
         </Box>
-        <ActionIcon onClick={toggleColorScheme}>
-          {computedColorScheme === 'light' ? (
-            <IconSun style={{ width: '70%', height: '70%' }} />
-          ) : (
-            <IconMoon style={{ width: '70%', height: '70%' }} />
+        <Stack gap="xs">
+          {isMobile && (
+            <ActionIcon onClick={onClickMenu}>
+              <IconMenu2 />
+            </ActionIcon>
           )}
-        </ActionIcon>
+          <ActionIcon onClick={toggleColorScheme}>
+            {computedColorScheme === 'light' ? (
+              <IconSunFilled color="yellow" size={16} />
+            ) : (
+              <IconMoonFilled color="black" size={16} />
+            )}
+          </ActionIcon>
+        </Stack>
       </Flex>
     </Container>
   );

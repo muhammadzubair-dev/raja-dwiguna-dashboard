@@ -36,6 +36,7 @@ export function LinksGroup({
   links,
   toLink,
   onCollapse,
+  onCloseMenu,
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,6 +70,7 @@ export function LinksGroup({
         handleLogout();
       } else {
         navigate(toLink);
+        onCloseMenu();
       }
     }
   };
@@ -81,6 +83,7 @@ export function LinksGroup({
       onClick={(event) => {
         event.preventDefault();
         navigate(link.link);
+        onCloseMenu();
       }}
       style={{
         ...(location.pathname === link.link && activeStyles),

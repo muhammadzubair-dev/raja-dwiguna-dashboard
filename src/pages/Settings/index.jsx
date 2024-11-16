@@ -6,7 +6,7 @@ import SubCategories from './SubCategories';
 
 function Settings() {
   return (
-    <Container size="xl" flex={1} p="xl">
+    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
       <Tabs defaultValue="bank-account">
         <Tabs.List>
           <Tabs.Tab value="bank-account">Bank Accounts</Tabs.Tab>

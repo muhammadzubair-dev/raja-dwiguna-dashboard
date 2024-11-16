@@ -50,7 +50,7 @@ function LogActivities() {
   }));
 
   return (
-    <Container size="xl" flex={1} p="xl">
+    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
       <Group justify="space-between" my="lg">
         <Flex gap="sm">
           <Select placeholder="Select Accounts" data={['000001', '000002']} />

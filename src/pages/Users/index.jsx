@@ -288,7 +288,7 @@ function TabContent({ isAccount }) {
 
 function Users() {
   return (
-    <Container size="xl" flex={1} p="xl">
+    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
       <Tabs defaultValue="Accounts">
         <Tabs.List>
           <Tabs.Tab value="Accounts">Accounts</Tabs.Tab>

@@ -1,38 +1,30 @@
 import {
-  Group,
-  Code,
-  ScrollArea,
-  rem,
-  Flex,
-  Title,
   Box,
-  useMantineColorScheme,
-  useComputedColorScheme,
-  Button,
+  Code,
+  Flex,
+  Group,
+  ScrollArea,
+  Title,
+  Transition,
 } from '@mantine/core';
 import {
-  IconNotes,
-  IconCalendarStats,
-  IconGauge,
-  IconPresentationAnalytics,
-  IconFileAnalytics,
-  IconAdjustments,
-  IconLock,
-  IconDashboard,
-  IconUsers,
-  IconLogout2,
-  IconTransactionDollar,
   IconCashRegister,
-  IconSun,
-  IconMoon,
+  IconDashboard,
+  IconLogout2,
+  IconUsers,
 } from '@tabler/icons-react';
-import UserButton from '../../components/UserButton';
-import LinksGroup from '../../components/NavbarLinksGroup';
-import classes from './index.module.css';
-import { Outlet } from 'react-router-dom';
-import logoImage from '../../assets/logo.png';
-import Header from '../Header';
 import { useState } from 'react';
+import logoImage from '../../assets/logo.png';
+import LinksGroup from '../../components/NavbarLinksGroup';
+import UserButton from '../../components/UserButton';
+import classes from './index.module.css';
+import { useMediaQuery } from '@mantine/hooks';
+
+const slideTransition = {
+  in: { transform: 'translateX(0)', opacity: 1 },
+  out: { transform: 'translateX(-100%)', opacity: 0 },
+  common: { transitionProperty: 'transform, opacity' },
+};
 
 const mockdata = [
   { label: 'Dashboard', icon: IconDashboard, toLink: '/' },
@@ -59,17 +51,15 @@ const mockdata = [
   { label: 'Logout', icon: IconLogout2, toLink: '/login' },
 ];
 
-function NavbarNested() {
+export function Navbar({ onCloseMenu }) {
   const [stateCollapse, setStateCollapse] = useState(mockdata);
 
   const handleCollapse = (label) => {
     setStateCollapse((prev) =>
       prev.map((item) => {
         if (item.label === label) {
-          // Toggle the clicked section's `initiallyOpened` state
           return { ...item, initiallyOpened: !item.initiallyOpened };
         } else {
-          // Collapse all other sections
           return { ...item, initiallyOpened: false };
         }
       })
@@ -77,40 +67,57 @@ function NavbarNested() {
   };
 
   const links = stateCollapse.map((item) => (
-    <LinksGroup {...item} key={item.label} onCollapse={handleCollapse} />
+    <LinksGroup
+      {...item}
+      key={item.label}
+      onCollapse={handleCollapse}
+      onCloseMenu={onCloseMenu}
+    />
   ));
 
   return (
-    <Flex gap="md">
-      <nav className={classes.navbar}>
-        <div className={classes.header}>
-          <Group justify="space-between">
-            <Flex gap="sm" align="center">
-              <img height={50} src={logoImage} alt="logo" />
-              <Box>
-                <Title order={4} mb={-10}>
-                  Raja Dwiguna
-                </Title>
-                <Title order={4}>Semesta</Title>
-              </Box>
-            </Flex>
-            <Code fw={700}>v3.1.2</Code>
-          </Group>
-        </div>
+    <nav className={classes.navbar}>
+      <div className={classes.header}>
+        <Group justify="space-between">
+          <Flex gap="sm" align="center">
+            <img height={50} src={logoImage} alt="logo" />
+            <Box>
+              <Title order={4} mb={-10}>
+                Raja Dwiguna
+              </Title>
+              <Title order={4}>Semesta</Title>
+            </Box>
+          </Flex>
+          <Code fw={700}>v3.1.2</Code>
+        </Group>
+      </div>
 
-        <ScrollArea className={classes.links}>
-          <div className={classes.linksInner}>{links}</div>
-        </ScrollArea>
+      <ScrollArea className={classes.links}>
+        <div className={classes.linksInner}>{links}</div>
+      </ScrollArea>
 
-        <div className={classes.footer}>
-          <UserButton />
+      <div className={classes.footer}>
+        <UserButton />
+      </div>
+    </nav>
+  );
+}
+
+function NavbarNested({ isMobile }) {
+  return (
+    <Transition
+      mounted={!isMobile}
+      transition={slideTransition}
+      duration={300}
+      timingFunction="ease"
+      keepMounted
+    >
+      {(transitionStyle) => (
+        <div style={{ ...transitionStyle, zIndex: 1, position: 'fixed' }}>
+          <Navbar />
         </div>
-      </nav>
-      <Box flex={1}>
-        <Header />
-        <Outlet />
-      </Box>
-    </Flex>
+      )}
+    </Transition>
   );
 }
 

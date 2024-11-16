@@ -1,23 +1,21 @@
 import { createBrowserRouter } from 'react-router-dom';
-import NavbarColored from './layouts/NavbarColored';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Users from './pages/Users';
-import Transactions from './pages/Transactions';
-import NavbarNested from './layouts/NavbarNested';
+import Layout from './layouts';
 import RequireAuth from './layouts/RequireAuth';
-import Roles from './pages/Roles';
+import Dashboard from './pages/Dashboard';
 import LogActivities from './pages/LogActivities';
-import MasterCategories from './pages/Settings';
-import Settings from './pages/Settings';
+import Login from './pages/Login';
 import Reports from './pages/Reports';
+import Roles from './pages/Roles';
+import Settings from './pages/Settings';
+import Transactions from './pages/Transactions';
+import Users from './pages/Users';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: (
       <RequireAuth>
-        <NavbarNested />
+        <Layout />
       </RequireAuth>
     ),
     children: [
