@@ -1,12 +1,19 @@
-import { Container, Tabs, Text, Title } from '@mantine/core';
+import { Container, Tabs } from '@mantine/core';
 import React from 'react';
+import useSizeContainer from '../../helpers/useSizeContainer';
 import BankAccounts from './BankAccounts';
 import Categories from './Categories';
 import SubCategories from './SubCategories';
 
 function Settings() {
+  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   return (
-    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
+    <Container
+      size="xl"
+      flex={1}
+      fluid={sizeContainer === 'fluid'}
+      p={{ base: 'md', md: 'xl' }}
+    >
       <Tabs defaultValue="bank-account">
         <Tabs.List>
           <Tabs.Tab value="bank-account">Bank Accounts</Tabs.Tab>

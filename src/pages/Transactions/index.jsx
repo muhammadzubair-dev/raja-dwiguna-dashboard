@@ -20,6 +20,7 @@ import {
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import {
+  IconCalendar,
   IconDownload,
   IconEdit,
   IconPlus,
@@ -27,7 +28,7 @@ import {
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
-import React from 'react';
+import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import ErrorMessage from '../../components/ErrorMessage';
 import {
@@ -39,6 +40,8 @@ import {
 } from '../../helpers/apiHelper';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
+import { DatePickerInput } from '@mantine/dates';
+import useSizeContainer from '../../helpers/useSizeContainer';
 
 function AddAndEditTransaction({ data, refetchTransactions }) {
   const isAdd = data ? false : true;
@@ -223,6 +226,11 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
 }
 
 function Transactions() {
+  const [isIncome, setIsIncome] = useState(null);
+  const [rangeDates, setRangeDates] = useState([null, null]);
+  const [category, setCategory] = useState(null);
+  const [subCategory, setSubCategory] = useState(null);
+  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
     10
@@ -234,6 +242,10 @@ function Transactions() {
         limit,
         page,
       })
+  );
+  const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
+    ['categories'],
+    () => useGetOptionCategories()
   );
 
   const records = data?.response?.data.map((item) => ({
@@ -270,15 +282,86 @@ function Transactions() {
     });
   };
 
+  const recordsCategory = [
+    {
+      group: 'Income',
+      items: (optionCategories?.response || [])
+        .filter((category) => category.is_income === true)
+        .map(({ id, name }) => ({ value: id, label: name })),
+    },
+    {
+      group: 'Outcome',
+      items: (optionCategories?.response || [])
+        .filter((category) => category.is_income === false)
+        .map(({ id, name }) => ({ value: id, label: name })),
+    },
+  ];
+
+  const findSubCategory = optionCategories?.response.find(
+    ({ id }) => id === category
+  );
+
+  const recordsSubCategory = findSubCategory?.list_transaction_sub_category.map(
+    ({ id, name }) => ({
+      value: id,
+      label: name,
+    })
+  );
+
   return (
-    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
-      <Group justify="space-between" my="lg">
-        <Flex gap="sm">
-          <Input
-            placeholder="Search Transaction"
-            leftSection={<IconSearch size={16} />}
+    <Container
+      size="xl"
+      flex={1}
+      fluid={sizeContainer === 'fluid'}
+      p={{ base: 'md', md: 'xl' }}
+    >
+      <Group justify="space-between" mb="lg">
+        <Flex gap="sm" wrap="wrap">
+          <Select
+            placeholder="Select Type"
+            data={['Income', 'Outcome']}
+            onChange={setIsIncome}
+            clearable
           />
-          <Select placeholder="Select Status" data={['Active', 'Inactive']} />
+          <Select
+            disabled={isLoadingCategories}
+            placeholder={isLoadingCategories ? 'Loading...' : 'Select Category'}
+            data={recordsCategory}
+            onChange={setCategory}
+            searchable
+            clearable
+          />
+          <Select
+            disabled={isLoadingCategories || recordsSubCategory?.length === 0}
+            placeholder={
+              isLoadingCategories
+                ? 'Loading...'
+                : recordsSubCategory?.length === 0
+                ? 'No Sub Category, Please select another Category'
+                : 'Select Sub Category'
+            }
+            data={recordsSubCategory}
+            onChange={setSubCategory}
+            searchable
+            clearable
+          />
+          <DatePickerInput
+            miw={185}
+            leftSection={<IconCalendar size={16} />}
+            leftSectionPointerEvents="none"
+            type="range"
+            placeholder="Pick dates range"
+            value={rangeDates}
+            onChange={setRangeDates}
+            clearable
+          />
+          <Button
+            onClick={refetch}
+            loading={isLoading}
+            leftSection={<IconSearch size={16} />}
+          >
+            Search
+          </Button>
         </Flex>
         <Group justify="center">
           <Button
@@ -317,6 +400,7 @@ function Transactions() {
             {
               accessor: 'is_income',
               title: 'Type',
+              width: 100,
               render: ({ is_income }) => (
                 <Badge
                   variant="outline"
@@ -332,6 +416,7 @@ function Transactions() {
             { accessor: 'sub_category' },
             {
               accessor: 'amount',
+              noWrap: true,
               render: ({ amount }) => (
                 <NumberFormatter
                   value={amount}
@@ -343,10 +428,15 @@ function Transactions() {
               ),
             },
             { accessor: 'description' },
-            { accessor: 'reference_number' },
-            { accessor: 'created_by' },
+            {
+              accessor: 'reference_number',
+              width: 150,
+              ellipsis: true,
+            },
+            { accessor: 'created_by', noWrap: true },
             {
               accessor: 'created_at',
+              noWrap: true,
               render: ({ created_at }) => (
                 <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
               ),

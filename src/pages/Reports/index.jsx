@@ -41,13 +41,14 @@ import {
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 import { DatePickerInput } from '@mantine/dates';
-import { range } from '@mantine/hooks';
+import useSizeContainer from '../../helpers/useSizeContainer';
 
 function Reports() {
   const [isIncome, setIsIncome] = useState(null);
   const [rangeDates, setRangeDates] = useState([null, null]);
   const [category, setCategory] = useState(null);
   const [subCategory, setSubCategory] = useState(null);
+  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
     10
@@ -117,7 +118,12 @@ function Reports() {
   );
 
   return (
-    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
+    <Container
+      size="xl"
+      flex={1}
+      fluid={sizeContainer === 'fluid'}
+      p={{ base: 'md', md: 'xl' }}
+    >
       <Group justify="space-between" mb="lg">
         <Flex gap="sm">
           <Select
@@ -200,6 +206,7 @@ function Reports() {
             {
               accessor: 'is_income',
               title: 'Type',
+              width: 100,
               render: ({ is_income }) => (
                 <Badge
                   variant="outline"
@@ -215,6 +222,7 @@ function Reports() {
             { accessor: 'sub_category' },
             {
               accessor: 'amount',
+              noWrap: true,
               render: ({ amount }) => (
                 <NumberFormatter
                   value={amount}
@@ -226,12 +234,36 @@ function Reports() {
               ),
             },
             { accessor: 'description' },
-            { accessor: 'reference_number' },
-            { accessor: 'created_by' },
+            {
+              accessor: 'reference_number',
+              width: 150,
+              ellipsis: true,
+            },
+            { accessor: 'created_by', noWrap: true },
             {
               accessor: 'created_at',
+              noWrap: true,
               render: ({ created_at }) => (
                 <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
+              ),
+            },
+            {
+              accessor: 'actions',
+              title: '',
+              textAlign: 'right',
+              render: (data) => (
+                <Group gap={4} justify="right" wrap="nowrap">
+                  <Tooltip label="Edit Transaction">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="blue"
+                      onClick={() => handleEditTransaction(data)}
+                    >
+                      <IconEdit size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
               ),
             },
           ]}

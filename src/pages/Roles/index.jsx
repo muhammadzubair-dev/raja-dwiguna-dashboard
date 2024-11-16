@@ -43,6 +43,7 @@ import usePagination from '../../helpers/usePagination';
 import { modals } from '@mantine/modals';
 import ErrorMessage from '../../components/ErrorMessage';
 import { notificationSuccess } from '../../helpers/notificationHelper';
+import useSizeContainer from '../../helpers/useSizeContainer';
 
 function AddAndEditRole({ id, role, refetchRoles }) {
   const isAdd = id && role ? false : true;
@@ -130,6 +131,7 @@ function DeleteRole({ id, name, refetchRoles }) {
 }
 
 function Roles() {
+  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
     10
@@ -177,7 +179,12 @@ function Roles() {
   };
 
   return (
-    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
+    <Container
+      size="xl"
+      flex={1}
+      fluid={sizeContainer === 'fluid'}
+      p={{ base: 'md', md: 'xl' }}
+    >
       <Group mb="sm" justify="flex-end">
         <Button onClick={handleAddRole} leftSection={<IconPlus size={18} />}>
           Role

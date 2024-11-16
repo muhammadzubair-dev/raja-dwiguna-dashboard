@@ -4,32 +4,28 @@ import {
   Card,
   Container,
   Flex,
-  Group,
-  Input,
   Select,
   Text,
   TextInput,
-  Title,
-  Tooltip,
-  rem,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { IconCalendar, IconSearch } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
+import moment from 'moment';
 import React, { useState } from 'react';
-import usePagination from '../../helpers/usePagination';
+import { useQuery } from 'react-query';
 import {
   useGetLogActivities,
-  useGetOptionAccounts,
   useGetOptionUsers,
 } from '../../helpers/apiHelper';
-import { useQuery } from 'react-query';
-import moment from 'moment';
+import usePagination from '../../helpers/usePagination';
+import useSizeContainer from '../../helpers/useSizeContainer';
 
 function LogActivities() {
-  const [value, setValue] = useState([null, null]);
-  const [action, setAction] = useState('');
   const [user, setUser] = useState('');
+  const [action, setAction] = useState('');
+  const [value, setValue] = useState([null, null]);
+  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
     10
@@ -70,7 +66,12 @@ function LogActivities() {
   }));
 
   return (
-    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
+    <Container
+      size="xl"
+      flex={1}
+      fluid={sizeContainer === 'fluid'}
+      p={{ base: 'md', md: 'xl' }}
+    >
       <Flex gap="sm" mb="lg">
         <Select
           disabled={isLoadingUsers}

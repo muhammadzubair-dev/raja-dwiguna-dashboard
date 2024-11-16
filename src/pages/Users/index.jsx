@@ -37,9 +37,11 @@ import usePagination from '../../helpers/usePagination';
 import { modals } from '@mantine/modals';
 import ErrorMessage from '../../components/ErrorMessage';
 import { notificationSuccess } from '../../helpers/notificationHelper';
+import useSizeContainer from '../../helpers/useSizeContainer';
 
 function ChangeAccountStatus({ id, status, email, refetchUsers }) {
   const [value, setValue] = useState(status);
+
   const { mutate, isLoading, error } = useMutation(usePostChangeAccountStatus, {
     onSuccess: () => {
       refetchUsers();
@@ -288,8 +290,14 @@ function TabContent({ isAccount }) {
 }
 
 function Users() {
+  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   return (
-    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
+    <Container
+      size="xl"
+      flex={1}
+      fluid={sizeContainer === 'fluid'}
+      p={{ base: 'md', md: 'xl' }}
+    >
       <Tabs defaultValue="Accounts">
         <Tabs.List>
           <Tabs.Tab value="Accounts">Accounts</Tabs.Tab>

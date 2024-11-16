@@ -39,6 +39,7 @@ import {
   useGetTransactions,
 } from '../../helpers/apiHelper';
 import shortCurrency from '../../helpers/shortCurrency';
+import useSizeContainer from '../../helpers/useSizeContainer';
 
 const TEN_MINUTES = 600000;
 
@@ -46,6 +47,7 @@ const iconStyle = { width: rem(12), height: rem(12) };
 
 function Dashboard() {
   const navigate = useNavigate();
+  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   const start_date = `${moment()
     .startOf('month')
     .format('YYYY-MM-DD')}T00:00:00Z`;
@@ -230,7 +232,12 @@ function Dashboard() {
   ];
 
   return (
-    <Container size="xl" flex={1} p={{ base: 'md', md: 'xl' }}>
+    <Container
+      size="xl"
+      flex={1}
+      fluid={sizeContainer === 'fluid'}
+      p={{ base: 'md', md: 'xl' }}
+    >
       <Grid gutter="md">
         {dataCard.map(
           ({ title, icon, color, data, isLoading, error, subtitle }) => (
