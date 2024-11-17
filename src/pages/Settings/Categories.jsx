@@ -195,6 +195,8 @@ function Categories() {
     modals.open({
       title: 'Add Category',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditCategory refetchCategories={refetch} />,
     });
   };
@@ -203,6 +205,8 @@ function Categories() {
     modals.open({
       title: 'Add Category',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <AddAndEditCategory
           data={{ ...data, is_income: data.is_income ? 'true' : 'false' }}
@@ -216,6 +220,8 @@ function Categories() {
     modals.open({
       title: 'Delete Category',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <DeleteCategory id={id} name={name} refetchCategories={refetch} />
       ),

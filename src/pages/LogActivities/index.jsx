@@ -5,6 +5,7 @@ import {
   Container,
   Flex,
   Select,
+  Stack,
   Text,
   TextInput,
 } from '@mantine/core';
@@ -21,6 +22,50 @@ import {
 } from '../../helpers/apiHelper';
 import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
+import { modals } from '@mantine/modals';
+
+function FilterLogActivities({
+  isLoadingUsers,
+  recordsUsers,
+  setUser,
+  setAction,
+  value,
+  setValue,
+  refetch,
+  isLoading,
+}) {
+  return (
+    <>
+      <Select
+        disabled={isLoadingUsers}
+        placeholder={isLoadingUsers ? 'Loading...' : 'Select User'}
+        data={recordsUsers}
+        onChange={setUser}
+        searchable
+      />
+      <TextInput
+        placeholder="Actions"
+        onChange={(event) => setAction(event.currentTarget.value)}
+      />
+      <DatePickerInput
+        miw={185}
+        leftSection={<IconCalendar size={16} />}
+        leftSectionPointerEvents="none"
+        type="range"
+        placeholder="Pick dates range"
+        value={value}
+        onChange={setValue}
+      />
+      <Button
+        onClick={refetch}
+        loading={isLoading}
+        leftSection={<IconSearch size={16} />}
+      >
+        Search
+      </Button>
+    </>
+  );
+}
 
 function LogActivities() {
   const [user, setUser] = useState('');
@@ -44,7 +89,12 @@ function LogActivities() {
           start_date: `${moment(value[0]).format('YYYY-MM-DD')}T00:00:00Z`,
           end_date: `${moment(value[1]).format('YYYY-MM-DD')}T00:00:00Z`,
         }),
-      })
+      }),
+    {
+      onSuccess: () => {
+        modals.closeAll();
+      },
+    }
   );
 
   const { data: optionUsers, isLoading: isLoadingUsers } = useQuery(
@@ -67,6 +117,30 @@ function LogActivities() {
     label: item.name,
   }));
 
+  const handleFilter = () => {
+    modals.open({
+      title: 'Filter Transactions',
+      centered: true,
+      size: 'xs',
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: (
+        <Stack gap="md">
+          <FilterLogActivities
+            isLoadingUsers={isLoadingUsers}
+            recordsUsers={recordsUsers}
+            setUser={setUser}
+            setAction={setAction}
+            value={value}
+            setValue={setValue}
+            refetch={refetch}
+            isLoading={isLoading}
+          />
+        </Stack>
+      ),
+    });
+  };
+
   return (
     <Container
       size="xl"
@@ -78,40 +152,23 @@ function LogActivities() {
         <Button
           mb="lg"
           variant="light"
-          onClick={() => {}}
+          onClick={handleFilter}
           leftSection={<IconFilter size={18} />}
         >
           Filter
         </Button>
       ) : (
         <Flex gap="sm" mb="lg">
-          <Select
-            disabled={isLoadingUsers}
-            placeholder={isLoadingUsers ? 'Loading...' : 'Select User'}
-            data={recordsUsers}
-            onChange={setUser}
-            searchable
-          />
-          <TextInput
-            placeholder="Actions"
-            onChange={(event) => setAction(event.currentTarget.value)}
-          />
-          <DatePickerInput
-            miw={185}
-            leftSection={<IconCalendar size={16} />}
-            leftSectionPointerEvents="none"
-            type="range"
-            placeholder="Pick dates range"
+          <FilterLogActivities
+            isLoadingUsers={isLoadingUsers}
+            recordsUsers={recordsUsers}
+            setUser={setUser}
+            setAction={setAction}
             value={value}
-            onChange={setValue}
+            setValue={setValue}
+            refetch={refetch}
+            isLoading={isLoading}
           />
-          <Button
-            onClick={refetch}
-            loading={isLoading}
-            leftSection={<IconSearch size={16} />}
-          >
-            Search
-          </Button>
         </Flex>
       )}
 

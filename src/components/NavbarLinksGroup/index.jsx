@@ -53,6 +53,8 @@ export function LinksGroup({
       children: <Text size="sm">Are you sure you want to Logout ?</Text>,
       labels: { confirm: 'Logout', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       onCancel: () => modals.closeAll(),
       onConfirm: () => {
         localStorage.removeItem('token');

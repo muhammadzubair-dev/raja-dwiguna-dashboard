@@ -1,42 +1,29 @@
 import {
   ActionIcon,
   Badge,
-  Box,
   Button,
   Card,
   Container,
-  Drawer,
   Flex,
   Group,
-  Input,
   Radio,
   Tabs,
   Text,
-  Title,
   Tooltip,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import {
-  IconDownload,
-  IconEdit,
-  IconEye,
-  IconFilter,
-  IconPlus,
-  IconSearch,
-  IconTrash,
-} from '@tabler/icons-react';
+import { modals } from '@mantine/modals';
+import { IconEdit } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
+import ErrorMessage from '../../components/ErrorMessage';
 import {
   useGetUsers,
   usePostChangeAccountStatus,
 } from '../../helpers/apiHelper';
-import usePagination from '../../helpers/usePagination';
-import { modals } from '@mantine/modals';
-import ErrorMessage from '../../components/ErrorMessage';
 import { notificationSuccess } from '../../helpers/notificationHelper';
+import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
 
 function ChangeAccountStatus({ id, status, email, refetchUsers }) {
@@ -92,7 +79,6 @@ function ChangeAccountStatus({ id, status, email, refetchUsers }) {
 }
 
 function TabContent({ isAccount }) {
-  const [opened, { open, close }] = useDisclosure(false);
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
     10
@@ -118,38 +104,12 @@ function TabContent({ isAccount }) {
     roles: item.list_user_role.map((item) => item.list_role.name),
   }));
 
-  const handleDeleteAccount = (id) => {
-    modals.open({
-      title: 'Delete Account',
-      centered: true,
-      children: (
-        <>
-          <Text size="sm">
-            Are you sure you want to delete Account with id {id} ? This action
-            is destructive and you will have to contact support to restore your
-            data.
-          </Text>
-          <Group justify="flex-end" mt="xl">
-            <Button
-              variant="outline"
-              color="gray"
-              onClick={() => modals.closeAll()}
-            >
-              No don't delete it
-            </Button>
-            <Button color="red" onClick={() => modals.closeAll()}>
-              Delete account
-            </Button>
-          </Group>
-        </>
-      ),
-    });
-  };
-
   const handleChangeStatus = (id, status, email) => {
     modals.open({
       title: 'Change Status',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <ChangeAccountStatus
           id={id}
@@ -163,25 +123,6 @@ function TabContent({ isAccount }) {
 
   return (
     <>
-      {/* <Group justify="space-between" my="lg">
-        <Input
-          placeholder="Search User"
-          leftSection={<IconSearch size={16} />}
-        />
-        <Group justify="center">
-          <Button
-            onClick={open}
-            leftSection={<IconFilter size={14} />}
-            variant="default"
-          >
-            Filters
-          </Button>
-          <Button leftSection={<IconDownload size={14} />} variant="default">
-            Download
-          </Button>
-          <Button leftSection={<IconPlus size={18} />}>Accounts</Button>
-        </Group>
-      </Group> */}
       <Card withBorder p="0" radius="sm" mt="sm">
         <DataTable
           verticalSpacing="md"
@@ -259,32 +200,12 @@ function TabContent({ isAccount }) {
                       <IconEdit size={16} />
                     </ActionIcon>
                   </Tooltip>
-                  <Tooltip label="Delete Account">
-                    <ActionIcon
-                      size="sm"
-                      variant="subtle"
-                      color="red"
-                      onClick={() => handleDeleteAccount(employee_id)}
-                    >
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                  </Tooltip>
                 </Group>
               ),
             },
           ]}
         />
       </Card>
-      <Drawer
-        offset={8}
-        radius="md"
-        opened={opened}
-        onClose={close}
-        title="Filter Accounts"
-        position="right"
-      >
-        {/* Drawer content */}
-      </Drawer>
     </>
   );
 }

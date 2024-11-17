@@ -45,6 +45,69 @@ import { DatePickerInput } from '@mantine/dates';
 import useSizeContainer from '../../helpers/useSizeContainer';
 import { useMediaQuery } from '@mantine/hooks';
 
+function FilterReports({
+  setIsIncome,
+  isLoadingCategories,
+  recordsCategory,
+  setCategory,
+  recordsSubCategory,
+  setSubCategory,
+  rangeDates,
+  setRangeDates,
+  isLoading,
+  refetch,
+}) {
+  return (
+    <>
+      <Select
+        placeholder="Select Type"
+        data={['Income', 'Outcome']}
+        onChange={setIsIncome}
+        clearable
+      />
+      <Select
+        disabled={isLoadingCategories}
+        placeholder={isLoadingCategories ? 'Loading...' : 'Select Category'}
+        data={recordsCategory}
+        onChange={setCategory}
+        searchable
+        clearable
+      />
+      <Select
+        disabled={isLoadingCategories || recordsSubCategory?.length === 0}
+        placeholder={
+          isLoadingCategories
+            ? 'Loading...'
+            : recordsSubCategory?.length === 0
+            ? 'No Sub Category, Please select another Category'
+            : 'Select Sub Category'
+        }
+        data={recordsSubCategory}
+        onChange={setSubCategory}
+        searchable
+        clearable
+      />
+      <DatePickerInput
+        miw={185}
+        leftSection={<IconCalendar size={16} />}
+        leftSectionPointerEvents="none"
+        type="range"
+        placeholder="Pick dates range"
+        value={rangeDates}
+        onChange={setRangeDates}
+        clearable
+      />
+      <Button
+        onClick={refetch}
+        loading={isLoading}
+        leftSection={<IconSearch size={16} />}
+      >
+        Search
+      </Button>
+    </>
+  );
+}
+
 function Reports() {
   const [isIncome, setIsIncome] = useState(null);
   const [category, setCategory] = useState(null);
@@ -71,7 +134,12 @@ function Reports() {
           start_date: `${moment(rangeDates[0]).format('YYYY-MM-DD')}T00:00:00Z`,
           end_date: `${moment(rangeDates[1]).format('YYYY-MM-DD')}T00:00:00Z`,
         }),
-      })
+      }),
+    {
+      onSuccess: () => {
+        modals.closeAll();
+      },
+    }
   );
 
   const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
@@ -130,6 +198,32 @@ function Reports() {
     })
   );
 
+  const handleFilter = () => {
+    modals.open({
+      title: 'Filter Reports',
+      centered: true,
+      size: 'xs',
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: (
+        <Stack gap="md">
+          <FilterReports
+            setIsIncome={setIsIncome}
+            isLoadingCategories={isLoadingCategories}
+            recordsCategory={recordsCategory}
+            setCategory={setCategory}
+            recordsSubCategory={recordsSubCategory}
+            setSubCategory={setSubCategory}
+            rangeDates={rangeDates}
+            setRangeDates={setRangeDates}
+            refetch={refetch}
+            isLoading={isLoading}
+          />
+        </Stack>
+      ),
+    });
+  };
+
   return (
     <Container
       size="xl"
@@ -141,7 +235,7 @@ function Reports() {
         {isMobile ? (
           <Button
             variant="light"
-            onClick={() => {}}
+            onClick={handleFilter}
             leftSection={<IconFilter size={18} />}
           >
             Filter

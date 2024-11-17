@@ -205,6 +205,8 @@ function SubCategories() {
     modals.open({
       title: 'Add SubCategory',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditSubCategory refetchSubCategories={refetch} />,
     });
   };
@@ -213,6 +215,8 @@ function SubCategories() {
     modals.open({
       title: 'Add SubCategory',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <AddAndEditSubCategory data={data} refetchSubCategories={refetch} />
       ),
@@ -221,8 +225,10 @@ function SubCategories() {
 
   const handleDeleteSubCategory = (id, name) => {
     modals.open({
-      title: 'Delete SubCategory',
+      title: 'Delete Sub Category',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <DeleteSubCategory id={id} name={name} refetchSubCategories={refetch} />
       ),

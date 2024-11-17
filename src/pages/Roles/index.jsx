@@ -156,8 +156,10 @@ function Roles() {
 
   const handleDeleteRole = (id, name) => {
     modals.open({
-      title: 'Delete Account',
+      title: 'Delete Role',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <DeleteRole id={id} name={name} refetchRoles={refetch} />,
     });
   };
@@ -166,6 +168,8 @@ function Roles() {
     modals.open({
       title: 'Edit Role',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditRole id={id} role={role} refetchRoles={refetch} />,
     });
   };
@@ -174,6 +178,8 @@ function Roles() {
     modals.open({
       title: 'Add Role',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditRole refetchRoles={refetch} />,
     });
   };

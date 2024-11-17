@@ -227,6 +227,69 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
   );
 }
 
+function FilterTransactions({
+  setIsIncome,
+  isLoadingCategories,
+  recordsCategory,
+  setCategory,
+  recordsSubCategory,
+  setSubCategory,
+  rangeDates,
+  setRangeDates,
+  isLoading,
+  refetch,
+}) {
+  return (
+    <>
+      <Select
+        placeholder="Select Type"
+        data={['Income', 'Outcome']}
+        onChange={setIsIncome}
+        clearable
+      />
+      <Select
+        disabled={isLoadingCategories}
+        placeholder={isLoadingCategories ? 'Loading...' : 'Select Category'}
+        data={recordsCategory}
+        onChange={setCategory}
+        searchable
+        clearable
+      />
+      <Select
+        disabled={isLoadingCategories || recordsSubCategory?.length === 0}
+        placeholder={
+          isLoadingCategories
+            ? 'Loading...'
+            : recordsSubCategory?.length === 0
+            ? 'No Sub Category, Please select another Category'
+            : 'Select Sub Category'
+        }
+        data={recordsSubCategory}
+        onChange={setSubCategory}
+        searchable
+        clearable
+      />
+      <DatePickerInput
+        miw={185}
+        leftSection={<IconCalendar size={16} />}
+        leftSectionPointerEvents="none"
+        type="range"
+        placeholder="Pick dates range"
+        value={rangeDates}
+        onChange={setRangeDates}
+        clearable
+      />
+      <Button
+        onClick={refetch}
+        loading={isLoading}
+        leftSection={<IconSearch size={16} />}
+      >
+        Search
+      </Button>
+    </>
+  );
+}
+
 function Transactions() {
   const [isIncome, setIsIncome] = useState(null);
   const [category, setCategory] = useState(null);
@@ -252,7 +315,12 @@ function Transactions() {
           start_date: `${moment(rangeDates[0]).format('YYYY-MM-DD')}T00:00:00Z`,
           end_date: `${moment(rangeDates[1]).format('YYYY-MM-DD')}T00:00:00Z`,
         }),
-      })
+      }),
+    {
+      onSuccess: () => {
+        modals.closeAll();
+      },
+    }
   );
   const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
     ['categories'],
@@ -279,6 +347,8 @@ function Transactions() {
     modals.open({
       title: 'Edit Transaction',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <AddAndEditTransaction data={data} refetchTransactions={refetch} />
       ),
@@ -289,6 +359,8 @@ function Transactions() {
     modals.open({
       title: 'Add Transaction',
       centered: true,
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditTransaction refetchTransactions={refetch} />,
     });
   };
@@ -328,6 +400,32 @@ function Transactions() {
     })
   );
 
+  const handleFilter = () => {
+    modals.open({
+      title: 'Filter Transactions',
+      centered: true,
+      size: 'xs',
+      radius: 'lg',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: (
+        <Stack gap="md">
+          <FilterTransactions
+            setIsIncome={setIsIncome}
+            isLoadingCategories={isLoadingCategories}
+            recordsCategory={recordsCategory}
+            setCategory={setCategory}
+            recordsSubCategory={recordsSubCategory}
+            setSubCategory={setSubCategory}
+            rangeDates={rangeDates}
+            setRangeDates={setRangeDates}
+            refetch={refetch}
+            isLoading={isLoading}
+          />
+        </Stack>
+      ),
+    });
+  };
+
   return (
     <Container
       size="xl"
@@ -339,60 +437,25 @@ function Transactions() {
         {isMobile ? (
           <Button
             variant="light"
-            onClick={() => {}}
+            onClick={handleFilter}
             leftSection={<IconFilter size={18} />}
           >
             Filter
           </Button>
         ) : (
           <Flex gap="sm" wrap="wrap">
-            <Select
-              placeholder="Select Type"
-              data={['Income', 'Outcome']}
-              onChange={setIsIncome}
-              clearable
+            <FilterTransactions
+              setIsIncome={setIsIncome}
+              isLoadingCategories={isLoadingCategories}
+              recordsCategory={recordsCategory}
+              setCategory={setCategory}
+              recordsSubCategory={recordsSubCategory}
+              setSubCategory={setSubCategory}
+              rangeDates={rangeDates}
+              setRangeDates={setRangeDates}
+              refetch={refetch}
+              isLoading={isLoading}
             />
-            <Select
-              disabled={isLoadingCategories}
-              placeholder={
-                isLoadingCategories ? 'Loading...' : 'Select Category'
-              }
-              data={recordsCategory}
-              onChange={setCategory}
-              searchable
-              clearable
-            />
-            <Select
-              disabled={isLoadingCategories || recordsSubCategory?.length === 0}
-              placeholder={
-                isLoadingCategories
-                  ? 'Loading...'
-                  : recordsSubCategory?.length === 0
-                  ? 'No Sub Category, Please select another Category'
-                  : 'Select Sub Category'
-              }
-              data={recordsSubCategory}
-              onChange={setSubCategory}
-              searchable
-              clearable
-            />
-            <DatePickerInput
-              miw={185}
-              leftSection={<IconCalendar size={16} />}
-              leftSectionPointerEvents="none"
-              type="range"
-              placeholder="Pick dates range"
-              value={rangeDates}
-              onChange={setRangeDates}
-              clearable
-            />
-            <Button
-              onClick={refetch}
-              loading={isLoading}
-              leftSection={<IconSearch size={16} />}
-            >
-              Search
-            </Button>
           </Flex>
         )}
 
