@@ -50,8 +50,8 @@ function AddAndEditCategory({ data, refetchCategories }) {
 
     validate: {
       name: (value) => (value.trim().length > 0 ? null : 'Name is required'),
-      description: (value) =>
-        value.trim().length > 0 ? null : 'Description is required',
+      // description: (value) =>
+      //   value.trim().length > 0 ? null : 'Description is required',
     },
   });
 
@@ -88,7 +88,6 @@ function AddAndEditCategory({ data, refetchCategories }) {
           {...form.getInputProps('name')}
         />
         <TextInput
-          withAsterisk
           label="Description"
           key={form.key('description')}
           {...form.getInputProps('description')}

@@ -65,8 +65,8 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
         String(value).trim().length > 0
           ? null
           : 'Amount is required and must be greater than 0',
-      description: (value) =>
-        value.trim().length > 0 ? null : 'Description is required',
+      // description: (value) =>
+      //   value.trim().length > 0 ? null : 'Description is required',
       reference_number: (value) =>
         value.trim().length > 0 ? null : 'Reference number is required',
     },
@@ -193,7 +193,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
           {...form.getInputProps('amount')}
         />
         <TextInput
-          withAsterisk
+          // withAsterisk
           label="Description"
           key={form.key('description')}
           {...form.getInputProps('description')}

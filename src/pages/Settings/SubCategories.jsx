@@ -54,15 +54,17 @@ function AddAndEditSubCategory({ data, refetchSubCategories }) {
   const form = useForm({
     mode: 'uncontrolled',
     initialValues: {
-      transaction_category_id: data?.transaction_category_id || '',
+      transaction_category_id: data?.transaction_category_id || null,
       name: data?.name || '',
       description: data?.description || '',
     },
 
     validate: {
       name: (value) => (value.trim().length > 0 ? null : 'Name is required'),
-      description: (value) =>
-        value.trim().length > 0 ? null : 'Description is required',
+      transaction_category_id: (value) =>
+        value ? null : 'Category is required',
+      // description: (value) =>
+      //   value.trim().length > 0 ? null : 'Description is required',
     },
   });
 
@@ -110,7 +112,6 @@ function AddAndEditSubCategory({ data, refetchSubCategories }) {
           {...form.getInputProps('name')}
         />
         <TextInput
-          withAsterisk
           label="Description"
           key={form.key('description')}
           {...form.getInputProps('description')}
