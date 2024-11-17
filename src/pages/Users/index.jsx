@@ -108,7 +108,7 @@ function TabContent({ isAccount }) {
     modals.open({
       title: 'Change Status',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <ChangeAccountStatus

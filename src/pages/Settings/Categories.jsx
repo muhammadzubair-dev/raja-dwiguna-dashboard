@@ -194,7 +194,7 @@ function Categories() {
     modals.open({
       title: 'Add Category',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditCategory refetchCategories={refetch} />,
     });
@@ -204,7 +204,7 @@ function Categories() {
     modals.open({
       title: 'Add Category',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <AddAndEditCategory
@@ -219,7 +219,7 @@ function Categories() {
     modals.open({
       title: 'Delete Category',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <DeleteCategory id={id} name={name} refetchCategories={refetch} />

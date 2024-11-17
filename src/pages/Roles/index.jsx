@@ -158,7 +158,7 @@ function Roles() {
     modals.open({
       title: 'Delete Role',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <DeleteRole id={id} name={name} refetchRoles={refetch} />,
     });
@@ -168,7 +168,7 @@ function Roles() {
     modals.open({
       title: 'Edit Role',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditRole id={id} role={role} refetchRoles={refetch} />,
     });
@@ -178,7 +178,7 @@ function Roles() {
     modals.open({
       title: 'Add Role',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditRole refetchRoles={refetch} />,
     });

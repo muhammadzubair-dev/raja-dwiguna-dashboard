@@ -347,7 +347,7 @@ function Transactions() {
     modals.open({
       title: 'Edit Transaction',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <AddAndEditTransaction data={data} refetchTransactions={refetch} />
@@ -359,7 +359,7 @@ function Transactions() {
     modals.open({
       title: 'Add Transaction',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditTransaction refetchTransactions={refetch} />,
     });
@@ -405,7 +405,7 @@ function Transactions() {
       title: 'Filter Transactions',
       centered: true,
       size: 'xs',
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <Stack gap="md">

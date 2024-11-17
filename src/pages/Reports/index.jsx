@@ -224,7 +224,7 @@ function Reports() {
       title: 'Filter Reports',
       centered: true,
       size: 'xs',
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <Stack gap="md">

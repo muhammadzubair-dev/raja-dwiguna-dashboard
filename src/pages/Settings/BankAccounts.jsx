@@ -170,7 +170,7 @@ function BankAccounts() {
     modals.open({
       title: 'Add Bank Account',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditBankAccount refetchBankAccounts={refetch} />,
     });
@@ -180,7 +180,7 @@ function BankAccounts() {
     modals.open({
       title: 'Edit Bank Account',
       centered: true,
-      radius: 'lg',
+      radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <AddAndEditBankAccount data={data} refetchBankAccounts={refetch} />
