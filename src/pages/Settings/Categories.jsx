@@ -289,6 +289,7 @@ function Categories() {
             {
               accessor: 'is_income',
               title: 'Type',
+              width: 100,
               render: ({ is_income }) => (
                 <Badge
                   variant="outline"
@@ -303,6 +304,7 @@ function Categories() {
             { accessor: 'description' },
             {
               accessor: 'status',
+              width: 100,
               render: ({ status }) => (
                 <Badge radius="sm" color={status ? 'green' : 'red'}>
                   {status ? 'Active' : 'Inactive'}
@@ -311,12 +313,14 @@ function Categories() {
             },
             {
               accessor: 'updated_at',
+              noWrap: true,
               render: ({ updated_at }) => (
                 <Text>{moment(updated_at).format('YYYY-MM-DD HH:mm')}</Text>
               ),
             },
             {
               accessor: 'created_at',
+              noWrap: true,
               render: ({ created_at }) => (
                 <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
               ),

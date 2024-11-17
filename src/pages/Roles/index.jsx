@@ -222,9 +222,10 @@ function Roles() {
               render: (record) =>
                 records.indexOf(record) + 1 + limit * (page - 1),
             },
-            { accessor: 'name' },
+            { accessor: 'name', noWrap: true },
             {
               accessor: 'status',
+              width: 100,
               render: ({ status }) => (
                 <Badge radius="sm" color={status ? 'green' : 'red'}>
                   {status ? 'Active' : 'Inactive'}
@@ -233,12 +234,14 @@ function Roles() {
             },
             {
               accessor: 'updated_at',
+              noWrap: true,
               render: ({ updated_at }) => (
                 <Text>{moment(updated_at).format('YYYY-MM-DD HH:mm')}</Text>
               ),
             },
             {
               accessor: 'created_at',
+              noWrap: true,
               render: ({ created_at }) => (
                 <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
               ),

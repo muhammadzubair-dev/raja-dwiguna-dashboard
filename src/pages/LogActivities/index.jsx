@@ -197,9 +197,9 @@ function LogActivities() {
               render: (record) =>
                 records.indexOf(record) + 1 + limit * (page - 1),
             },
-            { accessor: 'user_id' },
+            { accessor: 'user_id', noWrap: true },
             { accessor: 'action' },
-            { accessor: 'activity' },
+            { accessor: 'activity', noWrap: true },
             {
               accessor: 'status',
               width: 100,

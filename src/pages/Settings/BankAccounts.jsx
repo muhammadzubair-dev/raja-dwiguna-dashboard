@@ -241,10 +241,11 @@ function BankAccounts() {
                 records.indexOf(record) + 1 + limit * (page - 1),
             },
             { accessor: 'bank_name' },
-            { accessor: 'name' },
+            { accessor: 'name', noWrap: true },
             { accessor: 'account_number' },
             {
               accessor: 'current_balance',
+              noWrap: true,
               render: ({ current_balance }) => (
                 <NumberFormatter
                   value={current_balance}
@@ -257,6 +258,7 @@ function BankAccounts() {
             },
             {
               accessor: 'status',
+              width: 100,
               render: ({ status }) => (
                 <Badge radius="sm" color={status ? 'green' : 'red'}>
                   {status ? 'Active' : 'Inactive'}
@@ -265,6 +267,7 @@ function BankAccounts() {
             },
             {
               accessor: 'created_at',
+              noWrap: true,
               render: ({ created_at }) => (
                 <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
               ),

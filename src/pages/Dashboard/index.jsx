@@ -378,6 +378,7 @@ function Dashboard() {
                 {
                   accessor: 'is_income',
                   title: 'Type',
+                  width: 100,
                   render: ({ is_income }) => (
                     <Badge
                       variant="outline"
@@ -393,6 +394,7 @@ function Dashboard() {
                 // { accessor: 'sub_category' },
                 {
                   accessor: 'amount',
+                  noWrap: true,
                   render: ({ amount }) => (
                     <NumberFormatter
                       value={amount}
@@ -405,9 +407,10 @@ function Dashboard() {
                 },
                 { accessor: 'description' },
                 // { accessor: 'reference_number' },
-                { accessor: 'created_by' },
+                { accessor: 'created_by', noWrap: true },
                 {
                   accessor: 'created_at',
+                  noWrap: true,
                   render: ({ created_at }) => (
                     <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
                   ),

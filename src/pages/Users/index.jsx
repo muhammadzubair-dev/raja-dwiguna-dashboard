@@ -154,6 +154,7 @@ function TabContent({ isAccount }) {
             { accessor: 'phone_number' },
             {
               accessor: 'created_at',
+              width: 160,
               render: ({ created_at }) => (
                 <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
               ),
@@ -172,6 +173,7 @@ function TabContent({ isAccount }) {
             },
             {
               accessor: 'status',
+              width: 100,
               render: ({ status }) => (
                 <Badge radius="sm" color={status ? 'green' : 'red'}>
                   {status ? 'Active' : 'Inactive'}
