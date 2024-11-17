@@ -23,8 +23,6 @@ const useDownloadExcel = (endpoint, options = {}) => {
       finalUrl = `${finalUrl}?${queryString}`;
     }
 
-    console.log('======> ', finalUrl);
-
     try {
       const response = await fetch(finalUrl, {
         method: 'GET',
@@ -36,7 +34,7 @@ const useDownloadExcel = (endpoint, options = {}) => {
 
       // Check if the response is valid
       if (!response.ok) {
-        throw new Error('Failed to fetch the file');
+        throw new Error(`${response.status} Failed to fetch the file`);
       }
 
       // Convert the response to a Blob

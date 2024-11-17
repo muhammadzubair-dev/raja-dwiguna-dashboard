@@ -193,8 +193,9 @@ function SubCategories() {
 
   const records = data?.response?.data.map((item) => ({
     id: item.id,
-    transaction_category_id: item.list_transaction_category.id,
-    category: item.list_transaction_category.name,
+    is_income: item?.list_transaction_category?.is_income,
+    transaction_category_id: item?.list_transaction_category?.id,
+    category: item?.list_transaction_category?.name,
     name: item.name,
     description: item.description,
     status: item.status,
@@ -293,6 +294,20 @@ function SubCategories() {
               width: 40,
               render: (record) =>
                 records.indexOf(record) + 1 + limit * (page - 1),
+            },
+            {
+              accessor: 'is_income',
+              title: 'Type',
+              width: 100,
+              render: ({ is_income }) => (
+                <Badge
+                  variant="outline"
+                  radius="xl"
+                  color={is_income ? 'green' : 'red'}
+                >
+                  {is_income ? 'Income' : 'Outcome'}
+                </Badge>
+              ),
             },
             { accessor: 'category' },
             { accessor: 'name', title: 'Sub Category' },

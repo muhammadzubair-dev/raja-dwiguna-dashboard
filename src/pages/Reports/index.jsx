@@ -313,9 +313,9 @@ function Reports() {
           </Flex>
         )}
         <Group justify="flex-end">
-          {errorDownload && errorDownload?.message && (
+          {errorDownload && (
             <Text size="xs" c="red">
-              Error: {errorDownload?.message}
+              Error: {errorDownload}
             </Text>
           )}
           <Button
