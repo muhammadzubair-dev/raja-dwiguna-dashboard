@@ -39,12 +39,12 @@ export const fetchRequest = async (path, method = 'GET', options = {}) => {
   try {
     const response = await fetch(url, fetchOptions);
 
-    // if (path !== '/auth/login' && response.status === 401) {
-    //   localStorage.removeItem('token');
-    //   setTimeout(() => {
-    //     window.location.replace('/');
-    //   }, 500);
-    // }
+    if (path !== '/auth/login' && response.status === 401) {
+      localStorage.removeItem('token');
+      setTimeout(() => {
+        window.location.replace('/');
+      }, 500);
+    }
 
     if (!response.ok) {
       const errorData = await response.json();
