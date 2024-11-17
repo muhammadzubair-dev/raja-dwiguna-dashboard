@@ -44,6 +44,7 @@ import usePagination from '../../helpers/usePagination';
 import { DatePickerInput } from '@mantine/dates';
 import useSizeContainer from '../../helpers/useSizeContainer';
 import { useMediaQuery } from '@mantine/hooks';
+import useDownloadExcel from '../../helpers/useDownloadFile';
 
 function FilterReports({
   setIsIncome,
@@ -119,6 +120,26 @@ function Reports() {
     1,
     10
   );
+  const {
+    loading: loadingDownload,
+    error: errorDownload,
+    downloadExcelFile,
+  } = useDownloadExcel('/finance/report', {
+    fileName: 'report-transactions',
+    query: {
+      limit,
+      page,
+      is_excel: true,
+      ...(isIncome === 'Income' && { is_income: true }),
+      ...(isIncome === 'Outcome' && { is_income: false }),
+      ...(category && { category_id: category }),
+      ...(subCategory && { sub_category_id: subCategory }),
+      ...(rangeDates.every((el) => el !== null) && {
+        start_date: `${moment(rangeDates[0]).format('YYYY-MM-DD')}T00:00:00Z`,
+        end_date: `${moment(rangeDates[1]).format('YYYY-MM-DD')}T00:00:00Z`,
+      }),
+    },
+  });
 
   const { data, isLoading, refetch, error } = useQuery(
     ['report-transactions', page, limit],
@@ -291,8 +312,18 @@ function Reports() {
             </Button>
           </Flex>
         )}
-        <Group justify="center">
-          <Button leftSection={<IconDownload size={14} />} variant="default">
+        <Group justify="flex-end">
+          {errorDownload && errorDownload?.message && (
+            <Text size="xs" c="red">
+              Error: {errorDownload?.message}
+            </Text>
+          )}
+          <Button
+            onClick={downloadExcelFile}
+            loading={loadingDownload}
+            leftSection={<IconDownload size={14} />}
+            variant="default"
+          >
             Download
           </Button>
         </Group>
