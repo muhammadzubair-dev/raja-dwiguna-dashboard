@@ -123,3 +123,7 @@ export const useGetDashboardTopIncome = async (query) => {
 export const useGetDashboardTopOutcome = async (query) => {
   return fetchRequest(`/dashboard/top-outcoming`, 'GET', { query });
 };
+
+export const usePostLogout = async () => {
+  return fetchRequest(`/auth/logout`, 'POST');
+};

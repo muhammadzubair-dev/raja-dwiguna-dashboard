@@ -6,6 +6,7 @@ import {
   ThemeIcon,
   UnstyledButton,
   rem,
+  Button,
   useComputedColorScheme,
 } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
@@ -13,6 +14,8 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import classes from './index.module.css';
 import { modals } from '@mantine/modals';
+import { useMutation } from 'react-query';
+import { usePostLogout } from '../../helpers/apiHelper';
 
 const activeStylesLight = {
   backgroundColor: 'var(--mantine-color-blue-0)',
@@ -28,6 +31,30 @@ const activeStylesDark = {
   fontWeight: 700,
   borderRight: '4px solid var(--mantine-color-blue-7)',
 };
+
+function LogoutComponent() {
+  const { mutate, isLoading, error } = useMutation(usePostLogout, {
+    onSuccess: () => {
+      localStorage.removeItem('token');
+      window.location.replace('/');
+    },
+  });
+
+  return (
+    <Box>
+      <Text size="sm">Are you sure you want to Logout ?</Text>
+      <Group justify="center" mt="xl">
+        <Button onClick={() => modals.closeAll()}>Cancel</Button>
+        <Button color="red" loading={isLoading} onClick={() => mutate()}>
+          Logout
+        </Button>
+      </Group>
+      <Text size="small" color="red">
+        {error && error.message}
+      </Text>
+    </Box>
+  );
+}
 
 export function LinksGroup({
   icon: Icon,
@@ -47,21 +74,12 @@ export function LinksGroup({
     computedColorScheme === 'dark' ? activeStylesDark : activeStylesLight;
 
   const handleLogout = () =>
-    modals.openConfirmModal({
+    modals.open({
       title: 'Logout',
       centered: true,
-      children: <Text size="sm">Are you sure you want to Logout ?</Text>,
-      labels: { confirm: 'Logout', cancel: 'Cancel' },
-      confirmProps: { color: 'red' },
       radius: 'lg',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      onCancel: () => modals.closeAll(),
-      onConfirm: () => {
-        localStorage.removeItem('token');
-        setTimeout(() => {
-          window.location.replace('/');
-        }, 500);
-      },
+      children: <LogoutComponent />,
     });
 
   const handleClick = () => {
