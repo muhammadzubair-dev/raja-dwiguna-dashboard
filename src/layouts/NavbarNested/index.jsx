@@ -33,6 +33,7 @@ const mockdata = [
     icon: IconCashRegister,
     initiallyOpened: false,
     links: [
+      { label: 'Invoices', link: '/invoices' },
       { label: 'Transactions', link: '/transactions' },
       { label: 'Reports', link: '/reports' },
       { label: 'Settings', link: '/settings' },

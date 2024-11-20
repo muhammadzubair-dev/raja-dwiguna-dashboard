@@ -55,6 +55,11 @@ function Header({ onClickMenu, isMobile }) {
     { title: 'Roles', subtitle: 'Detailed Role of Users', path: '/roles' },
     { title: 'Accounts', subtitle: 'Detailed User Accounts', path: '/users' },
     {
+      title: 'Invoices',
+      subtitle: 'Detailed Invoices of Transaction',
+      path: '/invoices',
+    },
+    {
       title: 'Transactions',
       subtitle: 'Detailed Transaction of Users',
       path: '/transactions',

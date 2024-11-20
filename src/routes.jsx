@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import Layout from './layouts';
 import RequireAuth from './layouts/RequireAuth';
 import Dashboard from './pages/Dashboard';
+import Invoices from './pages/Invoices';
 import LogActivities from './pages/LogActivities';
 import Login from './pages/Login';
 import Reports from './pages/Reports';
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <Dashboard />,
+      },
+      {
+        path: '/invoices',
+        element: <Invoices />,
       },
       {
         path: '/transactions',
