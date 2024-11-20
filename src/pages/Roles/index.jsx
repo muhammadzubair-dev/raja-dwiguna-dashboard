@@ -1,49 +1,102 @@
 import {
   ActionIcon,
   Badge,
-  Box,
   Button,
   Card,
+  Checkbox,
   Container,
-  Drawer,
   Flex,
   Group,
-  Input,
-  Radio,
-  Select,
-  Tabs,
+  Stack,
   Text,
   TextInput,
-  Title,
-  Tooltip,
+  Tooltip
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { modals } from '@mantine/modals';
 import {
-  IconDownload,
   IconEdit,
-  IconEye,
-  IconFilter,
+  IconLockPlus,
   IconPlus,
-  IconSearch,
-  IconTrash,
+  IconTrash
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
+import ErrorMessage from '../../components/ErrorMessage';
 import {
   useDeleteRole,
+  useGetOptionModules,
   useGetRoles,
-  useGetUsers,
-  usePostChangeAccountStatus,
   usePostRole,
   usePutRole,
+  usePutRolePermissions
 } from '../../helpers/apiHelper';
-import usePagination from '../../helpers/usePagination';
-import { modals } from '@mantine/modals';
-import ErrorMessage from '../../components/ErrorMessage';
 import { notificationSuccess } from '../../helpers/notificationHelper';
+import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
+
+function EditPermissions({ id, dataIds, refetchRoles }) {
+  const [valueIds, setValueIds] = useState(dataIds || []);
+  const {
+    data: dataModules,
+    isLoading: isLoadingModules,
+    refetch: refetchModules,
+    error: errorModules,
+  } = useQuery(['modules'], useGetOptionModules);
+
+  const { mutate, isLoading, error } = useMutation(usePutRolePermissions, {
+    onSuccess: () => {
+      refetchRoles();
+      modals.closeAll();
+      notificationSuccess(`Role permissions updated successfully`);
+    },
+  });
+
+  const recordsModules = dataModules?.response
+    ?.map((item) => item.list_permission)
+    .flat();
+
+  const recordModulesIds = recordsModules?.map((item) => item.id);
+
+  const handleSave = () => {
+    const insert_id = valueIds;
+    const deleted_id = recordModulesIds.filter(
+      (item) => !valueIds.includes(item)
+    );
+    mutate({ id, insert_id, deleted_id });
+  };
+
+  return (
+    <>
+      <Checkbox.Group value={valueIds} onChange={setValueIds}>
+        <Stack gap="xs">
+          {recordsModules?.map((item) => (
+            <Checkbox value={item.id} key={item.id} label={item.name} />
+          ))}
+        </Stack>
+      </Checkbox.Group>
+      <Group justify="center" mt="lg">
+        <Button
+          variant="outline"
+          color="gray"
+          onClick={() => modals.closeAll()}
+          disabled={isLoadingModules || isLoading}
+        >
+          Cancel
+        </Button>
+        <Button onClick={handleSave} loading={isLoadingModules || isLoading}>
+          Save
+        </Button>
+      </Group>
+      {error && (
+        <Flex justify="center">
+          <ErrorMessage message={error?.message} />
+        </Flex>
+      )}
+    </>
+  );
+}
 
 function AddAndEditRole({ id, role, refetchRoles }) {
   const isAdd = id && role ? false : true;
@@ -70,7 +123,7 @@ function AddAndEditRole({ id, role, refetchRoles }) {
         value={value}
         onChange={(event) => setValue(event.currentTarget.value)}
       />
-      <Group justify="flex-end" mt="xl">
+      <Group justify="center" mt="xl">
         <Button
           variant="outline"
           color="gray"
@@ -84,7 +137,7 @@ function AddAndEditRole({ id, role, refetchRoles }) {
         </Button>
       </Group>
       {error && (
-        <Flex justify="flex-end">
+        <Flex justify="center">
           <ErrorMessage message={error?.message} />
         </Flex>
       )}
@@ -148,10 +201,15 @@ function Roles() {
   const records = data?.response?.data.map((item) => ({
     id: item.id,
     name: item.name,
+    permissions: (item?.list_role_permission || []).map(
+      (item) => item.list_permission.name
+    ),
+    permissions_ids: (item?.list_role_permission || []).map(
+      (item) => item.list_permission.id
+    ),
     status: item.status,
     updated_at: item.updated_at,
     created_at: item.created_at,
-    // roles: item.list_user_role.map((item) => item.list_role.name),
   }));
 
   const handleDeleteRole = (id, name) => {
@@ -168,6 +226,7 @@ function Roles() {
     modals.open({
       title: 'Edit Role',
       centered: true,
+      size: 'xs',
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditRole id={id} role={role} refetchRoles={refetch} />,
@@ -178,9 +237,27 @@ function Roles() {
     modals.open({
       title: 'Add Role',
       centered: true,
+      size: 'xs',
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditRole refetchRoles={refetch} />,
+    });
+  };
+
+  const handleEditPermissions = (id, permissionsIds) => {
+    modals.open({
+      title: 'Edit Permissions',
+      size: 'xs',
+      centered: true,
+      radius: 'md',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: (
+        <EditPermissions
+          id={id}
+          dataIds={permissionsIds}
+          refetchRoles={refetch}
+        />
+      ),
     });
   };
 
@@ -224,6 +301,18 @@ function Roles() {
             },
             { accessor: 'name', noWrap: true },
             {
+              accessor: 'permissions',
+              render: ({ permissions }) => (
+                <Group gap={2}>
+                  {permissions.map((item) => (
+                    <Badge size="xs" key={item}>
+                      {item}
+                    </Badge>
+                  ))}
+                </Group>
+              ),
+            },
+            {
               accessor: 'status',
               width: 100,
               render: ({ status }) => (
@@ -250,8 +339,18 @@ function Roles() {
               accessor: 'actions',
               title: '',
               textAlign: 'right',
-              render: ({ id, name }) => (
+              render: ({ id, name, permissions_ids }) => (
                 <Group gap={4} justify="right" wrap="nowrap">
+                  <Tooltip label="Edit Permission">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="yellow"
+                      onClick={() => handleEditPermissions(id, permissions_ids)}
+                    >
+                      <IconLockPlus size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                   <Tooltip label="Edit Role">
                     <ActionIcon
                       size="sm"
