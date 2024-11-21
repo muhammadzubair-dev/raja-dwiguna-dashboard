@@ -3,28 +3,90 @@ import {
   Badge,
   Button,
   Card,
+  Checkbox,
   Container,
   Flex,
   Group,
   Radio,
   Tabs,
   Text,
+  Stack,
   Tooltip,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { IconEdit } from '@tabler/icons-react';
+import { IconEdit, IconLockPlus } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import ErrorMessage from '../../components/ErrorMessage';
 import {
+  useGetRoles,
   useGetUsers,
+  usePutUserRole,
   usePostChangeAccountStatus,
 } from '../../helpers/apiHelper';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
+
+function EditRoles({ id, dataIds, refetchUsers }) {
+  const [valueIds, setValueIds] = useState(dataIds || []);
+  const {
+    data: dataRoles,
+    isLoading: isLoadingRoles,
+    error: errorRoles,
+  } = useQuery(['roles'], useGetRoles);
+
+  const { mutate, isLoading, error } = useMutation(usePutUserRole, {
+    onSuccess: () => {
+      refetchUsers();
+      modals.closeAll();
+      notificationSuccess(`Roles updated successfully`);
+    },
+  });
+
+  const recordRoles = dataRoles?.response?.data;
+  const recordRolesIds = recordRoles?.map((item) => item.id);
+
+  const handleSave = () => {
+    const insert_id = valueIds;
+    const deleted_id = recordRolesIds.filter(
+      (item) => !valueIds.includes(item)
+    );
+    mutate({ id, insert_id, deleted_id });
+  };
+
+  return (
+    <>
+      <Checkbox.Group value={valueIds} onChange={setValueIds}>
+        <Stack gap="xs">
+          {recordRoles?.map((item) => (
+            <Checkbox value={item.id} key={item.id} label={item.name} />
+          ))}
+        </Stack>
+      </Checkbox.Group>
+      <Group justify="center" mt="lg">
+        <Button
+          variant="outline"
+          color="gray"
+          onClick={() => modals.closeAll()}
+          disabled={isLoadingRoles || isLoading}
+        >
+          Cancel
+        </Button>
+        <Button onClick={handleSave} loading={isLoadingRoles || isLoading}>
+          Save
+        </Button>
+      </Group>
+      {(error || errorRoles) && (
+        <Flex justify="center">
+          <ErrorMessage message={error?.message || errorRoles?.message} />
+        </Flex>
+      )}
+    </>
+  );
+}
 
 function ChangeAccountStatus({ id, status, email, refetchUsers }) {
   const [value, setValue] = useState(status);
@@ -101,6 +163,7 @@ function TabContent({ isAccount }) {
     phone_number: item.phone_number,
     created_at: item.created_at,
     status: item.status,
+    roles_ids: item.list_user_role.map((item) => item.list_role.id),
     roles: item.list_user_role.map((item) => item.list_role.name),
   }));
 
@@ -118,6 +181,17 @@ function TabContent({ isAccount }) {
           refetchUsers={refetch}
         />
       ),
+    });
+  };
+
+  const handleEditRoles = (id, rolesIds) => {
+    modals.open({
+      title: 'Edit Roles',
+      size: 'xs',
+      centered: true,
+      radius: 'md',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: <EditRoles id={id} dataIds={rolesIds} refetchUsers={refetch} />,
     });
   };
 
@@ -164,7 +238,7 @@ function TabContent({ isAccount }) {
               render: ({ roles }) => (
                 <Group gap="xs">
                   {roles.map((role) => (
-                    <Badge variant="outline" color="gray">
+                    <Badge key={role} variant="outline" color="gray">
                       {role}
                     </Badge>
                   ))}
@@ -184,8 +258,18 @@ function TabContent({ isAccount }) {
               accessor: 'actions',
               title: '',
               textAlign: 'right',
-              render: ({ employee_id, status, email }) => (
+              render: ({ id, employee_id, status, email, roles_ids }) => (
                 <Group gap={4} justify="right" wrap="nowrap">
+                  <Tooltip label="Edit Roles">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="yellow"
+                      onClick={() => handleEditRoles(id, roles_ids)}
+                    >
+                      <IconLockPlus size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                   <Tooltip label="Change Status">
                     <ActionIcon
                       size="sm"

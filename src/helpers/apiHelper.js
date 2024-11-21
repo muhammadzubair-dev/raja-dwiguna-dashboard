@@ -8,6 +8,10 @@ export const usePostChangeAccountStatus = async (body) => {
   return fetchRequest(`/user-management/change-status`, 'POST', { body });
 };
 
+export const usePutUserRole = async (body) => {
+  return fetchRequest(`/user-management/role`, 'PUT', { body });
+};
+
 export const useGetUsers = async (query) => {
   return fetchRequest(`/user-management/users`, 'GET', { query });
 };

@@ -10,14 +10,14 @@ import {
   Stack,
   Text,
   TextInput,
-  Tooltip
+  Tooltip,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import {
   IconEdit,
   IconLockPlus,
   IconPlus,
-  IconTrash
+  IconTrash,
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
@@ -30,7 +30,7 @@ import {
   useGetRoles,
   usePostRole,
   usePutRole,
-  usePutRolePermissions
+  usePutRolePermissions,
 } from '../../helpers/apiHelper';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
@@ -41,7 +41,6 @@ function EditPermissions({ id, dataIds, refetchRoles }) {
   const {
     data: dataModules,
     isLoading: isLoadingModules,
-    refetch: refetchModules,
     error: errorModules,
   } = useQuery(['modules'], useGetOptionModules);
 
@@ -89,9 +88,9 @@ function EditPermissions({ id, dataIds, refetchRoles }) {
           Save
         </Button>
       </Group>
-      {error && (
+      {(error || errorModules) && (
         <Flex justify="center">
-          <ErrorMessage message={error?.message} />
+          <ErrorMessage message={error?.message || errorModules?.message} />
         </Flex>
       )}
     </>
