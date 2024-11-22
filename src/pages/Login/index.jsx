@@ -14,19 +14,32 @@ import {
 } from '@mantine/core';
 import { hasLength, useForm } from '@mantine/form';
 import { useEffect } from 'react';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import logoImage from '../../assets/logo.png';
 import ErrorMessage from '../../components/ErrorMessage';
-import { usePostLogin } from '../../helpers/apiHelper';
+import { useGetPrivileges, usePostLogin } from '../../helpers/apiHelper';
+import usePrivileges from '../../helpers/usePrivileges';
 
 function Login() {
   const navigate = useNavigate();
+  const updatePrivileges = usePrivileges((state) => state.updatePrivileges);
+  const {
+    isLoading: isLoadingprivileges,
+    error: errorPrivileges,
+    refetch: refetchPrivileges,
+  } = useQuery(['auth-privileges'], useGetPrivileges, {
+    enabled: false,
+    onSuccess: (data) => {
+      updatePrivileges(data.response);
+      navigate('/');
+    },
+  });
 
   const { mutate, isLoading, error } = useMutation(usePostLogin, {
     onSuccess: (data) => {
       localStorage.setItem('token', data.response.token);
-      navigate('/');
+      refetchPrivileges();
     },
   });
 
@@ -34,7 +47,7 @@ function Login() {
     mode: 'uncontrolled',
     initialValues: { username: '', password: '' },
     validate: {
-      username: hasLength({ min: 1 }, 'Must be at least 3 characters'),
+      username: hasLength({ min: 1 }, 'Must be at least 1 characters'),
       password: hasLength({ min: 3 }, 'Must be at least 3 characters'),
     },
   });
@@ -95,10 +108,19 @@ function Login() {
               Forgot password?
             </Anchor> */}
           </Group>
-          <Button fullWidth mt="xl" type="submit" loading={isLoading}>
+          <Button
+            fullWidth
+            mt="xl"
+            type="submit"
+            loading={isLoading || isLoadingprivileges}
+          >
             Sign in
           </Button>
-          {error && <ErrorMessage message={error?.message} />}
+          {(error || errorPrivileges) && (
+            <ErrorMessage
+              message={error?.message || errorPrivileges?.message}
+            />
+          )}
         </Paper>
       </form>
     </Container>

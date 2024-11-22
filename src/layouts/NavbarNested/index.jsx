@@ -19,6 +19,8 @@ import LinksGroup from '../../components/NavbarLinksGroup';
 import UserButton from '../../components/UserButton';
 import classes from './index.module.css';
 import { useMediaQuery } from '@mantine/hooks';
+import usePrivileges from '../../helpers/usePrivileges';
+import useHasPermission from '../../helpers/useHasPermission';
 
 const slideTransition = {
   in: { transform: 'translateX(0)', opacity: 1 },
@@ -26,34 +28,111 @@ const slideTransition = {
   common: { transitionProperty: 'transform, opacity' },
 };
 
-const mockdata = [
-  { label: 'Dashboard', icon: IconDashboard, toLink: '/' },
-  {
-    label: 'Finance',
-    icon: IconCashRegister,
-    initiallyOpened: false,
-    links: [
-      { label: 'Invoices', link: '/invoices' },
-      { label: 'Transactions', link: '/transactions' },
-      { label: 'Reports', link: '/reports' },
-      { label: 'Settings', link: '/settings' },
-    ],
-  },
-  {
-    label: 'Users',
-    icon: IconUsers,
-    initiallyOpened: false,
-    links: [
-      { label: 'Accounts', link: '/users' },
-      { label: 'Roles', link: '/roles' },
-      { label: 'Log Activities', link: '/log-activities' },
-    ],
-  },
-  { label: 'Logout', icon: IconLogout2, toLink: '/login' },
-];
-
 export function Navbar({ onCloseMenu }) {
-  const [stateCollapse, setStateCollapse] = useState(mockdata);
+  const dashboardPermission = useHasPermission('dashboard', 'dashboard');
+  //   {
+  //     "module": "user_management",
+  //     "status": true,
+  //     "permission": {
+  //         "account": true,
+  //         "auth": false,
+  //         "log_activity": true,
+  //         "role": true
+  //     }
+  // },
+  const financeInvoicePermission = useHasPermission('finance', 'invoice');
+  const financeReportPermission = useHasPermission('finance', 'report');
+  const financeSettingsPermission = useHasPermission('finance', 'settings');
+  const financeTransactionPermission = useHasPermission(
+    'finance',
+    'transaction'
+  );
+  const userManagementPermission = useHasPermission(
+    'user_management',
+    'account'
+  );
+  const userManagementRolePermission = useHasPermission(
+    'user_management',
+    'role'
+  );
+  const userManagementLogActivityPermission = useHasPermission(
+    'user_management',
+    'log_activity'
+  );
+
+  const [stateCollapse, setStateCollapse] = useState([
+    {
+      label: 'Dashboard',
+      icon: IconDashboard,
+      toLink: '/',
+      hasPermission: dashboardPermission,
+    },
+    {
+      label: 'Finance',
+      icon: IconCashRegister,
+      initiallyOpened: false,
+      hasPermission:
+        financeInvoicePermission ||
+        financeReportPermission ||
+        financeSettingsPermission ||
+        financeTransactionPermission,
+      links: [
+        {
+          label: 'Invoices',
+          link: '/invoices',
+          hasPermission: financeInvoicePermission,
+        },
+        {
+          label: 'Transactions',
+          link: '/transactions',
+          hasPermission: financeTransactionPermission,
+        },
+        {
+          label: 'Reports',
+          link: '/reports',
+          hasPermission: financeReportPermission,
+        },
+        {
+          label: 'Settings',
+          link: '/settings',
+          hasPermission: financeSettingsPermission,
+        },
+      ],
+    },
+    {
+      label: 'Users',
+      icon: IconUsers,
+      initiallyOpened: false,
+      hasPermission:
+        userManagementPermission ||
+        userManagementRolePermission ||
+        userManagementLogActivityPermission,
+      links: [
+        {
+          label: 'Accounts',
+          link: '/users',
+          hasPermission: userManagementPermission,
+        },
+        {
+          label: 'Roles',
+          link: '/roles',
+          hasPermission: userManagementRolePermission,
+        },
+        {
+          label: 'Log Activities',
+          link: '/log-activities',
+          hasPermission: userManagementLogActivityPermission,
+        },
+      ],
+    },
+    {
+      label: 'Logout',
+      icon: IconLogout2,
+      hasPermission: true,
+      toLink: '/login',
+    },
+  ]);
+  const privileges = usePrivileges((state) => state.privileges);
 
   const handleCollapse = (label) => {
     setStateCollapse((prev) =>
@@ -67,14 +146,16 @@ export function Navbar({ onCloseMenu }) {
     );
   };
 
-  const links = stateCollapse.map((item) => (
-    <LinksGroup
-      {...item}
-      key={item.label}
-      onCollapse={handleCollapse}
-      onCloseMenu={onCloseMenu}
-    />
-  ));
+  const links = stateCollapse
+    .filter((item) => item.hasPermission)
+    .map((item) => (
+      <LinksGroup
+        {...item}
+        key={item.label}
+        onCollapse={handleCollapse}
+        onCloseMenu={onCloseMenu}
+      />
+    ));
 
   return (
     <nav className={classes.navbar}>

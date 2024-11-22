@@ -10,6 +10,8 @@ import Roles from './pages/Roles';
 import Settings from './pages/Settings';
 import Transactions from './pages/Transactions';
 import Users from './pages/Users';
+import Privilege from './components/Privilege';
+import NoAccess from './pages/NoAccess';
 
 const router = createBrowserRouter([
   {
@@ -22,35 +24,71 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Dashboard />,
+        element: (
+          <Privilege module="dashboard" menu="dashboard">
+            <Dashboard />
+          </Privilege>
+        ),
       },
       {
         path: '/invoices',
-        element: <Invoices />,
+        element: (
+          <Privilege module="finance" menu="invoice">
+            <Invoices />
+          </Privilege>
+        ),
       },
       {
         path: '/transactions',
-        element: <Transactions />,
+        element: (
+          <Privilege module="finance" menu="transaction">
+            <Transactions />
+          </Privilege>
+        ),
       },
       {
         path: '/reports',
-        element: <Reports />,
+        element: (
+          <Privilege module="finance" menu="report">
+            <Reports />
+          </Privilege>
+        ),
       },
       {
         path: '/settings',
-        element: <Settings />,
+        element: (
+          <Privilege module="finance" menu="settings">
+            <Settings />
+          </Privilege>
+        ),
       },
       {
         path: '/users',
-        element: <Users />,
+        element: (
+          <Privilege module="user_management" menu="account">
+            <Users />
+          </Privilege>
+        ),
       },
       {
         path: '/roles',
-        element: <Roles />,
+        element: (
+          <Privilege module="user_management" menu="role">
+            <Roles />
+          </Privilege>
+        ),
       },
       {
         path: '/log-activities',
-        element: <LogActivities />,
+        element: (
+          <Privilege module="user_management" menu="log_activity">
+            <LogActivities />
+          </Privilege>
+        ),
+      },
+      {
+        path: '/403',
+        element: <NoAccess />,
       },
     ],
   },

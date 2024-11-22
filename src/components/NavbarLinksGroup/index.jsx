@@ -16,6 +16,7 @@ import classes from './index.module.css';
 import { modals } from '@mantine/modals';
 import { useMutation } from 'react-query';
 import { usePostLogout } from '../../helpers/apiHelper';
+import usePrivileges from '../../helpers/usePrivileges';
 
 const activeStylesLight = {
   backgroundColor: 'var(--mantine-color-blue-0)',
@@ -33,9 +34,11 @@ const activeStylesDark = {
 };
 
 function LogoutComponent() {
+  const updatePrivileges = usePrivileges((state) => state.updatePrivileges);
   const { mutate, isLoading, error } = useMutation(usePostLogout, {
     onSuccess: () => {
       localStorage.removeItem('token');
+      updatePrivileges([]);
       window.location.replace('/');
     },
   });
@@ -95,7 +98,7 @@ export function LinksGroup({
     }
   };
 
-  const items = (hasLinks ? links : []).map((link) => (
+  const items = (hasLinks ? links : []).filter((link) => link.hasPermission).map((link) => (
     <Text
       component="a"
       className={classes.link}

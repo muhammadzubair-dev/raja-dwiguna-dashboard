@@ -147,3 +147,7 @@ export const useGetDashboardTopOutcome = async (query) => {
 export const usePostLogout = async () => {
   return fetchRequest(`/auth/logout`, 'POST');
 };
+
+export const useGetPrivileges = async () => {
+  return fetchRequest(`/auth/privilege`, 'GET');
+};
