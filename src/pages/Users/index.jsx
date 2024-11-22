@@ -317,13 +317,11 @@ function TabContent({ isAccount }) {
             {
               accessor: 'actions',
               title: (
-                <Center>
-                  <Tooltip label="Refresh">
-                    <ActionIcon variant="subtle" onClick={refetch} radius="xl">
-                      <IconRefresh size={16} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Center>
+                <Tooltip label="Refresh">
+                  <ActionIcon variant="subtle" onClick={refetch} radius="xl">
+                    <IconRefresh size={16} />
+                  </ActionIcon>
+                </Tooltip>
               ),
               textAlign: 'right',
               render: ({ id, employee_id, status, email, roles_ids }) => {
