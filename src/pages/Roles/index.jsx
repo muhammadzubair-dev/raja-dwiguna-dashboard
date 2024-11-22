@@ -1,11 +1,13 @@
 import {
   ActionIcon,
   Badge,
+  Box,
   Button,
   Card,
   Checkbox,
   Container,
   Flex,
+  Grid,
   Group,
   Stack,
   Text,
@@ -35,6 +37,7 @@ import {
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
+import formatSnake from '../../helpers/formatSnake';
 
 function EditPermissions({ id, dataIds, refetchRoles }) {
   const [valueIds, setValueIds] = useState(dataIds || []);
@@ -56,6 +59,8 @@ function EditPermissions({ id, dataIds, refetchRoles }) {
     ?.map((item) => item.list_permission)
     .flat();
 
+  const aaa = dataModules?.response || [];
+
   const recordModulesIds = recordsModules?.map((item) => item.id);
 
   const handleSave = () => {
@@ -69,13 +74,26 @@ function EditPermissions({ id, dataIds, refetchRoles }) {
   return (
     <>
       <Checkbox.Group value={valueIds} onChange={setValueIds}>
-        <Stack gap="xs">
-          {recordsModules?.map((item) => (
-            <Checkbox value={item.id} key={item.id} label={item.name} />
+        <Grid gutter="lg">
+          {aaa.map((aa) => (
+            <Grid.Col key={aa.id} span={6}>
+              <Text fw={600} mb="xs">
+                {formatSnake(aa.name)}
+              </Text>
+              <Stack gap="xs">
+                {aa.list_permission.map((item) => (
+                  <Checkbox
+                    value={item.id}
+                    key={item.id}
+                    label={formatSnake(item.name)}
+                  />
+                ))}
+              </Stack>
+            </Grid.Col>
           ))}
-        </Stack>
+        </Grid>
       </Checkbox.Group>
-      <Group justify="center" mt="lg">
+      <Group justify="center" mt="xl">
         <Button
           variant="outline"
           color="gray"
@@ -246,7 +264,7 @@ function Roles() {
   const handleEditPermissions = (id, permissionsIds) => {
     modals.open({
       title: 'Edit Permissions',
-      size: 'xs',
+      size: 'md',
       centered: true,
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
@@ -305,7 +323,7 @@ function Roles() {
                 <Group gap={2}>
                   {permissions.map((item) => (
                     <Badge size="xs" key={item}>
-                      {item}
+                      {formatSnake(item)}
                     </Badge>
                   ))}
                 </Group>

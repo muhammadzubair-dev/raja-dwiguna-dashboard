@@ -16,6 +16,10 @@ export const useGetUsers = async (query) => {
   return fetchRequest(`/user-management/users`, 'GET', { query });
 };
 
+export const usePostAccount = async (body) => {
+  return fetchRequest(`/user-management`, 'POST', { body });
+};
+
 export const useGetRoles = async (query) => {
   return fetchRequest(`/role`, 'GET', { query });
 };
@@ -110,6 +114,10 @@ export const useGetOptionUsers = async () => {
 
 export const useGetOptionModules = async () => {
   return fetchRequest(`/options/module`, 'GET');
+};
+
+export const useGetOptionRoles = async () => {
+  return fetchRequest(`/options/role`, 'GET');
 };
 
 export const useGetDashboardIncome = async (query) => {

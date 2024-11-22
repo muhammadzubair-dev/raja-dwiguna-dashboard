@@ -12,12 +12,19 @@ import {
   Text,
   Stack,
   Tooltip,
+  Center,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { IconEdit, IconLockPlus } from '@tabler/icons-react';
+import {
+  IconArrowBarUp,
+  IconClick,
+  IconEdit,
+  IconLockPlus,
+  IconRefresh,
+} from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import ErrorMessage from '../../components/ErrorMessage';
 import {
@@ -25,10 +32,49 @@ import {
   useGetUsers,
   usePutUserRole,
   usePostChangeAccountStatus,
+  useGetOptionRoles,
+  usePostAccount,
 } from '../../helpers/apiHelper';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
+
+function ChangeToAccount({ id, email, refetchUsers }) {
+  const { mutate, isLoading, error } = useMutation(usePostAccount, {
+    onSuccess: () => {
+      refetchUsers();
+      modals.closeAll();
+      notificationSuccess(`Role deleted successfully`);
+    },
+  });
+
+  const handleAccount = () => mutate({ id });
+
+  return (
+    <>
+      <Text size="sm">
+        Are you sure you want to change {email} to an account ?
+      </Text>
+      <Group justify="flex-end" mt="xl">
+        <Button
+          variant="outline"
+          color="gray"
+          onClick={() => modals.closeAll()}
+        >
+          Cancel
+        </Button>
+        <Button loading={isLoading} onClick={handleAccount}>
+          Submit
+        </Button>
+      </Group>
+      {error && (
+        <Flex justify="flex-end">
+          <ErrorMessage message={error?.message} />
+        </Flex>
+      )}
+    </>
+  );
+}
 
 function EditRoles({ id, dataIds, refetchUsers }) {
   const [valueIds, setValueIds] = useState(dataIds || []);
@@ -36,7 +82,7 @@ function EditRoles({ id, dataIds, refetchUsers }) {
     data: dataRoles,
     isLoading: isLoadingRoles,
     error: errorRoles,
-  } = useQuery(['roles'], useGetRoles);
+  } = useQuery(['roles-option'], useGetOptionRoles);
 
   const { mutate, isLoading, error } = useMutation(usePutUserRole, {
     onSuccess: () => {
@@ -46,7 +92,7 @@ function EditRoles({ id, dataIds, refetchUsers }) {
     },
   });
 
-  const recordRoles = dataRoles?.response?.data;
+  const recordRoles = dataRoles?.response;
   const recordRolesIds = recordRoles?.map((item) => item.id);
 
   const handleSave = () => {
@@ -157,6 +203,7 @@ function TabContent({ isAccount }) {
 
   const records = data?.response?.data.map((item) => ({
     employee_id: item.employee_id,
+    id: item.id,
     email: item.email,
     first_name: item.first_name,
     last_name: item.last_name,
@@ -192,6 +239,19 @@ function TabContent({ isAccount }) {
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <EditRoles id={id} dataIds={rolesIds} refetchUsers={refetch} />,
+    });
+  };
+
+  const handleAccount = (id, email) => {
+    modals.open({
+      title: 'Change To Account',
+      centered: true,
+      size: 'xs',
+      radius: 'md',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: (
+        <ChangeToAccount id={id} email={email} refetchUsers={refetch} />
+      ),
     });
   };
 
@@ -236,7 +296,7 @@ function TabContent({ isAccount }) {
             {
               accessor: 'roles',
               render: ({ roles }) => (
-                <Group gap="xs">
+                <Group gap={2}>
                   {roles.map((role) => (
                     <Badge key={role} variant="outline" color="gray">
                       {role}
@@ -256,38 +316,62 @@ function TabContent({ isAccount }) {
             },
             {
               accessor: 'actions',
-              title: '',
+              title: (
+                <Center>
+                  <Tooltip label="Refresh">
+                    <ActionIcon variant="subtle" onClick={refetch} radius="xl">
+                      <IconRefresh size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                </Center>
+              ),
               textAlign: 'right',
-              render: ({ id, employee_id, status, email, roles_ids }) => (
-                <Group gap={4} justify="right" wrap="nowrap">
-                  <Tooltip label="Edit Roles">
+              render: ({ id, employee_id, status, email, roles_ids }) => {
+                if (isAccount) {
+                  return (
+                    <Group gap={4} justify="right" wrap="nowrap">
+                      <Tooltip label="Edit Roles">
+                        <ActionIcon
+                          size="sm"
+                          variant="subtle"
+                          color="yellow"
+                          onClick={() => handleEditRoles(id, roles_ids)}
+                        >
+                          <IconLockPlus size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label="Change Status">
+                        <ActionIcon
+                          size="sm"
+                          variant="subtle"
+                          color="blue"
+                          onClick={() =>
+                            handleChangeStatus(
+                              employee_id,
+                              status ? 'true' : 'false',
+                              email
+                            )
+                          }
+                        >
+                          <IconEdit size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Group>
+                  );
+                }
+                return (
+                  <Tooltip label="Change to Account">
                     <ActionIcon
                       size="sm"
                       variant="subtle"
                       color="yellow"
-                      onClick={() => handleEditRoles(id, roles_ids)}
+                      onClick={() => handleAccount(id, email)}
                     >
-                      <IconLockPlus size={16} />
+                      <IconArrowBarUp size={16} />
                     </ActionIcon>
                   </Tooltip>
-                  <Tooltip label="Change Status">
-                    <ActionIcon
-                      size="sm"
-                      variant="subtle"
-                      color="blue"
-                      onClick={() =>
-                        handleChangeStatus(
-                          employee_id,
-                          status ? 'true' : 'false',
-                          email
-                        )
-                      }
-                    >
-                      <IconEdit size={16} />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-              ),
+                ); // If isAccount is true, no actions column will be rendered
+              },
             },
           ]}
         />
