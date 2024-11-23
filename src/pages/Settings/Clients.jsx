@@ -224,6 +224,7 @@ function Clients() {
     modals.open({
       title: 'Edit Client',
       centered: true,
+      size: 'xs',
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditClient data={data} refetchClients={refetch} />,
