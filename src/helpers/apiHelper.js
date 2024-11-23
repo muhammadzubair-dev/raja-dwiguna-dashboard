@@ -152,6 +152,10 @@ export const usePostChangePassword = async (body) => {
   return fetchRequest(`/auth/change-password`, 'POST', { body });
 };
 
+export const usePostResetPassword = async (body) => {
+  return fetchRequest(`/user-management/reset-password`, 'POST', { body });
+};
+
 export const useGetPrivileges = async () => {
   return fetchRequest(`/auth/privilege`, 'GET');
 };

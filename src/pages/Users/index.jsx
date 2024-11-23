@@ -19,6 +19,7 @@ import {
   IconArrowBarUp,
   IconClick,
   IconEdit,
+  IconKeyFilled,
   IconLockPlus,
   IconRefresh,
 } from '@tabler/icons-react';
@@ -34,10 +35,47 @@ import {
   usePostChangeAccountStatus,
   useGetOptionRoles,
   usePostAccount,
+  usePostResetPassword,
 } from '../../helpers/apiHelper';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
+
+function ResetPassword({ id, email }) {
+  const { mutate, isLoading, error } = useMutation(usePostResetPassword, {
+    onSuccess: () => {
+      modals.closeAll();
+      notificationSuccess(`Reset Password successfully`);
+    },
+  });
+
+  const handleAccount = () => mutate({ id });
+
+  return (
+    <>
+      <Text size="sm">Are you sure you want to Reset Password {email} ?</Text>
+      <Group justify="flex-end" mt="xl">
+        <Button
+          flex={1}
+          fullWidth
+          variant="outline"
+          color="gray"
+          onClick={() => modals.closeAll()}
+        >
+          Cancel
+        </Button>
+        <Button flex={1} fullWidth loading={isLoading} onClick={handleAccount}>
+          Submit
+        </Button>
+      </Group>
+      {error && (
+        <Flex justify="flex-end">
+          <ErrorMessage message={error?.message} />
+        </Flex>
+      )}
+    </>
+  );
+}
 
 function ChangeToAccount({ id, email, refetchUsers }) {
   const { mutate, isLoading, error } = useMutation(usePostAccount, {
@@ -255,6 +293,17 @@ function TabContent({ isAccount }) {
     });
   };
 
+  const handleResetPassword = (id, email) => {
+    modals.open({
+      title: 'Reset Password',
+      centered: true,
+      size: 'xs',
+      radius: 'md',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: <ResetPassword id={id} email={email} />,
+    });
+  };
+
   return (
     <>
       <Card withBorder p="0" radius="sm" mt="sm">
@@ -328,6 +377,16 @@ function TabContent({ isAccount }) {
                 if (isAccount) {
                   return (
                     <Group gap={4} justify="right" wrap="nowrap">
+                      <Tooltip label="ResetPassword">
+                        <ActionIcon
+                          size="sm"
+                          variant="subtle"
+                          color="red"
+                          onClick={() => handleResetPassword(id, email)}
+                        >
+                          <IconKeyFilled size={16} />
+                        </ActionIcon>
+                      </Tooltip>
                       <Tooltip label="Edit Roles">
                         <ActionIcon
                           size="sm"
