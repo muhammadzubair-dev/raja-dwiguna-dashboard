@@ -183,6 +183,7 @@ function BankAccounts() {
     modals.open({
       title: 'Edit Bank Account',
       centered: true,
+      size: 'xs',
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (

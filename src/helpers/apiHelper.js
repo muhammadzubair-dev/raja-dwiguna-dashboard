@@ -100,6 +100,10 @@ export const usePutAccountBank = async (body) => {
   return fetchRequest(`/finance/settings/account`, 'PUT', { body });
 };
 
+export const usePutChangeAStatusClient = async (body) => {
+  return fetchRequest(`/finance/settings/client/change-status`, 'PUT', { body });
+};
+
 export const useGetClients = async (query) => {
   return fetchRequest(`/finance/settings/client`, 'GET', { query });
 };

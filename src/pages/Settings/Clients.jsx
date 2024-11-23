@@ -4,14 +4,17 @@ import {
   Box,
   Button,
   Card,
+  Center,
   Flex,
   Group,
   Input,
   NumberFormatter,
   NumberInput,
   Stack,
+  Switch,
   Text,
   TextInput,
+  Textarea,
   Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -25,15 +28,19 @@ import {
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
-import React from 'react';
+import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
 import ErrorMessage from '../../components/ErrorMessage';
 import {
   useGetClients,
   usePostClient,
+  usePutChangeAStatusClient,
   usePutClient,
 } from '../../helpers/apiHelper';
-import { notificationSuccess } from '../../helpers/notificationHelper';
+import {
+  notificationError,
+  notificationSuccess,
+} from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 
 function AddAndEditClient({ data, refetchClients }) {
@@ -43,20 +50,20 @@ function AddAndEditClient({ data, refetchClients }) {
     mode: 'uncontrolled',
     initialValues: {
       name: data?.name || '',
-      bank_name: data?.bank_name || '',
-      account_number: data?.account_number || '',
-      current_balance: data?.current_balance || '',
+      email: data?.email || '',
+      phone: data?.phone || '',
+      address: data?.address || '',
     },
 
     validate: {
       name: (value) =>
         value.trim().length > 0 ? null : 'Account name is required',
-      bank_name: (value) =>
-        value.trim().length > 0 ? null : 'Bank name is required',
-      account_number: (value) =>
-        String(value).trim().length > 0 ? null : 'Account Number is required',
-      current_balance: (value) =>
-        String(value).trim().length > 0 ? null : 'Current Balance is required',
+      email: (val) => (/^\S+@\S+$/.test(val) ? null : 'Invalid email'),
+
+      phone: (value) =>
+        String(value).trim().length > 0 ? null : 'Phone Number is required',
+      address: (value) =>
+        value.trim().length > 0 ? null : 'Address is required',
     },
   });
 
@@ -76,7 +83,7 @@ function AddAndEditClient({ data, refetchClients }) {
   const handleSave = (values) => {
     const body = {
       ...values,
-      account_number: String(values.account_number),
+      phone: String(values.phone),
       ...(!isAdd && { id: data?.id }),
     };
 
@@ -89,35 +96,30 @@ function AddAndEditClient({ data, refetchClients }) {
       <Stack gap="xs">
         <TextInput
           withAsterisk
-          label="Bank"
-          key={form.key('bank_name')}
-          {...form.getInputProps('bank_name')}
+          label="Name"
+          key={form.key('name')}
+          {...form.getInputProps('name')}
         />
         <TextInput
           withAsterisk
-          label="Account Name"
-          key={form.key('name')}
-          {...form.getInputProps('name')}
+          label="Email"
+          key={form.key('email')}
+          {...form.getInputProps('email')}
         />
         <NumberInput
           allowNegative={false}
           withAsterisk
           allowDecimal={false}
-          label="Account Number"
-          key={form.key('account_number')}
-          {...form.getInputProps('account_number')}
+          label="Phone Number"
+          key={form.key('phone')}
+          {...form.getInputProps('phone')}
         />
-        <NumberInput
-          allowNegative={false}
-          withAsterisk
-          disabled={!isAdd}
-          prefix="Rp "
-          thousandSeparator="."
-          decimalSeparator=","
-          decimalScale={2}
-          label="Current Balance"
-          key={form.key('current_balance')}
-          {...form.getInputProps('current_balance')}
+        <Textarea
+          autosize
+          minRows={3}
+          label="Address"
+          key={form.key('address')}
+          {...form.getInputProps('address')}
         />
       </Stack>
       <Group justify="flex-end" mt="xl">
@@ -141,6 +143,45 @@ function AddAndEditClient({ data, refetchClients }) {
         </Flex>
       )}
     </form>
+  );
+}
+
+function EditStatus({ id, status }) {
+  const [checked, setChecked] = useState(status);
+  const { mutate } = useMutation(usePutChangeAStatusClient, {
+    onSuccess: (data, variables) => {
+      setChecked(variables.status);
+      notificationSuccess('Client status changed successfully');
+      modals.closeAll();
+    },
+    onError: (err) => {
+      notificationError(err?.message);
+    },
+  });
+
+  const handleChangeStatus = (values) => {
+    mutate({ id, status: values });
+  };
+
+  return (
+    <Center>
+      <Switch
+        // disabled
+        size="md"
+        onLabel={
+          <Box px="xs">
+            <Text size="xs">Active</Text>
+          </Box>
+        }
+        offLabel={
+          <Box px="xs">
+            <Text size="xs">Inactive</Text>
+          </Box>
+        }
+        checked={checked}
+        onChange={(event) => handleChangeStatus(event.currentTarget.checked)}
+      />
+    </Center>
   );
 }
 
@@ -244,12 +285,11 @@ function Clients() {
             { accessor: 'email', noWrap: true },
             { accessor: 'address' },
             {
-              accessor: 'status',
-              width: 100,
-              render: ({ status }) => (
-                <Badge radius="sm" color={status ? 'green' : 'red'}>
-                  {status ? 'Active' : 'Inactive'}
-                </Badge>
+              accessor: 'Status',
+              textAlign: 'center',
+              width: 200,
+              render: ({ id, status }) => (
+                <EditStatus id={id} status={status} />
               ),
             },
             {
@@ -264,7 +304,7 @@ function Clients() {
               title: '',
               textAlign: 'right',
               render: (data) => (
-                <Tooltip label="Edit Account Bank">
+                <Tooltip label="Edit Client">
                   <ActionIcon
                     size="sm"
                     variant="subtle"

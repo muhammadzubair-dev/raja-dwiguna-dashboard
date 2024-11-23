@@ -202,7 +202,7 @@ function ChangeAccountStatus({ id, status, email, refetchUsers }) {
         value={value}
         onChange={setValue}
         name="chageStatus"
-        label="Please select new status"
+        label="Please select status"
         description={`email: ${email}`}
         withAsterisk
       >
