@@ -95,6 +95,8 @@ function EditPermissions({ id, dataIds, refetchRoles }) {
       </Checkbox.Group>
       <Group justify="center" mt="xl">
         <Button
+          flex={1}
+          fullWidth
           variant="outline"
           color="gray"
           onClick={() => modals.closeAll()}
@@ -102,7 +104,12 @@ function EditPermissions({ id, dataIds, refetchRoles }) {
         >
           Cancel
         </Button>
-        <Button onClick={handleSave} loading={isLoadingModules || isLoading}>
+        <Button
+          flex={1}
+          fullWidth
+          onClick={handleSave}
+          loading={isLoadingModules || isLoading}
+        >
           Save
         </Button>
       </Group>
@@ -268,6 +275,7 @@ function Roles() {
       title: 'Edit Permissions',
       size: 'md',
       centered: true,
+      size: 'xs',
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
