@@ -100,6 +100,18 @@ export const usePutAccountBank = async (body) => {
   return fetchRequest(`/finance/settings/account`, 'PUT', { body });
 };
 
+export const useGetClients = async (query) => {
+  return fetchRequest(`/finance/settings/client`, 'GET', { query });
+};
+
+export const usePostClient = async (body) => {
+  return fetchRequest(`/finance/settings/client`, 'POST', { body });
+};
+
+export const usePutClient = async (body) => {
+  return fetchRequest(`/finance/settings/client`, 'PUT', { body });
+};
+
 export const useGetOptionCategories = async () => {
   return fetchRequest(`/options/transaction-category`, 'GET');
 };
