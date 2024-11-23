@@ -148,6 +148,10 @@ export const usePostLogout = async () => {
   return fetchRequest(`/auth/logout`, 'POST');
 };
 
+export const usePostChangePassword = async (body) => {
+  return fetchRequest(`/auth/change-password`, 'POST', { body });
+};
+
 export const useGetPrivileges = async () => {
   return fetchRequest(`/auth/privilege`, 'GET');
 };

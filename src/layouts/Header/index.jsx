@@ -1,12 +1,15 @@
 import {
   ActionIcon,
   Box,
+  Button,
   Center,
   Container,
   Drawer,
   Flex,
   Group,
+  PasswordInput,
   SegmentedControl,
+  Stack,
   Text,
   Title,
   useComputedColorScheme,
@@ -17,6 +20,7 @@ import { useDisclosure } from '@mantine/hooks';
 import {
   IconArrowAutofitContentFilled,
   IconArrowsDiff,
+  IconKey,
   IconMenu2,
   IconMoonFilled,
   IconSettings,
@@ -25,6 +29,86 @@ import {
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import useSizeContainer from '../../helpers/useSizeContainer';
+import { useForm } from '@mantine/form';
+import { modals } from '@mantine/modals';
+import { useMutation } from 'react-query';
+import { usePostChangePassword } from '../../helpers/apiHelper';
+import ErrorMessage from '../../components/ErrorMessage';
+import { notificationSuccess } from '../../helpers/notificationHelper';
+
+function NewPassword() {
+  const form = useForm({
+    mode: 'uncontrolled',
+    initialValues: {
+      old_password: '',
+      new_password: '',
+      re_new_password: '',
+    },
+
+    validate: {
+      old_password: (value) =>
+        value.trim().length > 0 ? null : 'Old Password is required',
+      new_password: (value) =>
+        value.trim().length > 0 ? null : 'New Password is required',
+      re_new_password: (value, values) =>
+        value === values.new_password ? null : "Passwords do'nt match", // Custom validation
+    },
+  });
+
+  const { mutate, isLoading, error } = useMutation(usePostChangePassword, {
+    onSuccess: () => {
+      modals.closeAll();
+      notificationSuccess(`Password changed successfully`);
+    },
+  });
+
+  return (
+    <form onSubmit={form.onSubmit(mutate)}>
+      <Stack gap="xs">
+        <PasswordInput
+          {...form.getInputProps('old_password')}
+          key={form.key('old_password')}
+          label="Old Password"
+          placeholder="Your Old password"
+          required
+        />
+        <PasswordInput
+          {...form.getInputProps('new_password')}
+          key={form.key('new_password')}
+          label="New Password"
+          placeholder="Your New password"
+          required
+        />
+        <PasswordInput
+          {...form.getInputProps('re_new_password')}
+          key={form.key('re_new_password')}
+          label="Retype New Password"
+          placeholder="Retype your New password"
+          required
+        />
+        <Group justify="center" mt="md">
+          <Button
+            flex={1}
+            variant="outline"
+            color="gray"
+            onClick={() => modals.closeAll()}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
+          <Button flex={1} type="submit" loading={isLoading}>
+            Save
+          </Button>
+        </Group>
+        {error && (
+          <Flex justify="center">
+            <ErrorMessage message={error?.message} />
+          </Flex>
+        )}
+      </Stack>
+    </form>
+  );
+}
 
 function Header({ onClickMenu, isMobile }) {
   const theme = useMantineTheme();
@@ -78,6 +162,17 @@ function Header({ onClickMenu, isMobile }) {
 
   const header = headers.find((item) => item.path.includes(location.pathname));
 
+  const handleChangePassword = () => {
+    modals.open({
+      title: 'Change Password',
+      centered: true,
+      radius: 'md',
+      size: 'xs',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: <NewPassword />,
+    });
+  };
+
   return (
     <Container
       size="xl"
@@ -110,7 +205,20 @@ function Header({ onClickMenu, isMobile }) {
         title="Settings"
         overlayProps={{ backgroundOpacity: 0.5, blur: 4 }}
       >
-        <Flex align="center" gap="md" my="xl">
+        <Flex align="center" gap="xl" my="xl">
+          <Text w={50} size="sm">
+            Change Password
+          </Text>
+          <Button
+            fullWidth
+            size="sm"
+            leftSection={<IconKey size={16} />}
+            onClick={handleChangePassword}
+          >
+            Change Password
+          </Button>
+        </Flex>
+        <Flex align="center" gap="xl" my="xl">
           <Text w={50} size="sm">
             Mode
           </Text>
@@ -142,7 +250,7 @@ function Header({ onClickMenu, isMobile }) {
             ]}
           />
         </Flex>
-        <Flex align="center" gap="md">
+        <Flex align="center" gap="xl">
           <Text w={50} size="xs">
             Content Size
           </Text>
