@@ -12,6 +12,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Textarea,
   Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -111,7 +112,9 @@ function AddAndEditSubCategory({ data, refetchSubCategories }) {
           key={form.key('name')}
           {...form.getInputProps('name')}
         />
-        <TextInput
+        <Textarea
+          autosize
+          minRows={3}
           label="Description"
           key={form.key('description')}
           {...form.getInputProps('description')}

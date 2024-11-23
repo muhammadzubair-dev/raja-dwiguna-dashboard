@@ -14,6 +14,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Textarea,
   Title,
   Tooltip,
 } from '@mantine/core';
@@ -193,16 +194,18 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
           {...form.getInputProps('amount')}
         />
         <TextInput
-          // withAsterisk
-          label="Description"
-          key={form.key('description')}
-          {...form.getInputProps('description')}
-        />
-        <TextInput
           withAsterisk
           label="Reference Number"
           key={form.key('reference_number')}
           {...form.getInputProps('reference_number')}
+        />
+        <Textarea
+          // withAsterisk
+          autosize
+          minRows={3}
+          label="Description"
+          key={form.key('description')}
+          {...form.getInputProps('description')}
         />
       </Stack>
       <Group justify="flex-end" mt="xl">
@@ -524,12 +527,12 @@ function Transactions() {
               ),
             },
             {
-              accessor: 'description',
-              ...(sizeContainer !== 'fluid' && { width: 250, ellipsis: true }),
-            },
-            {
               accessor: 'reference_number',
               ...(sizeContainer !== 'fluid' && { width: 150, ellipsis: true }),
+            },
+            {
+              accessor: 'description',
+              ...(sizeContainer !== 'fluid' && { width: 250, ellipsis: true }),
             },
             { accessor: 'created_by', noWrap: true },
             {
