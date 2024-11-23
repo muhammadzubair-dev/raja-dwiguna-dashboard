@@ -39,7 +39,9 @@ function LogoutComponent() {
     onSuccess: () => {
       localStorage.removeItem('token');
       updatePrivileges([]);
-      window.location.replace('/');
+      setTimeout(() => {
+        window.location.replace('/');
+      }, 500);
     },
   });
 

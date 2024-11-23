@@ -40,6 +40,7 @@ export const fetchRequest = async (path, method = 'GET', options = {}) => {
     const response = await fetch(url, fetchOptions);
 
     if (path !== '/auth/login' && response.status === 401) {
+      localStorage.removeItem('privileges');
       localStorage.removeItem('token');
       setTimeout(() => {
         window.location.replace('/');

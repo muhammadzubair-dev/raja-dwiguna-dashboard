@@ -3,10 +3,21 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import NavbarNested, { Navbar } from './NavbarNested';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import useAutoLogout from '../helpers/useAutoLogout';
+import usePrivileges from '../helpers/usePrivileges';
 
 function Layout() {
   const isMobile = useMediaQuery(`(max-width: 1100px)`);
+  const updatePrivileges = usePrivileges((state) => state.updatePrivileges);
   const [opened, { open, close }] = useDisclosure(false);
+
+  useAutoLogout(10 * 60 * 1000, () => {
+    localStorage.removeItem('token');
+    updatePrivileges([]);
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  });
 
   return (
     <Flex gap="md">
