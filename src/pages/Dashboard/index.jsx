@@ -204,6 +204,15 @@ function Dashboard() {
 
   const dataCard = [
     {
+      title: 'Receivable',
+      color: 'yellow',
+      data: dataBalance?.response,
+      isLoading: isLoadingBalance,
+      error: errorBalance?.message,
+      subtitle: ' invoices for the current month',
+      icon: <IconCoinOff size={35} stroke={1.5} />,
+    },
+    {
       title: 'Total Outcome',
       color: 'red',
       data: dataOutcome?.response,
@@ -229,15 +238,6 @@ function Dashboard() {
       error: errorBalance?.message,
       subtitle: ' account banks',
       icon: <IconBuildingBank size={35} stroke={1.5} />,
-    },
-    {
-      title: 'Receivable',
-      color: 'yellow',
-      data: dataBalance?.response,
-      isLoading: isLoadingBalance,
-      error: errorBalance?.message,
-      subtitle: ' invoices for the current month',
-      icon: <IconCoinOff size={35} stroke={1.5} />,
     },
   ];
 
