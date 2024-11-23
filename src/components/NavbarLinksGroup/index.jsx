@@ -47,8 +47,16 @@ function LogoutComponent() {
     <Box>
       <Text size="sm">Are you sure you want to Logout ?</Text>
       <Group justify="center" mt="xl">
-        <Button onClick={() => modals.closeAll()}>Cancel</Button>
-        <Button color="red" loading={isLoading} onClick={() => mutate()}>
+        <Button flex={1} fullWidth onClick={() => modals.closeAll()}>
+          Cancel
+        </Button>
+        <Button
+          flex={1}
+          fullWidth
+          color="red"
+          loading={isLoading}
+          onClick={() => mutate()}
+        >
           Logout
         </Button>
       </Group>
@@ -81,6 +89,7 @@ export function LinksGroup({
       title: 'Logout',
       centered: true,
       radius: 'md',
+      size: 'xs',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <LogoutComponent />,
     });
@@ -98,23 +107,25 @@ export function LinksGroup({
     }
   };
 
-  const items = (hasLinks ? links : []).filter((link) => link.hasPermission).map((link) => (
-    <Text
-      component="a"
-      className={classes.link}
-      key={link.label}
-      onClick={(event) => {
-        event.preventDefault();
-        navigate(link.link);
-        onCloseMenu();
-      }}
-      style={{
-        ...(location.pathname === link.link && activeStyles),
-      }}
-    >
-      {link.label}
-    </Text>
-  ));
+  const items = (hasLinks ? links : [])
+    .filter((link) => link.hasPermission)
+    .map((link) => (
+      <Text
+        component="a"
+        className={classes.link}
+        key={link.label}
+        onClick={(event) => {
+          event.preventDefault();
+          navigate(link.link);
+          onCloseMenu();
+        }}
+        style={{
+          ...(location.pathname === link.link && activeStyles),
+        }}
+      >
+        {link.label}
+      </Text>
+    ));
 
   return (
     <>

@@ -21,6 +21,7 @@ import { MonthPickerInput } from '@mantine/dates';
 import {
   IconBuildingBank,
   IconCoin,
+  IconCoinOff,
   IconMoneybag,
   IconSearch,
 } from '@tabler/icons-react';
@@ -229,6 +230,15 @@ function Dashboard() {
       subtitle: ' account banks',
       icon: <IconBuildingBank size={35} stroke={1.5} />,
     },
+    {
+      title: 'Receivable',
+      color: 'yellow',
+      data: dataBalance?.response,
+      isLoading: isLoadingBalance,
+      error: errorBalance?.message,
+      subtitle: ' invoices for the current month',
+      icon: <IconCoinOff size={35} stroke={1.5} />,
+    },
   ];
 
   return (
@@ -241,7 +251,7 @@ function Dashboard() {
       <Grid gutter="md">
         {dataCard.map(
           ({ title, icon, color, data, isLoading, error, subtitle }) => (
-            <Grid.Col span={{ base: 12, md: 4 }} key={title}>
+            <Grid.Col span={{ base: 12, md: 3 }} key={title}>
               <Card withBorder p="lg" radius="lg">
                 <Stack h={95} justify="center">
                   <Flex gap="lg" align="center">
@@ -349,8 +359,8 @@ function Dashboard() {
             </Skeleton>
           </Card>
         </Grid.Col>
-        <Grid.Col span={{ base: 12, md: 8 }}>
-          <Card withBorder radius="lg" p="0" pb={4}>
+        <Grid.Col span={{ base: 12, md: 5 }}>
+          <Card withBorder radius="lg" p="0" pb={6}>
             <Box p="md" pb={4}>
               <Text>Recent Transaction</Text>
               <Text size="sm" c="dimmed" mb="xs">
@@ -361,7 +371,7 @@ function Dashboard() {
               verticalSpacing="md"
               fetching={isLoadingTransactions}
               records={recordTransactions}
-              minHeight={280}
+              minHeight={345}
               noRecordsText={
                 errorTransactions
                   ? `Error: ${errorTransactions?.message}`
@@ -405,9 +415,9 @@ function Dashboard() {
                     />
                   ),
                 },
-                { accessor: 'description' },
+                // { accessor: 'description' },
                 // { accessor: 'reference_number' },
-                { accessor: 'created_by', noWrap: true },
+                // { accessor: 'created_by', noWrap: true },
                 {
                   accessor: 'created_at',
                   noWrap: true,
@@ -429,6 +439,45 @@ function Dashboard() {
           </Button>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 4 }}>
+          <Card withBorder p={0} radius="lg" pb={6}>
+            <Box p="md" pb="0">
+              <Text>Recent Invoices</Text>
+              <Text size="sm" c="dimmed" mb="xs">
+                Invoice that will be due soon
+              </Text>
+            </Box>
+            <DataTable
+              verticalSpacing="md"
+              minHeight={348}
+              fetching={isLoadingTopIncome}
+              records={[]}
+              noRecordsText={
+                errorTopIncome
+                  ? `Error: ${errorTopIncome?.message}`
+                  : 'No records found'
+              }
+              columns={[
+                { accessor: 'invoice_number' },
+                { accessor: 'client' },
+                {
+                  accessor: 'amount',
+                  render: ({ amount }) => (
+                    <NumberFormatter
+                      value={amount}
+                      prefix="Rp "
+                      decimalScale={2}
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  ),
+                },
+                { accessor: 'due_date' },
+              ]}
+            />
+          </Card>
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 12, md: 3 }}>
           <Card withBorder p={0} radius="lg" pb={6}>
             <Box p="md" pb="0">
               <Text mb="md">Top Transactions</Text>
