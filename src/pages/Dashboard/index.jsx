@@ -206,7 +206,10 @@ function Dashboard() {
     {
       title: 'Receivable',
       color: 'yellow',
-      data: dataBalance?.response,
+      data: {
+        total: 2,
+        amount: 210000000,
+      },
       isLoading: isLoadingBalance,
       error: errorBalance?.message,
       subtitle: ' invoices for the current month',
