@@ -273,7 +273,6 @@ function Roles() {
   const handleEditPermissions = (id, permissionsIds) => {
     modals.open({
       title: 'Edit Permissions',
-      size: 'md',
       centered: true,
       size: 'xs',
       radius: 'md',
