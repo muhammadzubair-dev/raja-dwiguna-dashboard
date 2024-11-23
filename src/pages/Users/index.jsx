@@ -69,7 +69,7 @@ function ResetPassword({ id, email }) {
         </Button>
       </Group>
       {error && (
-        <Flex justify="flex-end">
+        <Flex justify="center">
           <ErrorMessage message={error?.message} />
         </Flex>
       )}
@@ -95,18 +95,20 @@ function ChangeToAccount({ id, email, refetchUsers }) {
       </Text>
       <Group justify="flex-end" mt="xl">
         <Button
+          flex={1}
+          fullWidth
           variant="outline"
           color="gray"
           onClick={() => modals.closeAll()}
         >
           Cancel
         </Button>
-        <Button loading={isLoading} onClick={handleAccount}>
+        <Button flex={1} fullWidth loading={isLoading} onClick={handleAccount}>
           Submit
         </Button>
       </Group>
       {error && (
-        <Flex justify="flex-end">
+        <Flex justify="center">
           <ErrorMessage message={error?.message} />
         </Flex>
       )}
@@ -154,12 +156,19 @@ function EditRoles({ id, dataIds, refetchUsers }) {
         <Button
           variant="outline"
           color="gray"
+          flex={1}
+          fullWidth
           onClick={() => modals.closeAll()}
           disabled={isLoadingRoles || isLoading}
         >
           Cancel
         </Button>
-        <Button onClick={handleSave} loading={isLoadingRoles || isLoading}>
+        <Button
+          flex={1}
+          fullWidth
+          onClick={handleSave}
+          loading={isLoadingRoles || isLoading}
+        >
           Save
         </Button>
       </Group>
@@ -204,6 +213,8 @@ function ChangeAccountStatus({ id, status, email, refetchUsers }) {
       </Radio.Group>
       <Group justify="flex-end" mt="xl">
         <Button
+          flex={1}
+          fullWidth
           variant="outline"
           color="gray"
           onClick={() => modals.closeAll()}
@@ -211,12 +222,12 @@ function ChangeAccountStatus({ id, status, email, refetchUsers }) {
         >
           Cancel
         </Button>
-        <Button onClick={handleSave} loading={isLoading}>
+        <Button flex={1} fullWidth onClick={handleSave} loading={isLoading}>
           Save
         </Button>
       </Group>
       {error && (
-        <Flex justify="flex-end">
+        <Flex justify="center">
           <ErrorMessage message={error?.message} />
         </Flex>
       )}
@@ -257,6 +268,7 @@ function TabContent({ isAccount }) {
       title: 'Change Status',
       centered: true,
       radius: 'md',
+      size: 'xs',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <ChangeAccountStatus

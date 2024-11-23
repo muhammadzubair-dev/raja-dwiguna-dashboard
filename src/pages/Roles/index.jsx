@@ -142,6 +142,8 @@ function AddAndEditRole({ id, role, refetchRoles }) {
       />
       <Group justify="center" mt="xl">
         <Button
+          flex={1}
+          fullWidth
           variant="outline"
           color="gray"
           onClick={() => modals.closeAll()}
@@ -149,7 +151,7 @@ function AddAndEditRole({ id, role, refetchRoles }) {
         >
           Cancel
         </Button>
-        <Button onClick={handleSave} loading={isLoading}>
+        <Button flex={1} fullWidth onClick={handleSave} loading={isLoading}>
           Save
         </Button>
       </Group>

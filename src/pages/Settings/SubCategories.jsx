@@ -124,17 +124,19 @@ function AddAndEditSubCategory({ data, refetchSubCategories }) {
         <Button
           variant="outline"
           color="gray"
+          flex={1}
+          fullWidth
           onClick={() => modals.closeAll()}
           disabled={isLoading}
         >
           Cancel
         </Button>
-        <Button type="submit" loading={isLoading}>
+        <Button flex={1} fullWidth type="submit" loading={isLoading}>
           Save
         </Button>
       </Group>
       {error && (
-        <Flex justify="flex-end">
+        <Flex justify="center">
           <ErrorMessage message={error?.message} />
         </Flex>
       )}
@@ -211,6 +213,7 @@ function SubCategories() {
       title: 'Add SubCategory',
       centered: true,
       radius: 'md',
+      size: 'xs',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditSubCategory refetchSubCategories={refetch} />,
     });
@@ -218,9 +221,10 @@ function SubCategories() {
 
   const handleEditSubCategory = (data) => {
     modals.open({
-      title: 'Add SubCategory',
+      title: 'Edit SubCategory',
       centered: true,
       radius: 'md',
+      size: 'xs',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
         <AddAndEditSubCategory data={data} refetchSubCategories={refetch} />

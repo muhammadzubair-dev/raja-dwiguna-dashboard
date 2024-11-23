@@ -122,6 +122,8 @@ function AddAndEditBankAccount({ data, refetchBankAccounts }) {
       </Stack>
       <Group justify="flex-end" mt="xl">
         <Button
+          flex={1}
+          fullWidth
           variant="outline"
           color="gray"
           onClick={() => modals.closeAll()}
@@ -129,12 +131,12 @@ function AddAndEditBankAccount({ data, refetchBankAccounts }) {
         >
           Cancel
         </Button>
-        <Button type="submit" loading={isLoading}>
+        <Button flex={1} fullWidth type="submit" loading={isLoading}>
           Save
         </Button>
       </Group>
       {error && (
-        <Flex justify="flex-end">
+        <Flex justify="center">
           <ErrorMessage message={error?.message} />
         </Flex>
       )}
@@ -171,6 +173,7 @@ function BankAccounts() {
       title: 'Add Bank Account',
       centered: true,
       radius: 'md',
+      size: 'xs',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <AddAndEditBankAccount refetchBankAccounts={refetch} />,
     });
