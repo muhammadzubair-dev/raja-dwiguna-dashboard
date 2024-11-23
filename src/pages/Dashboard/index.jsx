@@ -440,7 +440,7 @@ function Dashboard() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 4 }}>
           <Card withBorder p={0} radius="lg" pb={6}>
-            <Box p="md" pb="0">
+            <Box p="md" pb={4}>
               <Text>Recent Invoices</Text>
               <Text size="sm" c="dimmed" mb="xs">
                 Invoice that will be due soon
@@ -448,7 +448,7 @@ function Dashboard() {
             </Box>
             <DataTable
               verticalSpacing="md"
-              minHeight={348}
+              minHeight={345}
               fetching={isLoadingTopIncome}
               records={[]}
               noRecordsText={
