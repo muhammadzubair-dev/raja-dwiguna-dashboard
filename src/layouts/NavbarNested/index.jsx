@@ -19,7 +19,6 @@ import LinksGroup from '../../components/NavbarLinksGroup';
 import UserButton from '../../components/UserButton';
 import classes from './index.module.css';
 import { useMediaQuery } from '@mantine/hooks';
-import usePrivileges from '../../helpers/usePrivileges';
 import useHasPermission from '../../helpers/useHasPermission';
 
 const slideTransition = {
@@ -132,7 +131,6 @@ export function Navbar({ onCloseMenu }) {
       toLink: '/login',
     },
   ]);
-  const privileges = usePrivileges((state) => state.privileges);
 
   const handleCollapse = (label) => {
     setStateCollapse((prev) =>

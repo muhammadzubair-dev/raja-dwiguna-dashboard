@@ -1,10 +1,11 @@
 import React from 'react';
-
-import usePrivileges from '../../helpers/usePrivileges';
+import { jwtDecode } from 'jwt-decode';
 import NoAccess from '../../pages/NoAccess';
 
 function Privilege({ children, module, menu }) {
-  const privileges = usePrivileges((state) => state.privileges);
+  const token = localStorage.getItem('token');
+  const decoded = jwtDecode(token);
+  const privileges = decoded.privilege;
   // Find the module object from the privileges array
   const currentModule = privileges.find((item) => item.module === module);
 

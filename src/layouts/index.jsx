@@ -4,19 +4,16 @@ import Header from './Header';
 import NavbarNested, { Navbar } from './NavbarNested';
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import useAutoLogout from '../helpers/useAutoLogout';
-import usePrivileges from '../helpers/usePrivileges';
 import { useMutation } from 'react-query';
 import { usePostLogout } from '../helpers/apiHelper';
 
 function Layout() {
   const isMobile = useMediaQuery(`(max-width: 1100px)`);
-  const updatePrivileges = usePrivileges((state) => state.updatePrivileges);
   const [opened, { open, close }] = useDisclosure(false);
 
   const { mutate } = useMutation(usePostLogout, {
     onSuccess: () => {
       localStorage.removeItem('token');
-      updatePrivileges([]);
       setTimeout(() => {
         window.location.replace('/');
       }, 500);

@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
-import usePrivileges from '../helpers/usePrivileges';
+import { jwtDecode } from 'jwt-decode';
 
 function useHasPermission(module, menu) {
-  const privileges = usePrivileges((state) => state.privileges);
+  const token = localStorage.getItem('token');
+  const decoded = jwtDecode(token);
+  const privileges = decoded.privilege;
 
   // Use useMemo to memoize the permission check to avoid recalculating on every render
   return useMemo(() => {

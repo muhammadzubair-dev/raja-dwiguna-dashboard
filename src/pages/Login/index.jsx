@@ -18,28 +18,14 @@ import { useMutation, useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import logoImage from '../../assets/logo.png';
 import ErrorMessage from '../../components/ErrorMessage';
-import { useGetPrivileges, usePostLogin } from '../../helpers/apiHelper';
-import usePrivileges from '../../helpers/usePrivileges';
+import { usePostLogin } from '../../helpers/apiHelper';
 
 function Login() {
   const navigate = useNavigate();
-  const updatePrivileges = usePrivileges((state) => state.updatePrivileges);
-  const {
-    isLoading: isLoadingprivileges,
-    error: errorPrivileges,
-    refetch: refetchPrivileges,
-  } = useQuery(['auth-privileges'], useGetPrivileges, {
-    enabled: false,
-    onSuccess: (data) => {
-      updatePrivileges(data.response);
-      navigate('/');
-    },
-  });
-
   const { mutate, isLoading, error } = useMutation(usePostLogin, {
     onSuccess: (data) => {
       localStorage.setItem('token', data.response.token);
-      refetchPrivileges();
+      navigate('/');
     },
   });
 
@@ -108,19 +94,10 @@ function Login() {
               Forgot password?
             </Anchor> */}
           </Group>
-          <Button
-            fullWidth
-            mt="xl"
-            type="submit"
-            loading={isLoading || isLoadingprivileges}
-          >
+          <Button fullWidth mt="xl" type="submit" loading={isLoading}>
             Sign in
           </Button>
-          {(error || errorPrivileges) && (
-            <ErrorMessage
-              message={error?.message || errorPrivileges?.message}
-            />
-          )}
+          {error && <ErrorMessage message={error?.message} />}
         </Paper>
       </form>
     </Container>
