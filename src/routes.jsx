@@ -12,6 +12,7 @@ import Transactions from './pages/Transactions';
 import Users from './pages/Users';
 import Privilege from './components/Privilege';
 import NoAccess from './pages/NoAccess';
+import FormInvoices from './pages/Invoices/FormInvoices';
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,14 @@ const router = createBrowserRouter([
         element: (
           <Privilege module="finance" menu="invoice">
             <Invoices />
+          </Privilege>
+        ),
+      },
+      {
+        path: '/invoice',
+        element: (
+          <Privilege module="finance" menu="invoice">
+            <FormInvoices />
           </Privilege>
         ),
       },

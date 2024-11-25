@@ -128,34 +128,47 @@ function Header({ onClickMenu, isMobile }) {
   const headers = [
     {
       title: 'Dashboard',
-      subtitle: 'Monitor and measure your financial performance',
+      subtitle: 'Overview of financial performance and key metrics',
       path: '/',
     },
     {
       title: 'Log Activities',
-      subtitle: 'Detailed Log Activities of Users',
+      subtitle: 'Monitor user activity and system actions',
       path: '/log-activities',
     },
-    { title: 'Roles', subtitle: 'Detailed Role of Users', path: '/roles' },
-    { title: 'Accounts', subtitle: 'Detailed User Accounts', path: '/users' },
+    {
+      title: 'Roles',
+      subtitle: 'Manage and define user roles and permissions',
+      path: '/roles',
+    },
+    {
+      title: 'Accounts',
+      subtitle: 'View and manage user accounts and financial details',
+      path: '/users',
+    },
+    {
+      title: 'New Invoice',
+      subtitle: 'Create and submit a new invoice for clients',
+      path: '/invoice',
+    },
     {
       title: 'Invoices',
-      subtitle: 'Detailed Invoices of Transaction',
+      subtitle: 'View and manage all invoices and their statuses',
       path: '/invoices',
     },
     {
       title: 'Transactions',
-      subtitle: 'Detailed Transaction of Users',
+      subtitle: 'Track and manage user transactions and payment history',
       path: '/transactions',
     },
     {
       title: 'Reports',
-      subtitle: 'Detailed Reports of Transactions',
+      subtitle: 'Generate and analyze detailed financial reports',
       path: '/reports',
     },
     {
       title: 'Settings',
-      subtitle: 'Detailed Settings of Financial Transactions',
+      subtitle: 'Configure system and financial transaction settings',
       path: '/settings',
     },
   ];

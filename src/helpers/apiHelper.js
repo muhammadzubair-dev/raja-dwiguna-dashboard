@@ -56,6 +56,22 @@ export const usePutTransaction = async (body) => {
   return fetchRequest(`/finance/transaction`, 'PUT', { body });
 };
 
+export const useGetInvoices = async (query) => {
+  return fetchRequest(`/finance/invoice`, 'GET', { query });
+};
+
+export const useGetInvoiceNumber = async () => {
+  return fetchRequest(`/finance/invoice/get-number`, 'GET');
+};
+
+export const usePostInvoice = async (body) => {
+  return fetchRequest(`/finance/invoice`, 'POST', { body });
+};
+
+export const usePutInvoice = async (body) => {
+  return fetchRequest(`/finance/invoice`, 'PUT', { body });
+};
+
 export const useGetCategories = async (query) => {
   return fetchRequest(`/finance/settings/category`, 'GET', { query });
 };
@@ -134,6 +150,10 @@ export const useGetOptionModules = async () => {
 
 export const useGetOptionRoles = async () => {
   return fetchRequest(`/options/role`, 'GET');
+};
+
+export const useGetOptionClients = async () => {
+  return fetchRequest(`/options/client?status=true`, 'GET');
 };
 
 export const useGetDashboardIncome = async (query) => {
