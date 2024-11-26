@@ -588,7 +588,7 @@ function Invoices() {
               accessor: 'actions',
               title: '',
               textAlign: 'right',
-              render: ({ id, reference_number }) => (
+              render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">
                   <Tooltip label="Edit Invoice">
                     <ActionIcon
@@ -605,7 +605,9 @@ function Invoices() {
                       size="sm"
                       variant="subtle"
                       color="red"
-                      onClick={() => handleDeleteInvoice(id, reference_number)}
+                      onClick={() =>
+                        handleDeleteInvoice(data.id, data.reference_number)
+                      }
                     >
                       <IconTrash size={16} />
                     </ActionIcon>
