@@ -33,10 +33,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   useGetDashboardBalance,
   useGetDashboardBarChart,
+  useGetDashboardBarChartCategory,
   useGetDashboardIncome,
   useGetDashboardOutcome,
+  useGetDashboardReceivable,
   useGetDashboardTopIncome,
   useGetDashboardTopOutcome,
+  useGetInvoices,
   useGetTransactions,
 } from '../../helpers/apiHelper';
 import shortCurrency from '../../helpers/shortCurrency';
@@ -79,6 +82,14 @@ function Dashboard() {
       refetchInterval: TEN_MINUTES,
     }
   );
+
+  const {
+    data: dataReceivable,
+    isLoading: isLoadingReceivable,
+    error: errorReceivable,
+  } = useQuery(['dashboard-receivable'], () => useGetDashboardReceivable(), {
+    refetchInterval: TEN_MINUTES,
+  });
 
   const {
     data: dataOutcome,
@@ -132,6 +143,26 @@ function Dashboard() {
     }
   );
 
+  // const {
+  //   data: dataBarChartCategory,
+  //   isLoading: isLoadingBarChartCategory,
+  //   error: errorBarChartCategory,
+  //   refetch: refetchBarChartCategory,
+  // } = useQuery(
+  //   ['dashboard-BarChart-category'],
+  //   () =>
+  //     useGetDashboardBarChartCategory({
+  //       start_date: `${moment(valueBarChart[0]).format(
+  //         'YYYY-MM-DD'
+  //       )}T00:00:00Z`,
+  //       end_date: `${moment(valueBarChart[1]).format('YYYY-MM-DD')}T00:00:00Z`,
+  //       formatter: 'month',
+  //     }),
+  //   {
+  //     refetchInterval: TEN_MINUTES,
+  //   }
+  // );
+
   const {
     data: dataTopIncome,
     isLoading: isLoadingTopIncome,
@@ -169,11 +200,30 @@ function Dashboard() {
     isLoading: isLoadingTransactions,
     error: errorTransactions,
   } = useQuery(
-    ['transactions', 1, 4],
+    ['transactions', 1, 5],
     () =>
       useGetTransactions({
-        limit: 4,
+        limit: 5,
         page: 1,
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const {
+    data: dataInvoices,
+    isLoading: isLoadingInvoices,
+    error: errorInvoices,
+  } = useQuery(
+    ['invoices', start_date, end_date],
+    () =>
+      useGetInvoices({
+        start_date,
+        end_date,
+        page: 1,
+        limit: 5,
+        is_due_date: true,
       }),
     {
       refetchInterval: TEN_MINUTES,
@@ -196,6 +246,14 @@ function Dashboard() {
     created_by: item.list_employee.email,
   }));
 
+  const recordInvoices = dataInvoices?.response?.data.map((item) => ({
+    id: item.id,
+    client: item.list_client.name,
+    total: item.total,
+    reference_number: item.reference_number,
+    due_date: item.due_date,
+  }));
+
   const recordBarChart = dataBarChart?.response?.map((item) => ({
     month: item.date,
     Income: item.incoming,
@@ -207,11 +265,11 @@ function Dashboard() {
       title: 'Receivable',
       color: 'yellow',
       data: {
-        total: 2,
-        amount: 210000000,
+        total: dataReceivable?.response?.invoice,
+        amount: dataReceivable?.response?.receivable,
       },
-      isLoading: isLoadingBalance,
-      error: errorBalance?.message,
+      isLoading: isLoadingReceivable,
+      error: errorReceivable?.message,
       subtitle: ' invoices for the current month',
       icon: <IconCoinOff size={35} stroke={1.5} />,
     },
@@ -452,21 +510,21 @@ function Dashboard() {
             <DataTable
               verticalSpacing="md"
               minHeight={345}
-              fetching={isLoadingTopIncome}
-              records={[]}
+              fetching={isLoadingInvoices}
+              records={recordInvoices}
               noRecordsText={
-                errorTopIncome
-                  ? `Error: ${errorTopIncome?.message}`
+                errorInvoices
+                  ? `Error: ${errorInvoices?.message}`
                   : 'No records found'
               }
               columns={[
-                { accessor: 'invoice_number' },
+                { accessor: 'reference_number', title: 'Invoice Number' },
                 { accessor: 'client' },
                 {
-                  accessor: 'amount',
-                  render: ({ amount }) => (
+                  accessor: 'total',
+                  render: ({ total }) => (
                     <NumberFormatter
-                      value={amount}
+                      value={total}
                       prefix="Rp "
                       decimalScale={2}
                       thousandSeparator="."
@@ -474,7 +532,12 @@ function Dashboard() {
                     />
                   ),
                 },
-                { accessor: 'due_date' },
+                {
+                  accessor: 'due_date',
+                  render: ({ due_date }) => (
+                    <Text>{moment(due_date).format('YYYY-MM-DD')}</Text>
+                  ),
+                },
               ]}
             />
           </Card>

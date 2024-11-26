@@ -65,7 +65,7 @@ export const useGetInvoiceNumber = async () => {
 };
 
 export const useGetInvoiceTotalPaid = async (query) => {
-  return fetchRequest(`/finance/invoice/get-total-paid`, 'GET', { query});
+  return fetchRequest(`/finance/invoice/get-total-paid`, 'GET', { query });
 };
 
 export const usePostInvoice = async (body) => {
@@ -129,7 +129,9 @@ export const usePutAccountBank = async (body) => {
 };
 
 export const usePutChangeAStatusClient = async (body) => {
-  return fetchRequest(`/finance/settings/client/change-status`, 'PUT', { body });
+  return fetchRequest(`/finance/settings/client/change-status`, 'PUT', {
+    body,
+  });
 };
 
 export const useGetClients = async (query) => {
@@ -168,6 +170,10 @@ export const useGetOptionClients = async () => {
   return fetchRequest(`/options/client?status=true`, 'GET');
 };
 
+export const useGetDashboardReceivable = async () => {
+  return fetchRequest(`/dashboard/receivable`, 'GET');
+};
+
 export const useGetDashboardIncome = async (query) => {
   return fetchRequest(`/dashboard/incoming`, 'GET', { query });
 };
@@ -182,6 +188,18 @@ export const useGetDashboardBalance = async (query) => {
 
 export const useGetDashboardBarChart = async (query) => {
   return fetchRequest(`/dashboard/chart-default-three-month`, 'GET', { query });
+};
+
+export const useGetDashboardBarChartCategory = async (query) => {
+  return fetchRequest(`/dashboard/category-default-three-month?`, 'GET', {
+    query,
+  });
+};
+
+export const useGetDashboardBarChartSubCategory = async (query) => {
+  return fetchRequest(`/dashboard/sub-category-default-three-month?`, 'GET', {
+    query,
+  });
 };
 
 export const useGetDashboardTopIncome = async (query) => {

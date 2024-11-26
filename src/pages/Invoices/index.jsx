@@ -126,7 +126,7 @@ function MakeATransaction({ data, refetchInvoices }) {
     onSuccess: () => {
       refetchInvoices();
       modals.closeAll();
-      notificationSuccess(`Make A Transaction successfully`);
+      notificationSuccess(`Make a Transaction successfully`);
     },
   });
 
@@ -418,7 +418,7 @@ function Invoices() {
 
   const handleMakeATransaction = (data) => {
     modals.open({
-      title: 'Make A Transaction',
+      title: 'Make a Transaction',
       centered: true,
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
@@ -615,7 +615,7 @@ function Invoices() {
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">
-                  <Tooltip label="Make A Transaction">
+                  <Tooltip label="Make a Transaction">
                     <ActionIcon
                       size="sm"
                       variant="subtle"
