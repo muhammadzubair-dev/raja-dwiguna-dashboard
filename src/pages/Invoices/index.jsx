@@ -27,6 +27,7 @@ import {
   IconFilter,
   IconPlus,
   IconSearch,
+  IconTrash,
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
@@ -39,6 +40,7 @@ import {
   useGetInvoices,
   usePostInvoice,
   usePutInvoice,
+  useDeleteInvoice,
 } from '../../helpers/apiHelper';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
@@ -233,6 +235,43 @@ function AddAndEditInvoice({ data, refetchInvoices }) {
   );
 }
 
+function DeleteInvoice({ id, reference_number, refetchInvoices }) {
+  const { mutate, isLoading, error } = useMutation(useDeleteInvoice, {
+    onSuccess: () => {
+      refetchInvoices();
+      modals.closeAll();
+      notificationSuccess(`Invoice Deleted successfully`);
+    },
+  });
+
+  const handleDelete = () => mutate({ id });
+
+  return (
+    <>
+      <Text size="sm">
+        Are you sure you want to delete invoice {reference_number} ?
+      </Text>
+      <Group justify="flex-end" mt="xl">
+        <Button
+          variant="outline"
+          color="gray"
+          onClick={() => modals.closeAll()}
+        >
+          Cancel
+        </Button>
+        <Button color="red" loading={isLoading} onClick={handleDelete}>
+          Delete
+        </Button>
+      </Group>
+      {error && (
+        <Flex justify="flex-end">
+          <ErrorMessage message={error?.message} />
+        </Flex>
+      )}
+    </>
+  );
+}
+
 function FilterInvoices({
   setInvoiceNumber,
   isLoadingCategories,
@@ -335,6 +374,8 @@ function Invoices() {
     id: item.id,
     reference_number: item.reference_number,
     client: item.list_client.name,
+    client_id: item.list_client.id,
+    invoice_date: item.invoice_date,
     due_date: item.due_date,
     amount: item.total,
     category: item.list_category?.name,
@@ -346,16 +387,18 @@ function Invoices() {
     category_id: item.list_category?.id,
     sub_category_id: item.list_sub_category?.id,
     created_by: item.list_employee.email,
+    list_invoice_item: item.list_invoice_item,
   }));
 
   const handleEditInvoice = (data) => {
-    modals.open({
-      title: 'Edit Invoice',
-      centered: true,
-      radius: 'md',
-      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: <AddAndEditInvoice data={data} refetchInvoices={refetch} />,
-    });
+    navigate(`/invoice`, { state: { data } });
+    // modals.open({
+    //   title: 'Edit Invoice',
+    //   centered: true,
+    //   radius: 'md',
+    //   overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+    //   children: <AddAndEditInvoice data={data} refetchInvoices={refetch} />,
+    // });
   };
 
   const handleAddInvoice = () => {
@@ -410,6 +453,22 @@ function Invoices() {
             isLoading={isLoading}
           />
         </Stack>
+      ),
+    });
+  };
+
+  const handleDeleteInvoice = (id, reference_number) => {
+    modals.open({
+      title: 'Delete Invoice',
+      centered: true,
+      radius: 'md',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: (
+        <DeleteInvoice
+          id={id}
+          reference_number={reference_number}
+          refetchInvoices={refetch}
+        />
       ),
     });
   };
@@ -529,7 +588,7 @@ function Invoices() {
               accessor: 'actions',
               title: '',
               textAlign: 'right',
-              render: (data) => (
+              render: ({ id, reference_number }) => (
                 <Group gap={4} justify="right" wrap="nowrap">
                   <Tooltip label="Edit Invoice">
                     <ActionIcon
@@ -539,6 +598,16 @@ function Invoices() {
                       onClick={() => handleEditInvoice(data)}
                     >
                       <IconEdit size={16} />
+                    </ActionIcon>
+                  </Tooltip>
+                  <Tooltip label="Delete Invoice">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="red"
+                      onClick={() => handleDeleteInvoice(id, reference_number)}
+                    >
+                      <IconTrash size={16} />
                     </ActionIcon>
                   </Tooltip>
                 </Group>

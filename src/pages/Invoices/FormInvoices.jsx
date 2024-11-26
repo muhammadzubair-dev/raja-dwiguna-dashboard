@@ -28,7 +28,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'react-query';
 import {
   useGetClients,
@@ -37,6 +37,7 @@ import {
   useGetOptionCategories,
   useGetOptionClients,
   usePostInvoice,
+  usePutInvoice,
 } from '../../helpers/apiHelper';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
@@ -44,7 +45,7 @@ import moment from 'moment';
 import ErrorMessage from '../../components/ErrorMessage';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 
-function AddAndEditItem({ data, setItems }) {
+function AddAndEditItem({ data, setItems, setItemsFromData }) {
   const isAdd = data ? false : true;
 
   const form = useForm({
@@ -66,20 +67,38 @@ function AddAndEditItem({ data, setItems }) {
   });
 
   const handleSave = (values) => {
-    setItems((prev) =>
-      isAdd
-        ? [
-            ...prev,
-            {
-              ...values,
-              id: Date.now(),
-              amount: values.quantity * values.unit_price,
-            },
-          ]
-        : prev.map((item) =>
-            item.id === data.id ? { ...item, ...values } : item
-          )
-    );
+    values.amount = values.quantity * values.unit_price;
+    if (data?.invoice_id) {
+      setItemsFromData((prev) =>
+        prev.map((item) => {
+          return item.id === data.id
+            ? {
+                ...item,
+                ...values,
+              }
+            : item;
+        })
+      );
+    } else {
+      setItems((prev) =>
+        isAdd
+          ? [
+              ...prev,
+              {
+                ...values,
+                id: Date.now(),
+              },
+            ]
+          : prev.map((item) =>
+              item.id === data.id
+                ? {
+                    ...item,
+                    ...values,
+                  }
+                : item
+            )
+      );
+    }
     modals.closeAll();
   };
 
@@ -141,9 +160,14 @@ function AddAndEditItem({ data, setItems }) {
   );
 }
 
-function DeleteItem({ data, setItems }) {
+function DeleteItem({ data, setItems, setItemsFromData, setItemsDeleted }) {
   const handleDelete = () => {
-    setItems((prev) => prev.filter((item) => item.id !== data.id));
+    if (data?.invoice_id) {
+      setItemsDeleted((prev) => [...prev, data.id]);
+      setItemsFromData((prev) => prev.filter((item) => item.id !== data.id));
+    } else {
+      setItems((prev) => prev.filter((item) => item.id !== data.id));
+    }
     modals.closeAll();
   };
 
@@ -169,11 +193,15 @@ function DeleteItem({ data, setItems }) {
   );
 }
 
-function FormInvoices({ data }) {
+function FormInvoices() {
   const navigate = useNavigate();
-  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
-  const [invoiceDate, setInvoiceDate] = useState(null);
-  const [dueDate, setDueDate] = useState(null);
+  const location = useLocation();
+  const data = location.state?.data;
+  const isAdd = !data;
+  const [itemsFromData, setItemsFromData] = useState(
+    data?.list_invoice_item || []
+  );
+  const [itemsDeleted, setItemsDeleted] = useState([]);
   const [items, setItems] = useState([]);
   const form = useForm({
     mode: 'controlled',
@@ -183,11 +211,11 @@ function FormInvoices({ data }) {
       account_id: data?.account_id || null,
       category_id: data?.category_id || null,
       sub_category_id: data?.sub_category_id || null,
-      invoice_date: data?.invoice_date || null,
-      due_date: data?.due_date || null,
-      total: data?.total || '',
+      invoice_date: data?.invoice_date ? moment(data.invoice_date) : null,
+      due_date: data?.due_date ? moment(data.due_date) : null,
+      // total: data?.total || '',
       notes: data?.notes || '',
-      list_invoice_item: data?.list_invoice_item || [],
+      // list_invoice_item: data?.list_invoice_item || [],
     },
     validate: {
       // reference_number: (value) =>
@@ -266,28 +294,51 @@ function FormInvoices({ data }) {
     mutate,
     isLoading: isLoadingInvoice,
     error: errorInvoice,
-  } = useMutation(usePostInvoice, {
+  } = useMutation(isAdd ? usePostInvoice : usePutInvoice, {
     onSuccess: () => {
-      notificationSuccess(`Invoice Added successfully`);
+      notificationSuccess(
+        `Invoice ${isAdd ? 'Added' : 'Updated'} successfully`
+      );
       navigate('/invoices');
     },
   });
 
   const handleSave = (values) => {
+    const { invoice_date, due_date } = values;
     const body = {
       ...values,
+      ...(isAdd && {
+        list_invoice_item: items.map((item) => ({
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          amount: item.amount,
+        })),
+      }),
+      ...(!isAdd && {
+        id: data?.id,
+        delete_invoice_item: itemsDeleted,
+        update_invoice_item: itemsFromData.map((item) => ({
+          id: item.id,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          amount: item.amount,
+        })),
+        insert_invoice_item: items.map((item) => ({
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          amount: item.amount,
+        })),
+      }),
       reference_number: dataIN?.response,
-      invoice_date: `${moment(values.invoice_date).format(
-        'YYYY-MM-DD'
-      )}T00:00:00Z`,
-      due_date: `${moment(values.due_date).format('YYYY-MM-DD')}T00:00:00Z`,
-      total: items.reduce((total, item) => total + item.amount, 0),
-      list_invoice_item: items.map((item) => ({
-        description: item.description,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        amount: item.amount,
-      })),
+      invoice_date: `${moment(invoice_date).format('YYYY-MM-DD')}T00:00:00Z`,
+      due_date: `${moment(due_date).format('YYYY-MM-DD')}T00:00:00Z`,
+      total: [...itemsFromData, ...items].reduce(
+        (total, item) => total + item.amount,
+        0
+      ),
     };
     mutate(body);
   };
@@ -299,18 +350,30 @@ function FormInvoices({ data }) {
       radius: 'md',
       size: 'xs',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: <AddAndEditItem setItems={setItems} />,
+      children: (
+        <AddAndEditItem
+          setItems={setItems}
+          setItemsFromData={setItemsFromData}
+        />
+      ),
     });
   };
 
-  const handleEditItem = (data) => {
+  const handleEditItem = (item) => {
+    // navigate('/invoice', { state: { data: item } });
     modals.open({
       title: 'Edit Item',
       centered: true,
       radius: 'md',
       size: 'xs',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: <AddAndEditItem data={data} setItems={setItems} />,
+      children: (
+        <AddAndEditItem
+          data={item}
+          setItems={setItems}
+          setItemsFromData={setItemsFromData}
+        />
+      ),
     });
   };
 
@@ -320,7 +383,14 @@ function FormInvoices({ data }) {
       centered: true,
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: <DeleteItem data={data} setItems={setItems} />,
+      children: (
+        <DeleteItem
+          data={data}
+          setItems={setItems}
+          setItemsFromData={setItemsFromData}
+          setItemsDeleted={setItemsDeleted}
+        />
+      ),
     });
   };
 
@@ -356,6 +426,8 @@ function FormInvoices({ data }) {
                     flex={1}
                     label="Invoice Number"
                     value={dataIN?.response}
+                    placeholder="Loading..."
+                    readOnly={isLoadingIN}
                     disabled
                   />
                 </Grid.Col>
@@ -435,7 +507,13 @@ function FormInvoices({ data }) {
                   />
                 </Grid.Col>
               </Grid>
-              <Textarea autosize minRows={5} label="Additional Notes" />
+              <Textarea
+                autosize
+                minRows={5}
+                label="Additional Notes"
+                key={form.key('notes')}
+                {...form.getInputProps('notes')}
+              />
             </Fieldset>
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 12 }}>
@@ -458,7 +536,8 @@ function FormInvoices({ data }) {
                     title: 'No',
                     textAlign: 'center',
                     width: 40,
-                    render: (record) => items.indexOf(record) + 1,
+                    render: (record) =>
+                      [...itemsFromData, ...items].indexOf(record) + 1,
                   },
                   { accessor: 'description' },
                   { accessor: 'quantity' },
@@ -478,9 +557,9 @@ function FormInvoices({ data }) {
                   {
                     accessor: 'amount',
                     noWrap: true,
-                    render: ({ amount }) => (
+                    render: ({ quantity, unit_price }) => (
                       <NumberFormatter
-                        value={amount}
+                        value={quantity * unit_price}
                         prefix="Rp "
                         decimalScale={2}
                         thousandSeparator="."
@@ -512,14 +591,17 @@ function FormInvoices({ data }) {
                     ),
                   },
                 ]}
-                records={items}
+                records={[...itemsFromData, ...items]}
               />
               <Group mb="sm" mt="xl" justify="flex-end">
                 <Box w={300}>
                   <Group justify="space-between">
                     <Text>Subtotal</Text>
                     <NumberFormatter
-                      value={items.reduce((acc, item) => acc + item.amount, 0)}
+                      value={[...itemsFromData, ...items].reduce(
+                        (acc, item) => acc + item.quantity * item.unit_price,
+                        0
+                      )}
                       prefix="Rp "
                       decimalScale={2}
                       thousandSeparator="."
@@ -536,8 +618,8 @@ function FormInvoices({ data }) {
 
                     <Title order={4}>
                       <NumberFormatter
-                        value={items.reduce(
-                          (acc, item) => acc + item.amount,
+                        value={[...itemsFromData, ...items].reduce(
+                          (acc, item) => acc + item.quantity * item.unit_price,
                           0
                         )}
                         prefix="Rp "

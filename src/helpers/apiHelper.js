@@ -72,6 +72,10 @@ export const usePutInvoice = async (body) => {
   return fetchRequest(`/finance/invoice`, 'PUT', { body });
 };
 
+export const useDeleteInvoice = async (body) => {
+  return fetchRequest(`/finance/invoice`, 'DELETE', { body });
+};
+
 export const useGetCategories = async (query) => {
   return fetchRequest(`/finance/settings/category`, 'GET', { query });
 };
