@@ -33,6 +33,7 @@ import { useMutation, useQuery } from 'react-query';
 import {
   useGetClients,
   useGetInvoiceNumber,
+  useGetInvoiceTotalPaid,
   useGetOptionAccounts,
   useGetOptionCategories,
   useGetOptionClients,
@@ -256,6 +257,12 @@ function FormInvoices() {
   const { data: dataIN, isLoading: isLoadingIN } = useQuery(
     ['invoice-number'],
     () => useGetInvoiceNumber()
+  );
+
+  const { data: dataTotalPaid, isLoading: isLoadingTotalPaid } = useQuery(
+    ['total-paid', data?.reference_number],
+    () => useGetInvoiceTotalPaid({ reference_number: data?.reference_number }),
+    { enabled: !!data?.reference_number }
   );
 
   const recordsAccount = optionAccounts?.response.map(
@@ -612,16 +619,31 @@ function FormInvoices() {
                     <Text>Tax (0%)</Text>
                     <Text>Rp 0</Text>
                   </Group>
+                  {dataTotalPaid && dataTotalPaid?.response > 0 && (
+                    <Group justify="space-between">
+                      <Text>Paid</Text>
+                      <NumberFormatter
+                        value={dataTotalPaid?.response}
+                        prefix="Rp "
+                        decimalScale={2}
+                        thousandSeparator="."
+                        decimalSeparator=","
+                      />
+                    </Group>
+                  )}
                   <Divider my="md" />
                   <Group justify="space-between">
                     <Title order={4}>Total</Title>
 
                     <Title order={4}>
                       <NumberFormatter
-                        value={[...itemsFromData, ...items].reduce(
-                          (acc, item) => acc + item.quantity * item.unit_price,
-                          0
-                        )}
+                        value={
+                          [...itemsFromData, ...items].reduce(
+                            (acc, item) =>
+                              acc + item.quantity * item.unit_price,
+                            0
+                          ) - (dataTotalPaid?.response || 0)
+                        }
                         prefix="Rp "
                         decimalScale={2}
                         thousandSeparator="."

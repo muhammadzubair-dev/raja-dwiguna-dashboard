@@ -22,6 +22,7 @@ import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import {
   IconCalendar,
+  IconCreditCardPay,
   IconDownload,
   IconEdit,
   IconFilter,
@@ -41,6 +42,8 @@ import {
   usePostInvoice,
   usePutInvoice,
   useDeleteInvoice,
+  usePostInvoiceTransaction,
+  useGetInvoiceTotalPaid,
 } from '../../helpers/apiHelper';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
@@ -49,16 +52,15 @@ import useSizeContainer from '../../helpers/useSizeContainer';
 import { useMediaQuery } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 
-function AddAndEditInvoice({ data, refetchInvoices }) {
-  const isAdd = data ? false : true;
+function MakeATransaction({ data, refetchInvoices }) {
   const form = useForm({
     mode: 'controlled',
     initialValues: {
       account_id: data?.account_id || null,
       category_id: data?.category_id || null,
       sub_category_id: data?.sub_category_id || null,
-      amount: data?.amount || '',
-      description: data?.description || '',
+      amount: '',
+      description: '',
       reference_number: data?.reference_number || '',
     },
     validate: {
@@ -69,8 +71,6 @@ function AddAndEditInvoice({ data, refetchInvoices }) {
         String(value).trim().length > 0
           ? null
           : 'Amount is required and must be greater than 0',
-      // description: (value) =>
-      //   value.trim().length > 0 ? null : 'Description is required',
       reference_number: (value) =>
         value.trim().length > 0 ? null : 'Reference number is required',
     },
@@ -83,6 +83,11 @@ function AddAndEditInvoice({ data, refetchInvoices }) {
   const { data: optionAccounts, isLoading: isLoadingAccounts } = useQuery(
     ['accounts'],
     () => useGetOptionAccounts()
+  );
+
+  const { data: dataTotalPaid, isLoading: isLoadingTotalPaid } = useQuery(
+    ['total-paid', data?.reference_number],
+    () => useGetInvoiceTotalPaid({ reference_number: data?.reference_number })
   );
 
   const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
@@ -104,12 +109,6 @@ function AddAndEditInvoice({ data, refetchInvoices }) {
         .filter((category) => category.is_income === true)
         .map(({ id, name }) => ({ value: id, label: name })),
     },
-    {
-      group: 'Outcome',
-      items: (optionCategories?.response || [])
-        .filter((category) => category.is_income === false)
-        .map(({ id, name }) => ({ value: id, label: name })),
-    },
   ];
 
   const findSubCategory = optionCategories?.response.find(
@@ -123,33 +122,30 @@ function AddAndEditInvoice({ data, refetchInvoices }) {
     })
   );
 
-  const { mutate, isLoading, error } = useMutation(
-    isAdd ? usePostInvoice : usePutInvoice,
-    {
-      onSuccess: () => {
-        refetchInvoices();
-        modals.closeAll();
-        notificationSuccess(
-          `Invoice ${isAdd ? 'added' : 'updated'} successfully`
-        );
-      },
-    }
-  );
+  const { mutate, isLoading, error } = useMutation(usePostInvoiceTransaction, {
+    onSuccess: () => {
+      refetchInvoices();
+      modals.closeAll();
+      notificationSuccess(`Make A Transaction successfully`);
+    },
+  });
 
   const handleSave = (values) => {
-    const body = {
-      ...values,
-      ...(!isAdd && { id: data?.id }),
-    };
-
-    if (!isAdd) delete body.transaction_category_id;
-    mutate(body);
+    mutate(values);
   };
 
   return (
     <form onSubmit={form.onSubmit(handleSave)}>
       <Stack gap="xs">
+        <TextInput
+          readOnly
+          withAsterisk
+          label="Invoice Number"
+          key={form.key('reference_number')}
+          {...form.getInputProps('reference_number')}
+        />
         <Select
+          readOnly
           withAsterisk
           disabled={isLoadingAccounts}
           placeholder={isLoadingAccounts ? 'Loading...' : ''}
@@ -160,6 +156,7 @@ function AddAndEditInvoice({ data, refetchInvoices }) {
           {...form.getInputProps('account_id')}
         />
         <Select
+          readOnly
           withAsterisk
           disabled={isLoadingCategories}
           placeholder={isLoadingCategories ? 'Loading...' : ''}
@@ -170,6 +167,7 @@ function AddAndEditInvoice({ data, refetchInvoices }) {
           {...form.getInputProps('category_id')}
         />
         <Select
+          readOnly
           withAsterisk
           disabled={isLoadingCategories || recordsSubCategory?.length === 0}
           placeholder={
@@ -188,22 +186,38 @@ function AddAndEditInvoice({ data, refetchInvoices }) {
         <NumberInput
           allowNegative={false}
           withAsterisk
+          clampBehavior="strict"
+          min={0}
+          max={(data?.amount || 0) - (dataTotalPaid?.response || 0)}
           prefix="Rp "
           thousandSeparator="."
           decimalSeparator=","
           decimalScale={2}
           label="Amount"
+          description={
+            <Text size="xs">
+              <NumberFormatter
+                value={dataTotalPaid?.response || 0}
+                prefix="Rp "
+                decimalScale={2}
+                thousandSeparator="."
+                decimalSeparator=","
+              />{' '}
+              has been paid, and{' '}
+              <NumberFormatter
+                value={(data?.amount || 0) - (dataTotalPaid?.response || 0)}
+                prefix="Rp "
+                decimalScale={2}
+                thousandSeparator="."
+                decimalSeparator=","
+              />{' '}
+              remains
+            </Text>
+          }
           key={form.key('amount')}
           {...form.getInputProps('amount')}
         />
-        <TextInput
-          withAsterisk
-          label="Reference Number"
-          key={form.key('reference_number')}
-          {...form.getInputProps('reference_number')}
-        />
         <Textarea
-          // withAsterisk
           autosize
           minRows={3}
           label="Description"
@@ -351,6 +365,7 @@ function Invoices() {
       useGetInvoices({
         limit,
         page,
+        is_paid: false,
         ...(invoiceNumber && { reference_number: invoiceNumber }),
         ...(category && { category_id: category }),
         ...(subCategory && { sub_category_id: subCategory }),
@@ -399,6 +414,16 @@ function Invoices() {
     //   overlayProps: { backgroundOpacity: 0.55, blur: 5 },
     //   children: <AddAndEditInvoice data={data} refetchInvoices={refetch} />,
     // });
+  };
+
+  const handleMakeATransaction = (data) => {
+    modals.open({
+      title: 'Make A Transaction',
+      centered: true,
+      radius: 'md',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: <MakeATransaction data={data} refetchInvoices={refetch} />,
+    });
   };
 
   const handleAddInvoice = () => {
@@ -590,6 +615,16 @@ function Invoices() {
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">
+                  <Tooltip label="Make A Transaction">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="green"
+                      onClick={() => handleMakeATransaction(data)}
+                    >
+                      <IconCreditCardPay size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                   <Tooltip label="Edit Invoice">
                     <ActionIcon
                       size="sm"

@@ -64,8 +64,16 @@ export const useGetInvoiceNumber = async () => {
   return fetchRequest(`/finance/invoice/get-number`, 'GET');
 };
 
+export const useGetInvoiceTotalPaid = async (query) => {
+  return fetchRequest(`/finance/invoice/get-total-paid`, 'GET', { query});
+};
+
 export const usePostInvoice = async (body) => {
   return fetchRequest(`/finance/invoice`, 'POST', { body });
+};
+
+export const usePostInvoiceTransaction = async (body) => {
+  return fetchRequest(`/finance/invoice/transaction`, 'POST', { body });
 };
 
 export const usePutInvoice = async (body) => {
