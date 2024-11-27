@@ -533,7 +533,7 @@ function Invoices() {
         }
       }
 
-      pdf.save('invoice.pdf');
+      pdf.save(`invoice-${printData?.reference_number}.pdf`);
     });
   };
 

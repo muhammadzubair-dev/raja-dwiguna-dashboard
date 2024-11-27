@@ -436,7 +436,7 @@ function FormInvoices() {
         }
       }
 
-      pdf.save('invoice.pdf');
+      pdf.save(`invoice-${data?.reference_number}.pdf`);
     });
   };
 
