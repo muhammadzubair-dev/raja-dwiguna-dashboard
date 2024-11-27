@@ -9,6 +9,7 @@ import {
   Container,
   Flex,
   Grid,
+  MultiSelect,
   NumberFormatter,
   Skeleton,
   Stack,
@@ -27,23 +28,26 @@ import {
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import {
   useGetDashboardBalance,
   useGetDashboardBarChart,
   useGetDashboardBarChartCategory,
+  useGetDashboardBarChartSubCategory,
   useGetDashboardIncome,
   useGetDashboardOutcome,
   useGetDashboardReceivable,
   useGetDashboardTopIncome,
   useGetDashboardTopOutcome,
   useGetInvoices,
+  useGetOptionCategories,
   useGetTransactions,
 } from '../../helpers/apiHelper';
 import shortCurrency from '../../helpers/shortCurrency';
 import useSizeContainer from '../../helpers/useSizeContainer';
+import generateRandomColor from '../../helpers/generateRandomColor';
 
 const TEN_MINUTES = 600000;
 
@@ -61,7 +65,7 @@ function Dashboard() {
     .subtract(6, 'months');
 
   const start_date_prev_current_month = moment().endOf('month');
-
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [valueBarChart, setValueBarChart] = useState([
     start_date_prev_six_month,
     start_date_prev_current_month,
@@ -143,25 +147,45 @@ function Dashboard() {
     }
   );
 
-  // const {
-  //   data: dataBarChartCategory,
-  //   isLoading: isLoadingBarChartCategory,
-  //   error: errorBarChartCategory,
-  //   refetch: refetchBarChartCategory,
-  // } = useQuery(
-  //   ['dashboard-BarChart-category'],
-  //   () =>
-  //     useGetDashboardBarChartCategory({
-  //       start_date: `${moment(valueBarChart[0]).format(
-  //         'YYYY-MM-DD'
-  //       )}T00:00:00Z`,
-  //       end_date: `${moment(valueBarChart[1]).format('YYYY-MM-DD')}T00:00:00Z`,
-  //       formatter: 'month',
-  //     }),
-  //   {
-  //     refetchInterval: TEN_MINUTES,
-  //   }
-  // );
+  const {
+    data: dataBarChartCategory,
+    isLoading: isLoadingBarChartCategory,
+    error: errorBarChartCategory,
+    refetch: refetchBarChartCategory,
+  } = useQuery(
+    ['dashboard-BarChart-category'],
+    () =>
+      useGetDashboardBarChartCategory({
+        start_date: `${moment(valueBarChart[0]).format(
+          'YYYY-MM-DD'
+        )}T00:00:00Z`,
+        end_date: `${moment(valueBarChart[1]).format('YYYY-MM-DD')}T00:00:00Z`,
+        formatter: 'month',
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
+
+  const {
+    data: dataBarChartSubCategory,
+    isLoading: isLoadingBarChartSubCategory,
+    error: errorBarChartSubCategory,
+    refetch: refetchBarChartSubCategory,
+  } = useQuery(
+    ['dashboard-BarChart-SubCategory'],
+    () =>
+      useGetDashboardBarChartSubCategory({
+        start_date: `${moment(valueBarChart[0]).format(
+          'YYYY-MM-DD'
+        )}T00:00:00Z`,
+        end_date: `${moment(valueBarChart[1]).format('YYYY-MM-DD')}T00:00:00Z`,
+        formatter: 'month',
+      }),
+    {
+      refetchInterval: TEN_MINUTES,
+    }
+  );
 
   const {
     data: dataTopIncome,
@@ -230,6 +254,33 @@ function Dashboard() {
     }
   );
 
+  const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
+    ['option-categories'],
+    () => useGetOptionCategories(),
+    {
+      onSuccess: (res) => {
+        setSelectedCategory(
+          (res?.response || []).map((item) => item.name).slice(0, 3)
+        );
+      },
+    }
+  );
+
+  const recordsCategory = [
+    {
+      group: 'Income',
+      items: (optionCategories?.response || [])
+        .filter((category) => category.is_income === true)
+        .map(({ name }) => name),
+    },
+    {
+      group: 'Outcome',
+      items: (optionCategories?.response || [])
+        .filter((category) => category.is_income === false)
+        .map(({ name }) => name),
+    },
+  ];
+
   const recordTransactions = dataTransactions?.response?.data.map((item) => ({
     id: item.id,
     amount: item.amount,
@@ -259,6 +310,8 @@ function Dashboard() {
     Income: item.incoming,
     Outcome: item.outcoming,
   }));
+
+  const recordBarChartCategory = dataBarChartCategory?.response || [];
 
   const dataCard = [
     {
@@ -418,8 +471,117 @@ function Dashboard() {
                 />
               )}
             </Skeleton>
+
+            {/* <Flex
+              justify="space-between"
+              my="xl"
+              gap="md"
+              direction={{ base: 'column', md: 'row' }}
+            >
+              <Box>
+                <Text>Cash Flow</Text>
+                <Text size="sm" c="dimmed">
+                  Monthly Income and Outcome
+                </Text>
+              </Box>
+              <Flex gap={4} align="flex-start">
+                <MonthPickerInput
+                  miw={250}
+                  type="range"
+                  placeholder="Select month range"
+                  value={valueBarChart}
+                  onChange={setValueBarChart}
+                  disabled={isLoadingBarChart}
+                  rightSection={
+                    <ActionIcon
+                      variant="subtle"
+                      loading={isLoadingBarChart}
+                      onClick={refetchBarChart}
+                    >
+                      <IconSearch size={14} />
+                    </ActionIcon>
+                  }
+                />
+              </Flex>
+            </Flex>
+            <Skeleton visible={isLoadingBarChartCategory}>
+              {errorBarChartCategory ? (
+                <Center h={300}>
+                  <Text c="red">Error: {errorBarChartCategory?.message}</Text>
+                </Center>
+              ) : (
+                <BarChart
+                  h={300}
+                  valueFormatter={(value) => shortCurrency(value)}
+                  data={recordBarChartCategory}
+                  dataKey="date"
+                  withLegend
+                  barProps={{ radius: 10 }}
+                  series={
+                    recordBarChartCategory.length !== 0
+                      ? Object.keys(recordBarChartCategory[0])
+                          .filter((key) => key !== 'date')
+                          .map((key) => ({
+                            name: key,
+                            color: generateRandomColor(),
+                          }))
+                      : []
+                  }
+                />
+              )}
+            </Skeleton> */}
           </Card>
         </Grid.Col>
+
+        <Grid.Col span={12}>
+          <Card withBorder radius="lg">
+            <Flex
+              justify="space-between"
+              mb="xl"
+              gap="md"
+              direction={{ base: 'column', md: 'row' }}
+            >
+              <Box>
+                <Text>Category Traffic</Text>
+              </Box>
+              <Flex gap={4} align="flex-start">
+                <MultiSelect
+                  placeholder="Select Category"
+                  data={recordsCategory}
+                  value={selectedCategory}
+                  defaultValue={selectedCategory.slice(0, 4)}
+                  onChange={setSelectedCategory}
+                  searchable
+                />
+              </Flex>
+            </Flex>
+            <Skeleton visible={isLoadingBarChartCategory}>
+              {errorBarChartCategory ? (
+                <Center h={300}>
+                  <Text c="red">Error: {errorBarChartCategory?.message}</Text>
+                </Center>
+              ) : (
+                <BarChart
+                  h={300}
+                  valueFormatter={(value) => shortCurrency(value)}
+                  data={recordBarChartCategory}
+                  dataKey="date"
+                  withLegend
+                  barProps={{ radius: 10 }}
+                  series={
+                    selectedCategory.length !== 0
+                      ? selectedCategory.map((key) => ({
+                          name: key,
+                          color: generateRandomColor(),
+                        }))
+                      : []
+                  }
+                />
+              )}
+            </Skeleton>
+          </Card>
+        </Grid.Col>
+
         <Grid.Col span={{ base: 12, md: 5 }}>
           <Card withBorder radius="lg" p="0" pb={6}>
             <Box p="md" pb={4}>

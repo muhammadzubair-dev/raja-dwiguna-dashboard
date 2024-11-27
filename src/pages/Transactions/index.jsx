@@ -83,7 +83,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
   );
 
   const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
-    ['categories'],
+    ['option-categories'],
     () => useGetOptionCategories()
   );
 

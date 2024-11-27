@@ -191,13 +191,13 @@ export const useGetDashboardBarChart = async (query) => {
 };
 
 export const useGetDashboardBarChartCategory = async (query) => {
-  return fetchRequest(`/dashboard/category-default-three-month?`, 'GET', {
+  return fetchRequest(`/dashboard/category-default-three-month`, 'GET', {
     query,
   });
 };
 
 export const useGetDashboardBarChartSubCategory = async (query) => {
-  return fetchRequest(`/dashboard/sub-category-default-three-month?`, 'GET', {
+  return fetchRequest(`/dashboard/sub-category-default-three-month`, 'GET', {
     query,
   });
 };
