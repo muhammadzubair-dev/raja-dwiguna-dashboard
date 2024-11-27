@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Anchor,
   Badge,
   Box,
   Button,
@@ -126,7 +127,7 @@ function MakeATransaction({ data, refetchInvoices }) {
     onSuccess: () => {
       refetchInvoices();
       modals.closeAll();
-      notificationSuccess(`Make a Transaction successfully`);
+      notificationSuccess(`Make a Payment successfully`);
     },
   });
 
@@ -365,7 +366,6 @@ function Invoices() {
       useGetInvoices({
         limit,
         page,
-        is_paid: false,
         ...(invoiceNumber && { reference_number: invoiceNumber }),
         ...(category && { category_id: category }),
         ...(subCategory && { sub_category_id: subCategory }),
@@ -388,6 +388,7 @@ function Invoices() {
   const records = data?.response?.data.map((item) => ({
     id: item.id,
     reference_number: item.reference_number,
+    is_paid: item.is_paid,
     client: item.list_client.name,
     client_id: item.list_client.id,
     invoice_date: item.invoice_date,
@@ -406,19 +407,12 @@ function Invoices() {
   }));
 
   const handleEditInvoice = (data) => {
-    navigate(`/invoice`, { state: { data } });
-    // modals.open({
-    //   title: 'Edit Invoice',
-    //   centered: true,
-    //   radius: 'md',
-    //   overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-    //   children: <AddAndEditInvoice data={data} refetchInvoices={refetch} />,
-    // });
+    navigate(`/invoice`, { state: { data, mode: 'edit' } });
   };
 
   const handleMakeATransaction = (data) => {
     modals.open({
-      title: 'Make a Transaction',
+      title: 'Make a Payment',
       centered: true,
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
@@ -542,6 +536,7 @@ function Invoices() {
       </Group>
       <Card withBorder p="0" radius="sm">
         <DataTable
+          highlightOnHover
           verticalSpacing="md"
           minHeight={400}
           fetching={isLoading}
@@ -557,7 +552,6 @@ function Invoices() {
           records={records}
           columns={[
             { accessor: 'id', hidden: true },
-
             {
               accessor: 'index',
               title: 'No',
@@ -567,8 +561,34 @@ function Invoices() {
                 records.indexOf(record) + 1 + limit * (page - 1),
             },
             {
+              accessor: 'is_paid',
+              title: 'Status',
+              width: 100,
+              render: ({ is_paid }) => (
+                <Badge
+                  variant="outline"
+                  radius="xl"
+                  color={is_paid ? 'green' : 'red'}
+                >
+                  {is_paid ? 'Paid' : 'Unpaid'}
+                </Badge>
+              ),
+            },
+            {
               accessor: 'reference_number',
               title: 'Invoice Number',
+              render: (record) => (
+                <Anchor
+                  onClick={() => {
+                    navigate(`/invoice`, {
+                      state: { data: record, mode: 'detail' },
+                    });
+                  }}
+                  underline="always"
+                >
+                  {record.reference_number}
+                </Anchor>
+              ),
               ...(sizeContainer !== 'fluid' && { width: 150, ellipsis: true }),
             },
             { accessor: 'client' },
@@ -594,7 +614,6 @@ function Invoices() {
               accessor: 'notes',
               ...(sizeContainer !== 'fluid' && { width: 250, ellipsis: true }),
             },
-            { accessor: 'created_by', noWrap: true },
             {
               accessor: 'due_date',
               noWrap: true,
@@ -602,6 +621,7 @@ function Invoices() {
                 <Text>{moment(due_date).format('YYYY-MM-DD HH:mm')}</Text>
               ),
             },
+            { accessor: 'created_by', noWrap: true },
             {
               accessor: 'created_at',
               noWrap: true,
@@ -615,7 +635,7 @@ function Invoices() {
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">
-                  <Tooltip label="Make a Transaction">
+                  <Tooltip label="Make a Payment">
                     <ActionIcon
                       size="sm"
                       variant="subtle"
@@ -651,6 +671,9 @@ function Invoices() {
               ),
             },
           ]}
+          // onRowClick={({ record, index, event }) => {
+          //   navigate(`/invoice`, { state: { data: record, mode: 'detail' } });
+          // }}
         />
       </Card>
     </Container>

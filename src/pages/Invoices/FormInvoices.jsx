@@ -198,6 +198,9 @@ function FormInvoices() {
   const navigate = useNavigate();
   const location = useLocation();
   const data = location.state?.data;
+  const modeDetail = location.state?.mode === 'detail';
+  const modeEdit = location.state?.mode === 'edit';
+
   const isAdd = !data;
   const [itemsFromData, setItemsFromData] = useState(
     data?.list_invoice_item || []
@@ -212,7 +215,7 @@ function FormInvoices() {
       account_id: data?.account_id || null,
       category_id: data?.category_id || null,
       sub_category_id: data?.sub_category_id || null,
-      invoice_date: data?.invoice_date ? moment(data.invoice_date) : null,
+      invoice_date: data?.invoice_date ? moment(data.invoice_date) : new Date(),
       due_date: data?.due_date ? moment(data.due_date) : null,
       // total: data?.total || '',
       notes: data?.notes || '',
@@ -256,7 +259,10 @@ function FormInvoices() {
 
   const { data: dataIN, isLoading: isLoadingIN } = useQuery(
     ['invoice-number'],
-    () => useGetInvoiceNumber()
+    () => useGetInvoiceNumber(),
+    {
+      refetchOnWindowFocus: false,
+    }
   );
 
   const { data: dataTotalPaid, isLoading: isLoadingTotalPaid } = useQuery(
@@ -417,7 +423,7 @@ function FormInvoices() {
             >
               <Select
                 withAsterisk
-                disabled={isLoadingClients}
+                readOnly={isLoadingClients || modeDetail}
                 placeholder={isLoadingClients ? 'Loading...' : ''}
                 label="Clients"
                 data={recordsClient}
@@ -434,12 +440,12 @@ function FormInvoices() {
                     label="Invoice Number"
                     value={dataIN?.response}
                     placeholder="Loading..."
-                    readOnly={isLoadingIN}
-                    disabled
+                    disabled={isLoadingIN || modeDetail}
                   />
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   <DatePickerInput
+                    readOnly={modeDetail}
                     minDate={new Date()}
                     rightSection={<IconCalendar size={18} />}
                     label="Invoice Date"
@@ -459,6 +465,7 @@ function FormInvoices() {
                         ? 'Please fill Invoice date first'
                         : ''
                     }
+                    readOnly={modeDetail}
                     disabled={!form.values.invoice_date}
                     minDate={new Date(form.values.invoice_date)}
                     rightSection={<IconCalendar size={18} />}
@@ -472,7 +479,7 @@ function FormInvoices() {
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   <Select
                     withAsterisk
-                    disabled={isLoadingAccounts}
+                    readOnly={isLoadingAccounts || modeDetail}
                     placeholder={isLoadingAccounts ? 'Loading...' : ''}
                     label="Bank Account"
                     data={recordsAccount}
@@ -484,7 +491,7 @@ function FormInvoices() {
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   <Select
                     withAsterisk
-                    disabled={isLoadingCategories}
+                    readOnly={isLoadingCategories || modeDetail}
                     placeholder={isLoadingCategories ? 'Loading...' : ''}
                     label="Category"
                     data={recordsCategory}
@@ -496,8 +503,10 @@ function FormInvoices() {
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   <Select
                     withAsterisk
-                    disabled={
-                      isLoadingCategories || recordsSubCategory?.length === 0
+                    readOnly={
+                      isLoadingCategories ||
+                      recordsSubCategory?.length === 0 ||
+                      modeDetail
                     }
                     placeholder={
                       isLoadingCategories
@@ -518,6 +527,7 @@ function FormInvoices() {
                 autosize
                 minRows={5}
                 label="Additional Notes"
+                readOnly={modeDetail}
                 key={form.key('notes')}
                 {...form.getInputProps('notes')}
               />
@@ -525,18 +535,21 @@ function FormInvoices() {
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 12 }}>
             <Fieldset mb="md" legend={<Title order={4}>Invoice Items</Title>}>
-              <Group mb="sm" justify="flex-end">
-                <Button
-                  variant="light"
-                  size="xs"
-                  leftSection={<IconPlus size={18} />}
-                  onClick={handleAddItem}
-                >
-                  Item
-                </Button>
-              </Group>
+              {modeEdit && (
+                <Group mb="sm" justify="flex-end">
+                  <Button
+                    variant="light"
+                    size="xs"
+                    leftSection={<IconPlus size={18} />}
+                    onClick={handleAddItem}
+                  >
+                    Item
+                  </Button>
+                </Group>
+              )}
               <DataTable
                 columns={[
+                  // Standard columns
                   { accessor: 'id', hidden: true },
                   {
                     accessor: 'index',
@@ -564,6 +577,7 @@ function FormInvoices() {
                   {
                     accessor: 'amount',
                     noWrap: true,
+                    textAlign: 'right',
                     render: ({ quantity, unit_price }) => (
                       <NumberFormatter
                         value={quantity * unit_price}
@@ -574,29 +588,33 @@ function FormInvoices() {
                       />
                     ),
                   },
-                  {
-                    accessor: '',
-                    render: (data) => (
-                      <Group gap={4} justify="right" wrap="nowrap">
-                        <ActionIcon
-                          size="sm"
-                          variant="subtle"
-                          color="blue"
-                          onClick={() => handleEditItem(data)}
-                        >
-                          <IconEdit size={16} />
-                        </ActionIcon>
-                        <ActionIcon
-                          size="sm"
-                          variant="subtle"
-                          color="red"
-                          onClick={() => handleDeleteItem(data)}
-                        >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </Group>
-                    ),
-                  },
+                  ...(modeEdit
+                    ? [
+                        {
+                          accessor: '',
+                          render: (data) => (
+                            <Group gap={4} justify="right" wrap="nowrap">
+                              <ActionIcon
+                                size="sm"
+                                variant="subtle"
+                                color="blue"
+                                onClick={() => handleEditItem(data)}
+                              >
+                                <IconEdit size={16} />
+                              </ActionIcon>
+                              <ActionIcon
+                                size="sm"
+                                variant="subtle"
+                                color="red"
+                                onClick={() => handleDeleteItem(data)}
+                              >
+                                <IconTrash size={16} />
+                              </ActionIcon>
+                            </Group>
+                          ),
+                        },
+                      ]
+                    : []),
                 ]}
                 records={[...itemsFromData, ...items]}
               />
@@ -656,11 +674,13 @@ function FormInvoices() {
             </Fieldset>
           </Grid.Col>
         </Grid>
-        <Group justify="flex-end">
-          <Button type="submit" loading={isLoadingInvoice}>
-            Submit
-          </Button>
-        </Group>
+        {modeEdit && (
+          <Group justify="flex-end">
+            <Button type="submit" loading={isLoadingInvoice}>
+              Submit
+            </Button>
+          </Group>
+        )}
         {errorInvoice && (
           <Group justify="flex-end">
             <ErrorMessage message={errorInvoice?.message} />

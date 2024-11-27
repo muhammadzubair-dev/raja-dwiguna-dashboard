@@ -341,7 +341,7 @@ function Dashboard() {
       },
       isLoading: isLoadingReceivable,
       error: errorReceivable?.message,
-      subtitle: ' invoices for the current month',
+      subtitle: ' total invoices',
       icon: <IconCoinOff size={35} stroke={1.5} />,
     },
     {
