@@ -66,6 +66,7 @@ function Dashboard() {
 
   const start_date_prev_current_month = moment().endOf('month');
   const [selectedCategory, setSelectedCategory] = useState([]);
+  const [selectedSubCategory, setSelectedSubCategory] = useState([]);
   const [valueBarChart, setValueBarChart] = useState([
     start_date_prev_six_month,
     start_date_prev_current_month,
@@ -173,7 +174,7 @@ function Dashboard() {
     error: errorBarChartSubCategory,
     refetch: refetchBarChartSubCategory,
   } = useQuery(
-    ['dashboard-BarChart-SubCategory'],
+    ['dashboard-BarChart-sub-category'],
     () =>
       useGetDashboardBarChartSubCategory({
         start_date: `${moment(valueBarChart[0]).format(
@@ -262,6 +263,16 @@ function Dashboard() {
         setSelectedCategory(
           (res?.response || []).map((item) => item.name).slice(0, 3)
         );
+
+        setSelectedSubCategory(
+          (res?.response || [])
+            .flatMap((item) =>
+              item.list_transaction_sub_category.map(
+                (subCategory) => subCategory.name
+              )
+            )
+            .slice(0, 3)
+        );
       },
     }
   );
@@ -280,6 +291,11 @@ function Dashboard() {
         .map(({ name }) => name),
     },
   ];
+
+  const recordsSubCategory = (optionCategories?.response || []).map((item) => ({
+    group: `${item.name} (${item.is_income ? 'Income' : 'Outcome'})`,
+    items: item.list_transaction_sub_category.map(({ name }) => name),
+  }));
 
   const recordTransactions = dataTransactions?.response?.data.map((item) => ({
     id: item.id,
@@ -312,6 +328,8 @@ function Dashboard() {
   }));
 
   const recordBarChartCategory = dataBarChartCategory?.response || [];
+
+  const recordBarChartSubCategory = dataBarChartSubCategory?.response || [];
 
   const dataCard = [
     {
@@ -549,7 +567,6 @@ function Dashboard() {
                   placeholder="Select Category"
                   data={recordsCategory}
                   value={selectedCategory}
-                  defaultValue={selectedCategory.slice(0, 4)}
                   onChange={setSelectedCategory}
                   searchable
                 />
@@ -571,6 +588,56 @@ function Dashboard() {
                   series={
                     selectedCategory.length !== 0
                       ? selectedCategory.map((key) => ({
+                          name: key,
+                          color: generateRandomColor(),
+                        }))
+                      : []
+                  }
+                />
+              )}
+            </Skeleton>
+          </Card>
+        </Grid.Col>
+
+        <Grid.Col span={12}>
+          <Card withBorder radius="lg">
+            <Flex
+              justify="space-between"
+              mb="xl"
+              gap="md"
+              direction={{ base: 'column', md: 'row' }}
+            >
+              <Box>
+                <Text>Sub Category Traffic</Text>
+              </Box>
+              <Flex gap={4} align="flex-start">
+                <MultiSelect
+                  placeholder="Select Sub Category"
+                  data={recordsSubCategory}
+                  value={selectedSubCategory}
+                  onChange={setSelectedSubCategory}
+                  searchable
+                />
+              </Flex>
+            </Flex>
+            <Skeleton visible={isLoadingBarChartSubCategory}>
+              {errorBarChartSubCategory ? (
+                <Center h={300}>
+                  <Text c="red">
+                    Error: {errorBarChartSubCategory?.message}
+                  </Text>
+                </Center>
+              ) : (
+                <BarChart
+                  h={300}
+                  valueFormatter={(value) => shortCurrency(value)}
+                  data={recordBarChartSubCategory}
+                  dataKey="date"
+                  withLegend
+                  barProps={{ radius: 10 }}
+                  series={
+                    selectedSubCategory.length !== 0
+                      ? selectedSubCategory.map((key) => ({
                           name: key,
                           color: generateRandomColor(),
                         }))

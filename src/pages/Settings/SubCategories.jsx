@@ -47,10 +47,20 @@ function AddAndEditSubCategory({ data, refetchSubCategories }) {
     () => useGetOptionCategories()
   );
 
-  const recordsCategory = optionCategories?.response.map(({ id, name }) => ({
-    value: id,
-    label: name,
-  }));
+  const recordsCategory = [
+    {
+      group: 'Income',
+      items: (optionCategories?.response || [])
+        .filter((category) => category.is_income === true)
+        .map(({ id, name }) => ({ value: id, label: name })),
+    },
+    {
+      group: 'Outcome',
+      items: (optionCategories?.response || [])
+        .filter((category) => category.is_income === false)
+        .map(({ id, name }) => ({ value: id, label: name })),
+    },
+  ];
 
   const form = useForm({
     mode: 'uncontrolled',
