@@ -114,7 +114,10 @@ function Reports() {
   const [category, setCategory] = useState(null);
   const [subCategory, setSubCategory] = useState(null);
   const isMobile = useMediaQuery(`(max-width: 1100px)`);
-  const [rangeDates, setRangeDates] = useState([null, null]);
+  const [rangeDates, setRangeDates] = useState([
+    moment().startOf('month'),
+    moment().endOf('month'),
+  ]);
   const sizeContainer = useSizeContainer((state) => state.sizeContainer);
   const { page, limit, handlePageChange, handleLimitChange } = usePagination(
     1,
