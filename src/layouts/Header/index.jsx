@@ -113,6 +113,8 @@ function NewPassword() {
 function Header({ onClickMenu, isMobile }) {
   const theme = useMantineTheme();
   const location = useLocation();
+  const modeDetail = location.state?.mode === 'detail';
+  const modeEdit = location.state?.mode === 'edit';
   const [opened, { open, close }] = useDisclosure(false);
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light');
@@ -147,8 +149,14 @@ function Header({ onClickMenu, isMobile }) {
       path: '/users',
     },
     {
-      title: 'New Invoice',
-      subtitle: 'Create and submit a new invoice for clients',
+      title: `${modeDetail ? 'Detail' : modeEdit ? 'Edit' : 'Create'} Invoice`,
+      subtitle: `${
+        modeDetail
+          ? 'View the details of the invoice'
+          : modeEdit
+          ? 'Edit and modify the invoice'
+          : 'Create and submit a new invoice for clients'
+      }`,
       path: '/invoice',
     },
     {
