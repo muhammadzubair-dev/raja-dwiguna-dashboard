@@ -52,6 +52,9 @@ import { DatePickerInput } from '@mantine/dates';
 import useSizeContainer from '../../helpers/useSizeContainer';
 import { useMediaQuery } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import PrintInvoice from './PrintInvoice';
 
 function MakeATransaction({ data, refetchInvoices }) {
   const form = useForm({
@@ -298,9 +301,16 @@ function FilterInvoices({
   setRangeDates,
   isLoading,
   refetch,
+  setIsPaid,
 }) {
   return (
     <>
+      <Select
+        placeholder="Select Status"
+        data={['Paid', 'Unpaid']}
+        onChange={setIsPaid}
+        clearable
+      />
       <TextInput
         placeholder="Invoice Number"
         onChange={(event) => setInvoiceNumber(event.currentTarget.value)}
@@ -350,6 +360,8 @@ function FilterInvoices({
 
 function Invoices() {
   const navigate = useNavigate();
+  const [printData, setPrintData] = useState(null);
+  const [isPaid, setIsPaid] = useState(null);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [category, setCategory] = useState(null);
   const [subCategory, setSubCategory] = useState(null);
@@ -366,6 +378,8 @@ function Invoices() {
       useGetInvoices({
         limit,
         page,
+        ...(isPaid === 'Paid' && { is_paid: true }),
+        ...(isPaid === 'Unpaid' && { is_paid: false }),
         ...(invoiceNumber && { reference_number: invoiceNumber }),
         ...(category && { category_id: category }),
         ...(subCategory && { sub_category_id: subCategory }),
@@ -397,6 +411,8 @@ function Invoices() {
     category: item.list_category?.name,
     sub_category: item.list_sub_category?.name,
     bank_name: item.list_account.bank_name,
+    bank_account: item.list_account.name,
+    bank_account_number: item.list_account.account_number,
     notes: item.notes,
     created_at: item.created_at,
     account_id: item.list_account.id,
@@ -460,6 +476,7 @@ function Invoices() {
       children: (
         <Stack gap="md">
           <FilterInvoices
+            setIsPaid={setIsPaid}
             setInvoiceNumber={setInvoiceNumber}
             isLoadingCategories={isLoadingCategories}
             recordsCategory={recordsCategory}
@@ -492,6 +509,34 @@ function Invoices() {
     });
   };
 
+  const handleExportToPDF = () => {
+    const invoiceElement = document.getElementById('invoice-to-capture');
+
+    html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+
+      const imgWidth = 190; // Width of the PDF (A4)
+      const pageHeight = 297; // Height of the PDF (A4)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 10; // Start position
+
+      // Add image to the PDF and handle multi-page content
+      while (heightLeft > 0) {
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        if (heightLeft > 0) {
+          pdf.addPage();
+          position = 0;
+        }
+      }
+
+      pdf.save('invoice.pdf');
+    });
+  };
+
   return (
     <Container
       size="xl"
@@ -511,6 +556,7 @@ function Invoices() {
         ) : (
           <Flex gap="sm" wrap="wrap">
             <FilterInvoices
+              setIsPaid={setIsPaid}
               setInvoiceNumber={setInvoiceNumber}
               isLoadingCategories={isLoadingCategories}
               recordsCategory={recordsCategory}
@@ -635,6 +681,21 @@ function Invoices() {
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">
+                  <Tooltip label="Export to PDF">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="black"
+                      onClick={() => {
+                        setPrintData(data);
+                        setTimeout(() => {
+                          handleExportToPDF();
+                        }, 500);
+                      }}
+                    >
+                      <IconDownload size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                   <Tooltip label="Make a Payment">
                     <ActionIcon
                       size="sm"
@@ -671,11 +732,9 @@ function Invoices() {
               ),
             },
           ]}
-          // onRowClick={({ record, index, event }) => {
-          //   navigate(`/invoice`, { state: { data: record, mode: 'detail' } });
-          // }}
         />
       </Card>
+      <PrintInvoice data={printData} />
     </Container>
   );
 }

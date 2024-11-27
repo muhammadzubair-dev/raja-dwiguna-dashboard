@@ -23,7 +23,9 @@ import useSizeContainer from '../../helpers/useSizeContainer';
 import { DatePickerInput } from '@mantine/dates';
 import {
   IconCalendar,
+  IconDownload,
   IconEdit,
+  IconPdf,
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
@@ -45,6 +47,9 @@ import { modals } from '@mantine/modals';
 import moment from 'moment';
 import ErrorMessage from '../../components/ErrorMessage';
 import { notificationSuccess } from '../../helpers/notificationHelper';
+import PrintInvoice from './PrintInvoice';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 function AddAndEditItem({ data, setItems, setItemsFromData }) {
   const isAdd = data ? false : true;
@@ -407,6 +412,34 @@ function FormInvoices() {
     });
   };
 
+  const handleExportToPDF = () => {
+    const invoiceElement = document.getElementById('invoice-to-capture');
+
+    html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+
+      const imgWidth = 190; // Width of the PDF (A4)
+      const pageHeight = 297; // Height of the PDF (A4)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 10; // Start position
+
+      // Add image to the PDF and handle multi-page content
+      while (heightLeft > 0) {
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        if (heightLeft > 0) {
+          pdf.addPage();
+          position = 0;
+        }
+      }
+
+      pdf.save('invoice.pdf');
+    });
+  };
+
   return (
     <Container
       size="md"
@@ -674,19 +707,30 @@ function FormInvoices() {
             </Fieldset>
           </Grid.Col>
         </Grid>
-        {modeEdit && (
-          <Group justify="flex-end">
+        <Group justify="flex-end">
+          {modeDetail && (
+            <Button
+              color="green"
+              loading={isLoadingInvoice}
+              onClick={handleExportToPDF}
+              leftSection={<IconDownload size={16} />}
+            >
+              Export to PDF
+            </Button>
+          )}
+          {modeEdit && (
             <Button type="submit" loading={isLoadingInvoice}>
               Submit
             </Button>
-          </Group>
-        )}
+          )}
+        </Group>
         {errorInvoice && (
           <Group justify="flex-end">
             <ErrorMessage message={errorInvoice?.message} />
           </Group>
         )}
       </form>
+      <PrintInvoice data={data} />
     </Container>
   );
 }
