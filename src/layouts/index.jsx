@@ -23,16 +23,19 @@ function Layout() {
   useAutoLogout(10 * 60 * 1000, mutate);
 
   return (
-    <Flex gap="md">
+    <Flex>
       <NavbarNested isMobile={isMobile} />
-      <Box w={rem(275)} style={{ display: isMobile ? 'none' : 'block' }} />
-      <Box flex={1} w="100%">
+      <Box
+        w={275}
+        style={{ display: isMobile ? 'none' : 'block', flexShrink: 0 }}
+      />
+      <Box flex={1} w="calc(100% - 275px)">
         <Header onClickMenu={open} isMobile={isMobile} />
         <Outlet />
       </Box>
       <Drawer
         padding={0}
-        size={rem(275)}
+        size={275}
         opened={opened}
         onClose={close}
         withCloseButton={false}
