@@ -169,6 +169,9 @@ function Dashboard() {
     {
       refetchInterval: TEN_MINUTES,
       refetchOnWindowFocus: false,
+      onSuccess: (res) => {
+        setSelectedCategory(res?.response?.checklist || []);
+      },
     }
   );
 
@@ -190,6 +193,9 @@ function Dashboard() {
     {
       refetchInterval: TEN_MINUTES,
       refetchOnWindowFocus: false,
+      onSuccess: (res) => {
+        setSelectedSubCategory(res?.response?.checklist || []);
+      },
     }
   );
 
@@ -264,22 +270,6 @@ function Dashboard() {
     ['option-categories'],
     () => useGetOptionCategories(),
     {
-      onSuccess: (res) => {
-        setSelectedCategory(
-          (res?.response || []).map((item) => item.name).slice(0, 3)
-        );
-
-        setSelectedSubCategory(
-          (res?.response || [])
-            .flatMap((item) =>
-              item.list_transaction_sub_category.map(
-                (subCategory) => `${item.name} - ${subCategory.name}`
-              )
-            )
-            .slice(0, 3)
-        );
-      },
-
       refetchOnWindowFocus: false,
     }
   );
@@ -351,9 +341,10 @@ function Dashboard() {
     Outcome: item.outcoming,
   }));
 
-  const recordBarChartCategory = dataBarChartCategory?.response || [];
+  const recordBarChartCategory = dataBarChartCategory?.response?.chart || [];
 
-  const recordBarChartSubCategory = dataBarChartSubCategory?.response || [];
+  const recordBarChartSubCategory =
+    dataBarChartSubCategory?.response?.chart || [];
 
   const dataCard = [
     {

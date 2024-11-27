@@ -9,6 +9,7 @@ import {
   Flex,
   Group,
   Input,
+  Menu,
   NumberFormatter,
   NumberInput,
   Select,
@@ -26,7 +27,9 @@ import {
   IconCreditCardPay,
   IconDownload,
   IconEdit,
+  IconFileTypePdf,
   IconFilter,
+  IconPdf,
   IconPlus,
   IconSearch,
   IconTrash,
@@ -405,6 +408,7 @@ function Invoices() {
     is_paid: item.is_paid,
     client: item.list_client.name,
     client_id: item.list_client.id,
+    client_address: item.list_client.address,
     invoice_date: item.invoice_date,
     due_date: item.due_date,
     amount: item.total,
@@ -681,21 +685,32 @@ function Invoices() {
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">
-                  <Tooltip label="Export to PDF">
-                    <ActionIcon
-                      size="sm"
-                      variant="subtle"
-                      color="green.8"
-                      onClick={() => {
-                        setPrintData(data);
-                        setTimeout(() => {
-                          handleExportToPDF();
-                        }, 500);
-                      }}
-                    >
-                      <IconDownload size={16} />
-                    </ActionIcon>
-                  </Tooltip>
+                  <Menu width={200} shadow="md">
+                    <Menu.Target>
+                      <ActionIcon
+                        size="sm"
+                        variant="subtle"
+                        color="green.8"
+                        onClick={() => {
+                          setPrintData(data);
+                          // setTimeout(() => {
+                          //   handleExportToPDF();
+                          // }, 500);
+                        }}
+                      >
+                        <IconDownload size={16} />
+                      </ActionIcon>
+                    </Menu.Target>
+
+                    <Menu.Dropdown>
+                      <Menu.Item
+                        onClick={handleExportToPDF}
+                        rightSection={<IconFileTypePdf size={20} />}
+                      >
+                        Download as PDF
+                      </Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
                   <Tooltip label="Make a Payment">
                     <ActionIcon
                       size="sm"

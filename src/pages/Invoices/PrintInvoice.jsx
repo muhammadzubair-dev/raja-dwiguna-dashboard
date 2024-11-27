@@ -43,9 +43,11 @@ const PrintInvoice = ({ data }) => {
           >
             <div>
               <p style={{ margin: 0 }}>To</p>
+              <p style={{ margin: 0 }}>Address</p>
             </div>
             <div>
               <p style={{ margin: 0 }}>: {data?.client}</p>
+              <p style={{ margin: 0 }}>: {data?.client_address}</p>
             </div>
           </div>
           <div
