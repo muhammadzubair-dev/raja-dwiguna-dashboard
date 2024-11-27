@@ -11,6 +11,7 @@ import {
   Grid,
   MultiSelect,
   NumberFormatter,
+  Select,
   Skeleton,
   Stack,
   Tabs,
@@ -67,6 +68,8 @@ function Dashboard() {
   const start_date_prev_current_month = moment().endOf('month');
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedSubCategory, setSelectedSubCategory] = useState([]);
+  const [isIncomeCategory, setIsIncomeCategory] = useState(null);
+  const [isIncomeSubCategory, setIsIncomeSubCategory] = useState(null);
   const [valueBarChart, setValueBarChart] = useState([
     start_date_prev_six_month,
     start_date_prev_current_month,
@@ -165,6 +168,7 @@ function Dashboard() {
       }),
     {
       refetchInterval: TEN_MINUTES,
+      refetchOnWindowFocus: false,
     }
   );
 
@@ -185,6 +189,7 @@ function Dashboard() {
       }),
     {
       refetchInterval: TEN_MINUTES,
+      refetchOnWindowFocus: false,
     }
   );
 
@@ -268,34 +273,53 @@ function Dashboard() {
           (res?.response || [])
             .flatMap((item) =>
               item.list_transaction_sub_category.map(
-                (subCategory) => subCategory.name
+                (subCategory) => `${item.name} - ${subCategory.name}`
               )
             )
             .slice(0, 3)
         );
       },
+
+      refetchOnWindowFocus: false,
     }
   );
 
   const recordsCategory = [
-    {
-      group: 'Income',
-      items: (optionCategories?.response || [])
-        .filter((category) => category.is_income === true)
-        .map(({ name }) => name),
-    },
-    {
-      group: 'Outcome',
-      items: (optionCategories?.response || [])
-        .filter((category) => category.is_income === false)
-        .map(({ name }) => name),
-    },
+    ...(isIncomeCategory === 'Income' || isIncomeCategory === null
+      ? [
+          {
+            group: 'Income',
+            items: (optionCategories?.response || [])
+              .filter((category) => category.is_income === true)
+              .map(({ name }) => name),
+          },
+        ]
+      : []),
+
+    ...(isIncomeCategory === 'Outcome' || isIncomeCategory === null
+      ? [
+          {
+            group: 'Outcome',
+            items: (optionCategories?.response || [])
+              .filter((category) => category.is_income === false)
+              .map(({ name }) => name),
+          },
+        ]
+      : []),
   ];
 
-  const recordsSubCategory = (optionCategories?.response || []).map((item) => ({
-    group: `${item.name} (${item.is_income ? 'Income' : 'Outcome'})`,
-    items: item.list_transaction_sub_category.map(({ name }) => name),
-  }));
+  const recordsSubCategory = (optionCategories?.response || [])
+    .filter((item) => {
+      const isIncome = item.is_income ? 'Income' : 'Outcome';
+      if (!isIncomeSubCategory) return true;
+      return isIncome === isIncomeSubCategory;
+    })
+    .map((item) => ({
+      group: `${item.name} (${item.is_income ? 'Income' : 'Outcome'})`,
+      items: item.list_transaction_sub_category.map(
+        ({ name }) => `${item.name} - ${name}`
+      ),
+    }));
 
   const recordTransactions = dataTransactions?.response?.data.map((item) => ({
     id: item.id,
@@ -562,7 +586,20 @@ function Dashboard() {
               <Box>
                 <Text>Category Traffic</Text>
               </Box>
-              <Flex gap={4} align="flex-start">
+              <Flex
+                gap={4}
+                align="flex-start"
+                direction={{ base: 'column', md: 'row' }}
+              >
+                <Select
+                  placeholder="Select Type"
+                  data={['Income', 'Outcome']}
+                  onChange={(values) => {
+                    setSelectedCategory([]);
+                    setIsIncomeCategory(values);
+                  }}
+                  clearable
+                />
                 <MultiSelect
                   placeholder="Select Category"
                   data={recordsCategory}
@@ -610,7 +647,20 @@ function Dashboard() {
               <Box>
                 <Text>Sub Category Traffic</Text>
               </Box>
-              <Flex gap={4} align="flex-start">
+              <Flex
+                gap={4}
+                align="flex-start"
+                direction={{ base: 'column', md: 'row' }}
+              >
+                <Select
+                  placeholder="Select Type"
+                  data={['Income', 'Outcome']}
+                  onChange={(values) => {
+                    setSelectedSubCategory([]);
+                    setIsIncomeSubCategory(values);
+                  }}
+                  clearable
+                />
                 <MultiSelect
                   placeholder="Select Sub Category"
                   data={recordsSubCategory}
