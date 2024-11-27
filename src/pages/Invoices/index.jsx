@@ -685,7 +685,7 @@ function Invoices() {
                     <ActionIcon
                       size="sm"
                       variant="subtle"
-                      color="black"
+                      color="green.8"
                       onClick={() => {
                         setPrintData(data);
                         setTimeout(() => {
