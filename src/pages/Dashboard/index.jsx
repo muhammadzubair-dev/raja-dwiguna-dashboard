@@ -1,4 +1,9 @@
-import { BarChart } from '@mantine/charts';
+import {
+  BarChart,
+  DonutChart,
+  PieChart,
+  RadialBarChart,
+} from '@mantine/charts';
 import {
   ActionIcon,
   Badge,
@@ -54,6 +59,9 @@ import randomColors from '../../helpers/randomColors';
 import Category from './Category';
 import SubCategory from './SubCategory';
 import Cashflow from './Cashflow';
+import calculatePercentage from '../../helpers/calculatePercentage';
+import { Tooltip } from 'recharts';
+import PercentageChart from './PercentageChart';
 
 const TEN_MINUTES = 600000;
 
@@ -69,7 +77,6 @@ function Dashboard() {
   const start_date_prev_six_month = moment()
     .startOf('month')
     .subtract(6, 'months');
-
   const start_date_prev_current_month = moment().endOf('month');
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedSubCategory, setSelectedSubCategory] = useState([]);
@@ -77,6 +84,10 @@ function Dashboard() {
   const [isIncomeSubCategory, setIsIncomeSubCategory] = useState(null);
   const [barChart, setBarChart] = useState('cashflow');
   const [valueBarChart, setValueBarChart] = useState([
+    start_date_prev_six_month,
+    start_date_prev_current_month,
+  ]);
+  const [valuePieChart, setValuePieChart] = useState([
     start_date_prev_six_month,
     start_date_prev_current_month,
   ]);
@@ -452,6 +463,10 @@ function Dashboard() {
             </Grid.Col>
           )
         )}
+
+        <Grid.Col span={12}>
+          <PercentageChart />
+        </Grid.Col>
 
         <Grid.Col span={12}>
           <Card withBorder radius="lg">
