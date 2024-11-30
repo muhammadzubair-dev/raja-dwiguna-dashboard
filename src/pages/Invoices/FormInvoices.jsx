@@ -204,7 +204,7 @@ function FormInvoices() {
   const location = useLocation();
   const data = location.state?.data;
   const modeDetail = location.state?.mode === 'detail';
-  const modeEdit = location.state?.mode === 'edit';
+  const modeEdit = location.state?.mode === 'edit' || !modeDetail;
 
   const isAdd = !data;
   const [itemsFromData, setItemsFromData] = useState(

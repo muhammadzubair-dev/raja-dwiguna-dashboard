@@ -685,6 +685,18 @@ function Invoices() {
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">
+                  {!data.is_paid && (
+                    <Tooltip label="Make a Payment">
+                      <ActionIcon
+                        size="sm"
+                        variant="subtle"
+                        color="green"
+                        onClick={() => handleMakeATransaction(data)}
+                      >
+                        <IconCreditCardPay size={16} />
+                      </ActionIcon>
+                    </Tooltip>
+                  )}
                   <Menu width={200} shadow="md">
                     <Menu.Target>
                       <ActionIcon
@@ -711,16 +723,6 @@ function Invoices() {
                       </Menu.Item>
                     </Menu.Dropdown>
                   </Menu>
-                  <Tooltip label="Make a Payment">
-                    <ActionIcon
-                      size="sm"
-                      variant="subtle"
-                      color="green"
-                      onClick={() => handleMakeATransaction(data)}
-                    >
-                      <IconCreditCardPay size={16} />
-                    </ActionIcon>
-                  </Tooltip>
                   <Tooltip label="Edit Invoice">
                     <ActionIcon
                       size="sm"
