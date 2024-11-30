@@ -9,8 +9,10 @@ import {
   Container,
   Flex,
   Grid,
+  Group,
   MultiSelect,
   NumberFormatter,
+  SegmentedControl,
   Select,
   Skeleton,
   Stack,
@@ -48,7 +50,10 @@ import {
 } from '../../helpers/apiHelper';
 import shortCurrency from '../../helpers/shortCurrency';
 import useSizeContainer from '../../helpers/useSizeContainer';
-import generateRandomColor from '../../helpers/generateRandomColor';
+import randomColors from '../../helpers/randomColors';
+import Category from './Category';
+import SubCategory from './SubCategory';
+import Cashflow from './Cashflow';
 
 const TEN_MINUTES = 600000;
 
@@ -70,6 +75,7 @@ function Dashboard() {
   const [selectedSubCategory, setSelectedSubCategory] = useState([]);
   const [isIncomeCategory, setIsIncomeCategory] = useState(null);
   const [isIncomeSubCategory, setIsIncomeSubCategory] = useState(null);
+  const [barChart, setBarChart] = useState('cashflow');
   const [valueBarChart, setValueBarChart] = useState([
     start_date_prev_six_month,
     start_date_prev_current_month,
@@ -451,242 +457,115 @@ function Dashboard() {
           <Card withBorder radius="lg">
             <Flex
               justify="space-between"
-              mb="xl"
+              mb="sm"
               gap="md"
               direction={{ base: 'column', md: 'row' }}
             >
-              <Box>
-                <Text>Cash Flow</Text>
-                <Text size="sm" c="dimmed">
-                  Monthly Income and Outcome
-                </Text>
-              </Box>
-              <Flex gap={4} align="flex-start">
-                <MonthPickerInput
-                  miw={250}
-                  type="range"
-                  placeholder="Select month range"
-                  value={valueBarChart}
-                  onChange={setValueBarChart}
-                  disabled={isLoadingBarChart}
-                  rightSection={
-                    <ActionIcon
-                      variant="subtle"
-                      loading={isLoadingBarChart}
-                      onClick={refetchBarChart}
-                    >
-                      <IconSearch size={14} />
-                    </ActionIcon>
-                  }
-                />
-              </Flex>
-            </Flex>
-            <Skeleton visible={isLoadingBarChart}>
-              {errorBarChart ? (
-                <Center h={300}>
-                  <Text c="red">Error: {errorBarChart?.message}</Text>
-                </Center>
-              ) : (
-                <BarChart
-                  h={300}
-                  valueFormatter={
-                    (value) => shortCurrency(value)
-                    // new Intl.NumberFormat('id-ID').format(value)
-                  }
-                  data={recordBarChart || []}
-                  dataKey="month"
-                  withLegend
-                  barProps={{ radius: 10 }}
-                  series={[
-                    { name: 'Income', color: 'green' },
-                    { name: 'Outcome', color: 'red' },
+              <Stack gap="xs">
+                <Text>Traffic Bar Chart</Text>
+                <SegmentedControl
+                  color="blue"
+                  value={barChart}
+                  onChange={setBarChart}
+                  styles={{
+                    label: { paddingLeft: 30, paddingRight: 30 },
+                  }}
+                  data={[
+                    { label: 'Cashflow', value: 'cashflow' },
+                    { label: 'Category', value: 'category' },
+                    { label: 'Sub Category', value: 'subCategory' },
                   ]}
                 />
-              )}
-            </Skeleton>
-
-            {/* <Flex
-              justify="space-between"
-              my="xl"
-              gap="md"
-              direction={{ base: 'column', md: 'row' }}
-            >
-              <Box>
-                <Text>Cash Flow</Text>
-                <Text size="sm" c="dimmed">
-                  Monthly Income and Outcome
-                </Text>
-              </Box>
-              <Flex gap={4} align="flex-start">
-                <MonthPickerInput
-                  miw={250}
-                  type="range"
-                  placeholder="Select month range"
-                  value={valueBarChart}
-                  onChange={setValueBarChart}
-                  disabled={isLoadingBarChart}
-                  rightSection={
-                    <ActionIcon
-                      variant="subtle"
-                      loading={isLoadingBarChart}
-                      onClick={refetchBarChart}
-                    >
-                      <IconSearch size={14} />
-                    </ActionIcon>
-                  }
-                />
-              </Flex>
+              </Stack>
+              <Stack gap="xs" align="flex-end">
+                <Flex gap={4} align="flex-start">
+                  <MonthPickerInput
+                    miw={250}
+                    type="range"
+                    placeholder="Select month range"
+                    value={valueBarChart}
+                    onChange={setValueBarChart}
+                    disabled={isLoadingBarChart}
+                    rightSection={
+                      <ActionIcon
+                        variant="subtle"
+                        loading={isLoadingBarChart}
+                        onClick={refetchBarChart}
+                      >
+                        <IconSearch size={14} />
+                      </ActionIcon>
+                    }
+                  />
+                </Flex>
+                <Flex gap={4} direction={{ base: 'column', md: 'row' }}>
+                  {barChart === 'category' && (
+                    <>
+                      <Select
+                        placeholder="Select Type"
+                        data={['Income', 'Outcome']}
+                        onChange={(values) => {
+                          setSelectedCategory([]);
+                          setIsIncomeCategory(values);
+                        }}
+                        clearable
+                      />
+                      <MultiSelect
+                        maw={500}
+                        placeholder="Select Category"
+                        data={recordsCategory}
+                        value={selectedCategory}
+                        onChange={setSelectedCategory}
+                        searchable
+                      />
+                    </>
+                  )}
+                  {barChart === 'subCategory' && (
+                    <>
+                      <Select
+                        placeholder="Select Type"
+                        data={['Income', 'Outcome']}
+                        onChange={(values) => {
+                          setSelectedSubCategory([]);
+                          setIsIncomeSubCategory(values);
+                        }}
+                        clearable
+                      />
+                      <MultiSelect
+                        placeholder="Select Sub Category"
+                        data={recordsSubCategory}
+                        value={selectedSubCategory}
+                        onChange={setSelectedSubCategory}
+                        searchable
+                      />
+                    </>
+                  )}
+                </Flex>
+              </Stack>
             </Flex>
-            <Skeleton visible={isLoadingBarChartCategory}>
-              {errorBarChartCategory ? (
-                <Center h={300}>
-                  <Text c="red">Error: {errorBarChartCategory?.message}</Text>
-                </Center>
-              ) : (
-                <BarChart
-                  h={300}
-                  valueFormatter={(value) => shortCurrency(value)}
-                  data={recordBarChartCategory}
-                  dataKey="date"
-                  withLegend
-                  barProps={{ radius: 10 }}
-                  series={
-                    recordBarChartCategory.length !== 0
-                      ? Object.keys(recordBarChartCategory[0])
-                          .filter((key) => key !== 'date')
-                          .map((key) => ({
-                            name: key,
-                            color: generateRandomColor(),
-                          }))
-                      : []
-                  }
-                />
-              )}
-            </Skeleton> */}
-          </Card>
-        </Grid.Col>
+            {barChart === 'cashflow' && (
+              <Cashflow
+                isLoadingBarChart={isLoadingBarChart}
+                errorBarChart={errorBarChart}
+                recordBarChart={recordBarChart}
+              />
+            )}
+            {barChart === 'category' && (
+              <Category
+                isLoadingBarChartCategory={isLoadingBarChartCategory}
+                errorBarChartCategory={errorBarChartCategory}
+                recordBarChartCategory={recordBarChartCategory}
+                selectedCategory={selectedCategory}
+              />
+            )}
 
-        <Grid.Col span={12}>
-          <Card withBorder radius="lg">
-            <Flex
-              justify="space-between"
-              mb="xl"
-              gap="md"
-              direction={{ base: 'column', md: 'row' }}
-            >
-              <Box>
-                <Text>Category Traffic</Text>
-              </Box>
-              <Flex
-                gap={4}
-                align="flex-start"
-                direction={{ base: 'column', md: 'row' }}
-              >
-                <Select
-                  placeholder="Select Type"
-                  data={['Income', 'Outcome']}
-                  onChange={(values) => {
-                    setSelectedCategory([]);
-                    setIsIncomeCategory(values);
-                  }}
-                  clearable
-                />
-                <MultiSelect
-                  placeholder="Select Category"
-                  data={recordsCategory}
-                  value={selectedCategory}
-                  onChange={setSelectedCategory}
-                  searchable
-                />
-              </Flex>
-            </Flex>
-            <Skeleton visible={isLoadingBarChartCategory}>
-              {errorBarChartCategory ? (
-                <Center h={300}>
-                  <Text c="red">Error: {errorBarChartCategory?.message}</Text>
-                </Center>
-              ) : (
-                <BarChart
-                  h={300}
-                  valueFormatter={(value) => shortCurrency(value)}
-                  data={recordBarChartCategory}
-                  dataKey="date"
-                  withLegend
-                  barProps={{ radius: 10 }}
-                  series={
-                    selectedCategory.length !== 0
-                      ? selectedCategory.map((key) => ({
-                          name: key,
-                          color: generateRandomColor(),
-                        }))
-                      : []
-                  }
-                />
-              )}
-            </Skeleton>
-          </Card>
-        </Grid.Col>
-
-        <Grid.Col span={12}>
-          <Card withBorder radius="lg">
-            <Flex
-              justify="space-between"
-              mb="xl"
-              gap="md"
-              direction={{ base: 'column', md: 'row' }}
-            >
-              <Box>
-                <Text>Sub Category Traffic</Text>
-              </Box>
-              <Flex
-                gap={4}
-                align="flex-start"
-                direction={{ base: 'column', md: 'row' }}
-              >
-                <Select
-                  placeholder="Select Type"
-                  data={['Income', 'Outcome']}
-                  onChange={(values) => {
-                    setSelectedSubCategory([]);
-                    setIsIncomeSubCategory(values);
-                  }}
-                  clearable
-                />
-                <MultiSelect
-                  placeholder="Select Sub Category"
-                  data={recordsSubCategory}
-                  value={selectedSubCategory}
-                  onChange={setSelectedSubCategory}
-                  searchable
-                />
-              </Flex>
-            </Flex>
-            <Skeleton visible={isLoadingBarChartSubCategory}>
-              {errorBarChartSubCategory ? (
-                <Center h={300}>
-                  <Text c="red">
-                    Error: {errorBarChartSubCategory?.message}
-                  </Text>
-                </Center>
-              ) : (
-                <BarChart
-                  h={300}
-                  valueFormatter={(value) => shortCurrency(value)}
-                  data={recordBarChartSubCategory}
-                  dataKey="date"
-                  withLegend
-                  barProps={{ radius: 10 }}
-                  series={
-                    selectedSubCategory.length !== 0
-                      ? selectedSubCategory.map((key) => ({
-                          name: key,
-                          color: generateRandomColor(),
-                        }))
-                      : []
-                  }
-                />
-              )}
-            </Skeleton>
+            {barChart === 'subCategory' && (
+              <SubCategory
+                isLoadingBarChartSubCategory={isLoadingBarChartSubCategory}
+                errorBarChartSubCategory={errorBarChartSubCategory}
+                recordBarChartSubCategory={recordBarChartSubCategory}
+                selectedSubCategory={selectedSubCategory}
+              />
+            )}
           </Card>
         </Grid.Col>
 
