@@ -54,6 +54,7 @@ const PrintInvoice = ({ data }) => {
             style={{
               flex: 1.3,
               display: 'flex',
+              justifyContent: 'flex-end',
               gap: 16,
             }}
           >
@@ -217,6 +218,7 @@ const PrintInvoice = ({ data }) => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'start',
+            gap: 32,
           }}
         >
           <div style={{ fontSize: 12 }}>
@@ -233,29 +235,61 @@ const PrintInvoice = ({ data }) => {
                 <p style={{ marginTop: -12 }}>: {data?.bank_account_number}</p>
               </div>
             </div>
+            <div style={{ border: '1px solid #ccc', padding: 4, fontSize: 12 }}>
+              <p style={{ margin: 0 }}>Notes:</p>
+              <p style={{ margin: 0, maxWidth: 300 }}>{data?.notes}</p>
+            </div>
           </div>
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: 70,
-              fontSize: 14,
+              fontSize: 12,
               fontWeight: 600,
               paddingRight: 20,
             }}
           >
             <p style={{ margin: 0 }}>Hormat Saya</p>
-            <div style={{ borderTop: '1px solid #000' }}>
+            <div
+              style={{
+                height: 85,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
               <p
                 style={{
                   margin: 0,
-                  width: 100,
+                  fontSize: 10,
+                  color: '#ccc',
+                }}
+              >
+                Materai
+              </p>
+            </div>
+            <div>
+              <p
+                style={{
+                  margin: 0,
+                  width: 212,
                   textAlign: 'center',
                 }}
               >
-                Finance
+                Ray William Fransiscus Sembiring
               </p>
+              <div style={{ borderTop: '1px solid #000' }}>
+                <p
+                  style={{
+                    margin: 0,
+
+                    textAlign: 'center',
+                  }}
+                >
+                  Direktur Utama
+                </p>
+              </div>
             </div>
           </div>
         </div>
