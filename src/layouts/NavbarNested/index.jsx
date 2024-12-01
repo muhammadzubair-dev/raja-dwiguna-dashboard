@@ -20,6 +20,8 @@ import UserButton from '../../components/UserButton';
 import classes from './index.module.css';
 import { useMediaQuery } from '@mantine/hooks';
 import useHasPermission from '../../helpers/useHasPermission';
+import { useGetUserInfo } from '../../helpers/apiHelper';
+import { useQuery } from 'react-query';
 
 const slideTransition = {
   in: { transform: 'translateX(0)', opacity: 1 },
@@ -29,16 +31,6 @@ const slideTransition = {
 
 export function Navbar({ onCloseMenu }) {
   const dashboardPermission = useHasPermission('dashboard', 'dashboard');
-  //   {
-  //     "module": "user_management",
-  //     "status": true,
-  //     "permission": {
-  //         "account": true,
-  //         "auth": false,
-  //         "log_activity": true,
-  //         "role": true
-  //     }
-  // },
   const financeInvoicePermission = useHasPermission('finance', 'invoice');
   const financeReportPermission = useHasPermission('finance', 'report');
   const financeSettingsPermission = useHasPermission('finance', 'settings');
@@ -132,6 +124,12 @@ export function Navbar({ onCloseMenu }) {
     },
   ]);
 
+  const {
+    data: dataProfile,
+    isLoading: isLoadingProfile,
+    error: errorProfile,
+  } = useQuery(['user-info'], useGetUserInfo);
+
   const handleCollapse = (label) => {
     setStateCollapse((prev) =>
       prev.map((item) => {
@@ -177,7 +175,10 @@ export function Navbar({ onCloseMenu }) {
       </ScrollArea>
 
       <div className={classes.footer}>
-        <UserButton />
+        <UserButton
+          data={dataProfile?.response}
+          isLoadingProfile={isLoadingProfile}
+        />
       </div>
     </nav>
   );

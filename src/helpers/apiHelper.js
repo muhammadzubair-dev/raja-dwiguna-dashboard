@@ -210,6 +210,10 @@ export const useGetDashboardTopOutcome = async (query) => {
   return fetchRequest(`/dashboard/top-outcoming`, 'GET', { query });
 };
 
+export const useGetUserInfo = async () => {
+  return fetchRequest(`/auth/user-info`, 'GET');
+};
+
 export const usePostLogout = async () => {
   return fetchRequest(`/auth/logout`, 'POST');
 };

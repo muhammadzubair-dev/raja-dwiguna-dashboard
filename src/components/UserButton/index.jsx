@@ -1,27 +1,41 @@
-import { UnstyledButton, Group, Avatar, Text, rem } from '@mantine/core';
+import {
+  UnstyledButton,
+  Group,
+  Avatar,
+  Text,
+  rem,
+  Skeleton,
+} from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 import classes from './index.module.css';
 
-function UserButton() {
+function UserButton({ data, isLoadingProfile }) {
   return (
     <UnstyledButton className={classes.user}>
       <Group>
-        <Avatar
-          src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
-          radius="xl"
-        />
+        <Skeleton w={38} radius="xl" visible={isLoadingProfile}>
+          <Avatar radius="xl" color="cyan">
+            {`${data?.first_name[0]}${data?.last_name[0]}`}
+          </Avatar>
+        </Skeleton>
 
         <div style={{ flex: 1 }}>
-          <Text size="sm" fw={500}>
-            Harriette Spoonlicker
-          </Text>
-
-          <Text c="dimmed" size="xs">
-            hspoonlicker@outlook.com
-          </Text>
+          <Skeleton visible={isLoadingProfile}>
+            <Text size="sm" fw={500}>
+              {`${data?.first_name} ${data?.last_name}`}
+            </Text>
+          </Skeleton>
+          <Skeleton h={15} visible={isLoadingProfile}>
+            <Text c="dimmed" size="xs">
+              {data?.email}
+            </Text>
+          </Skeleton>
         </div>
 
-        <IconChevronRight style={{ width: rem(14), height: rem(14) }} stroke={1.5} />
+        <IconChevronRight
+          style={{ width: rem(14), height: rem(14) }}
+          stroke={1.5}
+        />
       </Group>
     </UnstyledButton>
   );
