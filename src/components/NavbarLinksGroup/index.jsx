@@ -101,7 +101,7 @@ export function LinksGroup({
         handleLogout();
       } else {
         navigate(toLink);
-        onCloseMenu();
+        onCloseMenu;
       }
     }
   };
@@ -116,7 +116,7 @@ export function LinksGroup({
         onClick={(event) => {
           event.preventDefault();
           navigate(link.link);
-          onCloseMenu();
+          onCloseMenu;
         }}
         style={{
           ...(location.pathname === link.link && activeStyles),

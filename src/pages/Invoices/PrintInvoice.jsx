@@ -180,13 +180,47 @@ const PrintInvoice = ({ data }) => {
             <tr>
               <td
                 style={{
+                  textAlign: 'right',
+                  border: '1px solid #ddd',
+                  padding: '6px 14px',
+
+                  fontSize: 14,
+                }}
+                colSpan="4"
+              >
+                WHT 23 (2%)
+              </td>
+              <td
+                style={{
+                  textAlign: 'right',
+                  border: '1px solid #ddd',
+                  padding: '6px 14px',
+
+                  fontSize: 14,
+                }}
+                colSpan="4"
+              >
+                (
+                <NumberFormatter
+                  value={(data?.amount || 0) * 0.02}
+                  prefix="Rp "
+                  decimalScale={2}
+                  thousandSeparator="."
+                  decimalSeparator=","
+                />
+                )
+              </td>
+            </tr>
+            <tr>
+              <td
+                style={{
                   textAlign: 'center',
                   border: '1px solid #ddd',
                   padding: '6px 14px',
                   fontWeight: 'bold',
                   fontSize: 14,
                 }}
-                colspan="4"
+                colSpan="4"
               >
                 TOTAL
               </td>
@@ -198,10 +232,10 @@ const PrintInvoice = ({ data }) => {
                   fontWeight: 'bold',
                   fontSize: 14,
                 }}
-                colspan="4"
+                colSpan="4"
               >
                 <NumberFormatter
-                  value={data?.amount || 0}
+                  value={(data?.amount || 0) - (data?.amount || 0) * 0.02}
                   prefix="Rp "
                   decimalScale={2}
                   thousandSeparator="."

@@ -75,9 +75,7 @@ function MakeATransaction({ data, refetchInvoices }) {
       category_id: (value) => (value ? null : 'Category is required'),
       sub_category_id: (value) => (value ? null : 'Sub Category is required'),
       amount: (value) =>
-        String(value).trim().length > 0
-          ? null
-          : 'Amount is required and must be greater than 0',
+        value > 0 ? null : 'Amount is required and must be greater than 0',
       reference_number: (value) =>
         value.trim().length > 0 ? null : 'Reference number is required',
     },
@@ -195,7 +193,11 @@ function MakeATransaction({ data, refetchInvoices }) {
           withAsterisk
           clampBehavior="strict"
           min={0}
-          max={(data?.amount || 0) - (dataTotalPaid?.response || 0)}
+          max={
+            (data?.amount || 0) -
+            (data?.amount || 0) * 0.02 -
+            (dataTotalPaid?.response?.payment || 0)
+          }
           prefix="Rp "
           thousandSeparator="."
           decimalSeparator=","
@@ -204,7 +206,15 @@ function MakeATransaction({ data, refetchInvoices }) {
           description={
             <Text size="xs">
               <NumberFormatter
-                value={dataTotalPaid?.response || 0}
+                value={(data?.amount || 0) * 0.02}
+                prefix="Rp "
+                decimalScale={2}
+                thousandSeparator="."
+                decimalSeparator=","
+              />{' '}
+              WHT 23 (2%), and{' '}
+              <NumberFormatter
+                value={dataTotalPaid?.response?.payment || 0}
                 prefix="Rp "
                 decimalScale={2}
                 thousandSeparator="."
@@ -212,7 +222,11 @@ function MakeATransaction({ data, refetchInvoices }) {
               />{' '}
               has been paid, and{' '}
               <NumberFormatter
-                value={(data?.amount || 0) - (dataTotalPaid?.response || 0)}
+                value={
+                  (data?.amount || 0) -
+                  (data?.amount || 0) * 0.02 -
+                  (dataTotalPaid?.response?.payment || 0)
+                }
                 prefix="Rp "
                 decimalScale={2}
                 thousandSeparator="."

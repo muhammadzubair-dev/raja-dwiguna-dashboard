@@ -1,8 +1,11 @@
 import {
   ActionIcon,
+  Anchor,
+  Badge,
   Box,
   Button,
   Center,
+  Chip,
   Container,
   Divider,
   Fieldset,
@@ -17,14 +20,18 @@ import {
   TextInput,
   Textarea,
   Title,
+  Tooltip,
 } from '@mantine/core';
 import React, { useState } from 'react';
 import useSizeContainer from '../../helpers/useSizeContainer';
 import { DatePickerInput } from '@mantine/dates';
 import {
   IconCalendar,
+  IconDetails,
   IconDownload,
   IconEdit,
+  IconInfoCircle,
+  IconInfoSmall,
   IconPdf,
   IconPlus,
   IconTrash,
@@ -209,6 +216,12 @@ function DeleteItem({ data, setItems, setItemsFromData, setItemsDeleted }) {
   );
 }
 
+function DetailPayment({ data }) {
+  return (
+    <DataTable columns={[{ accessor: 'id', hidden: true }]} records={[data]} />
+  );
+}
+
 function FormInvoices() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -333,6 +346,10 @@ function FormInvoices() {
 
   const handleSave = (values) => {
     const { invoice_date, due_date } = values;
+    const total = [...itemsFromData, ...items].reduce(
+      (total, item) => total + item.amount,
+      0
+    );
     const body = {
       ...values,
       ...(isAdd && {
@@ -365,16 +382,9 @@ function FormInvoices() {
       }),
       reference_number: dataIN?.response,
       invoice_date: `${moment(invoice_date).format('YYYY-MM-DD')}T00:00:00Z`,
-      with_holding_tax:
-        [...itemsFromData, ...items].reduce(
-          (total, item) => total + item.amount,
-          0
-        ) * 0.02, // 2% is equivalent to multiplying by 0.02
+      with_holding_tax: total * 0.02, // 2% is equivalent to multiplying by 0.02
       due_date: `${moment(due_date).format('YYYY-MM-DD')}T00:00:00Z`,
-      total: [...itemsFromData, ...items].reduce(
-        (total, item) => total + item.amount,
-        0
-      ),
+      total: total - total * 0.02,
     };
     mutate(body);
   };
@@ -686,51 +696,84 @@ function FormInvoices() {
                     />
                   </Group>
                   <Group justify="space-between">
-                    <Text>VAT (2%)</Text>
-                    <NumberFormatter
-                      value={
-                        [...itemsFromData, ...items].reduce(
-                          (acc, item) => acc + item.quantity * item.unit_price,
-                          0
-                        ) * 0.02
-                      }
-                      prefix="Rp "
-                      decimalScale={2}
-                      thousandSeparator="."
-                      decimalSeparator=","
-                    />
+                    <Text>VAT (0%)</Text>
+                    <Text>0</Text>
                   </Group>
-                  {dataTotalPaid && dataTotalPaid?.response > 0 && (
+                  {dataTotalPaid && dataTotalPaid?.response?.payment > 0 && (
                     <Group justify="space-between">
-                      <Text>Paid</Text>
-                      <NumberFormatter
-                        value={dataTotalPaid?.response}
-                        prefix="Rp "
-                        decimalScale={2}
-                        thousandSeparator="."
-                        decimalSeparator=","
-                      />
+                      <Flex gap="xs" align="center">
+                        <Text>Paid</Text>
+                        <Badge
+                          size="sm"
+                          radius="sm"
+                          color="teal"
+                          onClick={() => {}}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          Detail
+                        </Badge>
+                      </Flex>
+
+                      <Text>
+                        (
+                        <NumberFormatter
+                          value={dataTotalPaid?.response?.payment}
+                          prefix="Rp "
+                          decimalScale={2}
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                        )
+                      </Text>
                     </Group>
                   )}
-                  <Divider my="md" />
+                  <Divider mt="md" mb="xs" />
                   <Group justify="space-between">
-                    <Title order={4}>Total</Title>
-
-                    <Title order={4}>
-                      <NumberFormatter
-                        value={
-                          [...itemsFromData, ...items].reduce(
-                            (acc, item) =>
-                              acc + item.quantity * item.unit_price,
-                            0
-                          ) - (dataTotalPaid?.response || 0)
-                        }
-                        prefix="Rp "
-                        decimalScale={2}
-                        thousandSeparator="."
-                        decimalSeparator=","
-                      />
-                    </Title>
+                    <Box>
+                      <Text>WHT 23 (2%)</Text>
+                      <Title order={4}>Total</Title>
+                    </Box>
+                    <Flex direction="column" align="flex-end">
+                      <Text>
+                        (
+                        <NumberFormatter
+                          value={
+                            [...itemsFromData, ...items].reduce(
+                              (acc, item) =>
+                                acc + item.quantity * item.unit_price,
+                              0
+                            ) * 0.02
+                          }
+                          prefix="Rp "
+                          decimalScale={2}
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                        )
+                      </Text>
+                      <Title order={4}>
+                        <NumberFormatter
+                          value={
+                            [...itemsFromData, ...items].reduce(
+                              (acc, item) =>
+                                acc + item.quantity * item.unit_price,
+                              0
+                            ) -
+                            [...itemsFromData, ...items].reduce(
+                              (acc, item) =>
+                                acc + item.quantity * item.unit_price,
+                              0
+                            ) *
+                              0.02 -
+                            (dataTotalPaid?.response?.payment || 0)
+                          }
+                          prefix="Rp "
+                          decimalScale={2}
+                          thousandSeparator="."
+                          decimalSeparator=","
+                        />
+                      </Title>
+                    </Flex>
                   </Group>
                 </Box>
               </Group>
