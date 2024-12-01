@@ -57,6 +57,9 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
       amount: data?.amount || '',
       description: data?.description || '',
       reference_number: data?.reference_number || '',
+      transaction_date: data?.transaction_date
+        ? moment(data.transaction_date)
+        : new Date(),
     },
     validate: {
       account_id: (value) => (value ? null : 'Bank Account is required'),
@@ -134,9 +137,14 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
   );
 
   const handleSave = (values) => {
+    const transactionDate = `${moment(values.transaction_date).format(
+      'YYYY-MM-DD'
+    )}T00:00:00Z`;
+
     const body = {
       ...values,
       ...(!isAdd && { id: data?.id }),
+      transaction_date: transactionDate,
     };
 
     if (!isAdd) delete body.transaction_category_id;
@@ -198,6 +206,18 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
           label="Reference Number"
           key={form.key('reference_number')}
           {...form.getInputProps('reference_number')}
+        />
+        <DatePickerInput
+          maxDate={new Date()}
+          rightSection={<IconCalendar size={18} />}
+          label="Transaction Date"
+          key={form.key('transaction_date')}
+          {...form.getInputProps('transaction_date')}
+          // value={invoiceDate}
+          // onChange={(value) => {
+          //   setDueDate(null);
+          //   setInvoiceDate(value);
+          // }}
         />
         <Textarea
           // withAsterisk
@@ -338,11 +358,13 @@ function Transactions() {
   const records = data?.response?.data.map((item) => ({
     id: item.id,
     amount: item.amount,
+    current_balance: item.current_balance,
     is_income: item.list_category?.is_income,
     category: item.list_category?.name,
     sub_category: item.list_sub_category?.name,
     bank_name: item.list_account.bank_name,
     description: item.description,
+    transaction_date: item.transaction_date,
     created_at: item.created_at,
     account_id: item.list_account.id,
     category_id: item.list_category?.id,
@@ -532,6 +554,28 @@ function Transactions() {
               ),
             },
             {
+              accessor: 'current_balance',
+              title: 'Balance',
+              noWrap: true,
+              render: ({ current_balance }) => (
+                <NumberFormatter
+                  value={current_balance}
+                  prefix="Rp "
+                  decimalScale={2}
+                  thousandSeparator="."
+                  decimalSeparator=","
+                />
+              ),
+            },
+            // {
+            //   accessor: 'transaction_date',
+            //   title: 'Date Transaction',
+            //   noWrap: true,
+            //   render: ({ transaction_date }) => (
+            //     <Text>{moment(transaction_date).format('YYYY-MM-DD')}</Text>
+            //   ),
+            // },
+            {
               accessor: 'reference_number',
               ...(sizeContainer !== 'fluid' && { width: 150, ellipsis: true }),
             },
@@ -540,6 +584,14 @@ function Transactions() {
               ...(sizeContainer !== 'fluid' && { width: 250, ellipsis: true }),
             },
             { accessor: 'created_by', noWrap: true },
+            {
+              accessor: 'transaction_date',
+              title: 'Transaction Date',
+              noWrap: true,
+              render: ({ transaction_date }) => (
+                <Text>{moment(transaction_date).format('YYYY-MM-DD')}</Text>
+              ),
+            },
             {
               accessor: 'created_at',
               noWrap: true,

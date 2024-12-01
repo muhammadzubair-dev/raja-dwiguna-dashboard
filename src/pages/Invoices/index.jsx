@@ -66,6 +66,9 @@ function MakeATransaction({ data, refetchInvoices }) {
       account_id: data?.account_id || null,
       category_id: data?.category_id || null,
       sub_category_id: data?.sub_category_id || null,
+      transaction_date: data?.transaction_date
+        ? moment(data.transaction_date)
+        : new Date(),
       amount: '',
       description: '',
       reference_number: data?.reference_number || '',
@@ -136,7 +139,14 @@ function MakeATransaction({ data, refetchInvoices }) {
   });
 
   const handleSave = (values) => {
-    mutate(values);
+    const transactionDate = `${moment(values.transaction_date).format(
+      'YYYY-MM-DD'
+    )}T00:00:00Z`;
+
+    mutate({
+      ...values,
+      transaction_date: transactionDate,
+    });
   };
 
   return (
@@ -237,6 +247,18 @@ function MakeATransaction({ data, refetchInvoices }) {
           }
           key={form.key('amount')}
           {...form.getInputProps('amount')}
+        />
+        <DatePickerInput
+          maxDate={new Date()}
+          rightSection={<IconCalendar size={18} />}
+          label="Payment Date"
+          key={form.key('transaction_date')}
+          {...form.getInputProps('transaction_date')}
+          // value={invoiceDate}
+          // onChange={(value) => {
+          //   setDueDate(null);
+          //   setInvoiceDate(value);
+          // }}
         />
         <Textarea
           autosize
@@ -424,6 +446,7 @@ function Invoices() {
     client_id: item.list_client.id,
     client_address: item.list_client.address,
     invoice_date: item.invoice_date,
+    transaction_date: item.transaction_date,
     due_date: item.due_date,
     amount: item.total,
     category: item.list_category?.name,
