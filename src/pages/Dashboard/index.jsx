@@ -584,7 +584,7 @@ function Dashboard() {
           </Card>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, md: 5 }}>
+        <Grid.Col span={{ base: 12, md: 7 }}>
           <Card withBorder radius="lg" p="0" pb={6}>
             <Box p="md" pb={4}>
               <Text>Recent Transaction</Text>
@@ -663,7 +663,7 @@ function Dashboard() {
             See all Transactions
           </Button>
         </Grid.Col>
-        <Grid.Col span={{ base: 12, md: 4 }}>
+        <Grid.Col span={{ base: 12, md: 5 }}>
           <Card withBorder p={0} radius="lg" pb={6}>
             <Box p="md" pb={4}>
               <Text>Recent Invoices</Text>
@@ -707,7 +707,7 @@ function Dashboard() {
           </Card>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, md: 3 }}>
+        {/* <Grid.Col span={{ base: 12, md: 3 }}>
           <Card withBorder p={0} radius="lg" pb={6}>
             <Box p="md" pb="0">
               <Text mb="md">Top Transactions</Text>
@@ -808,7 +808,7 @@ function Dashboard() {
               </Tabs.Panel>
             </Tabs>
           </Card>
-        </Grid.Col>
+        </Grid.Col> */}
       </Grid>
     </Container>
   );
