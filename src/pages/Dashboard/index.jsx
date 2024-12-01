@@ -354,8 +354,8 @@ function Dashboard() {
 
   const recordBarChart = dataBarChart?.response?.map((item) => ({
     month: item.date,
-    Income: item.incoming,
-    Outcome: item.outcoming,
+    Credit: item.incoming,
+    Debit: item.outcoming,
   }));
 
   const recordBarChartCategory = dataBarChartCategory?.response?.chart || [];
@@ -377,7 +377,7 @@ function Dashboard() {
       icon: <IconCoinOff size={35} stroke={1.5} />,
     },
     {
-      title: 'Total Outcome',
+      title: 'Total Debit',
       color: 'red',
       data: dataOutcome?.response,
       isLoading: isLoadingOutcome,
@@ -386,7 +386,7 @@ function Dashboard() {
       icon: <IconCoin size={35} stroke={1.5} />,
     },
     {
-      title: 'Total Income',
+      title: 'Total Credit',
       color: 'green',
       data: dataIncome?.response,
       isLoading: isLoadingIncome,
@@ -620,7 +620,7 @@ function Dashboard() {
                       radius="xl"
                       color={is_income ? 'green' : 'red'}
                     >
-                      {is_income ? 'Income' : 'Outcome'}
+                      {is_income ? 'Credit' : 'Debit'}
                     </Badge>
                   ),
                 },

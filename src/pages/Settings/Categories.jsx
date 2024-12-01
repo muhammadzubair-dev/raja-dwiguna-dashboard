@@ -101,10 +101,10 @@ function AddAndEditCategory({ data, refetchCategories }) {
         >
           <Group mt="xs" justify="flex-start" gap="xs">
             <Chip value="true" color="green">
-              Income
+              Credit
             </Chip>
             <Chip value="false" color="red">
-              Outcome
+              Debit
             </Chip>
           </Group>
         </Chip.Group>
@@ -302,7 +302,7 @@ function Categories() {
                   radius="xl"
                   color={is_income ? 'green' : 'red'}
                 >
-                  {is_income ? 'Income' : 'Outcome'}
+                  {is_income ? 'Credit' : 'Debit'}
                 </Badge>
               ),
             },

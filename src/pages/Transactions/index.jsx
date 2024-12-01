@@ -96,13 +96,13 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
 
   const recordsCategory = [
     {
-      group: 'Income',
+      group: 'Credit',
       items: (optionCategories?.response || [])
         .filter((category) => category.is_income === true)
         .map(({ id, name }) => ({ value: id, label: name })),
     },
     {
-      group: 'Outcome',
+      group: 'Debit',
       items: (optionCategories?.response || [])
         .filter((category) => category.is_income === false)
         .map(({ id, name }) => ({ value: id, label: name })),
@@ -248,7 +248,10 @@ function FilterTransactions({
     <>
       <Select
         placeholder="Select Type"
-        data={['Income', 'Outcome']}
+        data={[
+          { label: 'Credit', value: 'Income' },
+          { label: 'Debit', value: 'Outcome' },
+        ]}
         onChange={setIsIncome}
         clearable
       />
@@ -374,7 +377,7 @@ function Transactions() {
     ...(isIncome === 'Income' || isIncome === null
       ? [
           {
-            group: 'Income',
+            group: 'Credit',
             items: (optionCategories?.response || [])
               .filter((category) => category.is_income === true)
               .map(({ id, name }) => ({ value: id, label: name })),
@@ -385,7 +388,7 @@ function Transactions() {
     ...(isIncome === 'Outcome' || isIncome === null
       ? [
           {
-            group: 'Outcome',
+            group: 'Debit',
             items: (optionCategories?.response || [])
               .filter((category) => category.is_income === false)
               .map(({ id, name }) => ({ value: id, label: name })),
@@ -508,7 +511,7 @@ function Transactions() {
                   radius="xl"
                   color={is_income ? 'green' : 'red'}
                 >
-                  {is_income ? 'Income' : 'Outcome'}
+                  {is_income ? 'Credit' : 'Debit'}
                 </Badge>
               ),
             },

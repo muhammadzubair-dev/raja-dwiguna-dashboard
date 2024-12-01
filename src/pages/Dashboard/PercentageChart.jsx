@@ -142,7 +142,7 @@ function PercentageChart() {
     Object.keys(responsePieChart)
       .filter((key) => key !== 'date')
       .map((key) => ({
-        name: key,
+        name: key === 'incoming' ? 'Credit' : 'Debit',
         value: responsePieChart[key],
         color: key === 'incoming' ? 'green' : 'red',
       }));

@@ -62,7 +62,10 @@ function FilterReports({
     <>
       <Select
         placeholder="Select Type"
-        data={['Income', 'Outcome']}
+        data={[
+          { label: 'Credit', value: 'Income' },
+          { label: 'Debit', value: 'Outcome' },
+        ]}
         onChange={setIsIncome}
         clearable
       />
@@ -191,7 +194,7 @@ function Reports() {
     ...(isIncome === 'Income' || isIncome === null
       ? [
           {
-            group: 'Income',
+            group: 'Credit',
             items: (optionCategories?.response || [])
               .filter((category) => category.is_income === true)
               .map(({ id, name }) => ({ value: id, label: name })),
@@ -202,7 +205,7 @@ function Reports() {
     ...(isIncome === 'Outcome' || isIncome === null
       ? [
           {
-            group: 'Outcome',
+            group: 'Debit',
             items: (optionCategories?.response || [])
               .filter((category) => category.is_income === false)
               .map(({ id, name }) => ({ value: id, label: name })),
@@ -268,7 +271,10 @@ function Reports() {
           <Flex gap="sm">
             <Select
               placeholder="Select Type"
-              data={['Income', 'Outcome']}
+              data={[
+                { label: 'Credit', value: 'Income' },
+                { label: 'Debit', value: 'Outcome' },
+              ]}
               onChange={setIsIncome}
               clearable
             />
@@ -366,7 +372,7 @@ function Reports() {
                   radius="xl"
                   color={is_income ? 'green' : 'red'}
                 >
-                  {is_income ? 'Income' : 'Outcome'}
+                  {is_income ? 'Credit' : 'Debit'}
                 </Badge>
               ),
             },
