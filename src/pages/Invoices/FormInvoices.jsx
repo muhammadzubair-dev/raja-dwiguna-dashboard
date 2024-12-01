@@ -493,6 +493,7 @@ function FormInvoices() {
                 {...form.getInputProps('client_id')}
               />
             </Fieldset>
+
             <Fieldset mb="md" legend={<Title order={4}>Invoice Details</Title>}>
               <Grid mb="md">
                 <Grid.Col span={{ base: 12, md: 4 }}>
@@ -593,6 +594,49 @@ function FormInvoices() {
                 {...form.getInputProps('notes')}
               />
             </Fieldset>
+
+            {dataTotalPaid && dataTotalPaid?.response?.payment > 0 && (
+              <Fieldset mb="md" legend={<Title order={4}>List Payment</Title>}>
+                <Stack>
+                  <DataTable
+                    columns={[
+                      { accessor: 'id', hidden: true },
+                      {
+                        accessor: 'transaction_date',
+                        render: ({ transaction_date }) =>
+                          moment(transaction_date).format('YYYY-MM-DD'),
+                      },
+                      { accessor: 'description' },
+                      {
+                        accessor: 'amount',
+                        noWrap: true,
+                        textAlign: 'right',
+                        render: ({ amount }) => (
+                          <NumberFormatter
+                            value={amount}
+                            prefix="Rp "
+                            decimalScale={2}
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                        ),
+                      },
+                    ]}
+                    records={dataTotalPaid?.response?.detail_payment || []}
+                  />
+                  <Group justify="flex-end" gap="xl">
+                    <Text>Total Payment :</Text>
+                    <NumberFormatter
+                      value={dataTotalPaid?.response?.payment}
+                      prefix="Rp "
+                      decimalScale={2}
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
+                  </Group>
+                </Stack>
+              </Fieldset>
+            )}
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 12 }}>
             <Fieldset mb="md" legend={<Title order={4}>Invoice Items</Title>}>
@@ -701,18 +745,7 @@ function FormInvoices() {
                   </Group>
                   {dataTotalPaid && dataTotalPaid?.response?.payment > 0 && (
                     <Group justify="space-between">
-                      <Flex gap="xs" align="center">
-                        <Text>Paid</Text>
-                        <Badge
-                          size="sm"
-                          radius="sm"
-                          color="teal"
-                          onClick={() => {}}
-                          style={{ cursor: 'pointer' }}
-                        >
-                          Detail
-                        </Badge>
-                      </Flex>
+                      <Text>Paid</Text>
 
                       <Text>
                         (
