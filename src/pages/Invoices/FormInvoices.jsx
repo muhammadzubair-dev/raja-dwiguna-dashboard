@@ -59,6 +59,7 @@ function AddAndEditItem({ data, setItems, setItemsFromData }) {
     initialValues: {
       description: data?.description || '',
       quantity: data?.quantity || '',
+      unit_type: data?.unit_type || '',
       unit_price: data?.unit_price || '',
     },
 
@@ -117,14 +118,23 @@ function AddAndEditItem({ data, setItems, setItemsFromData }) {
           key={form.key('description')}
           {...form.getInputProps('description')}
         />
-        <NumberInput
-          allowNegative={false}
-          withAsterisk
-          allowDecimal={false}
-          label="Quantity"
-          key={form.key('quantity')}
-          {...form.getInputProps('quantity')}
-        />
+        <Flex gap="xs">
+          <NumberInput
+            allowNegative={false}
+            withAsterisk
+            allowDecimal={false}
+            label="Quantity"
+            key={form.key('quantity')}
+            {...form.getInputProps('quantity')}
+          />
+          <TextInput
+            withAsterisk
+            placeholder="m², kg, pcs, etc"
+            label="Unit Type"
+            key={form.key('unit_type')}
+            {...form.getInputProps('unit_type')}
+          />
+        </Flex>
         <NumberInput
           allowNegative={false}
           withAsterisk
@@ -330,6 +340,7 @@ function FormInvoices() {
           description: item.description,
           quantity: item.quantity,
           unit_price: item.unit_price,
+          unit_type: item.unit_type,
           amount: item.amount,
         })),
       }),
@@ -341,17 +352,24 @@ function FormInvoices() {
           description: item.description,
           quantity: item.quantity,
           unit_price: item.unit_price,
+          unit_type: item.unit_type,
           amount: item.amount,
         })),
         insert_invoice_item: items.map((item) => ({
           description: item.description,
           quantity: item.quantity,
           unit_price: item.unit_price,
+          unit_type: item.unit_type,
           amount: item.amount,
         })),
       }),
       reference_number: dataIN?.response,
       invoice_date: `${moment(invoice_date).format('YYYY-MM-DD')}T00:00:00Z`,
+      with_holding_tax:
+        [...itemsFromData, ...items].reduce(
+          (total, item) => total + item.amount,
+          0
+        ) * 0.02, // 2% is equivalent to multiplying by 0.02
       due_date: `${moment(due_date).format('YYYY-MM-DD')}T00:00:00Z`,
       total: [...itemsFromData, ...items].reduce(
         (total, item) => total + item.amount,
@@ -594,6 +612,7 @@ function FormInvoices() {
                   },
                   { accessor: 'description' },
                   { accessor: 'quantity' },
+                  { accessor: 'unit_type' },
                   {
                     accessor: 'unit_price',
                     noWrap: true,
@@ -667,8 +686,19 @@ function FormInvoices() {
                     />
                   </Group>
                   <Group justify="space-between">
-                    <Text>Tax (0%)</Text>
-                    <Text>Rp 0</Text>
+                    <Text>VAT (2%)</Text>
+                    <NumberFormatter
+                      value={
+                        [...itemsFromData, ...items].reduce(
+                          (acc, item) => acc + item.quantity * item.unit_price,
+                          0
+                        ) * 0.02
+                      }
+                      prefix="Rp "
+                      decimalScale={2}
+                      thousandSeparator="."
+                      decimalSeparator=","
+                    />
                   </Group>
                   {dataTotalPaid && dataTotalPaid?.response > 0 && (
                     <Group justify="space-between">
