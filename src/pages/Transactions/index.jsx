@@ -40,14 +40,27 @@ import {
   usePostTransaction,
   usePutTransaction,
 } from '../../helpers/apiHelper';
-import { notificationSuccess } from '../../helpers/notificationHelper';
+import {
+  notificationError,
+  notificationSuccess,
+} from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 import { DatePickerInput } from '@mantine/dates';
 import useSizeContainer from '../../helpers/useSizeContainer';
 import { useMediaQuery } from '@mantine/hooks';
+import UploadImage from '../../components/UploadImage';
+import { v4 as uuidv4 } from 'uuid';
+import useFileUpload from '../../helpers/useUploadFile';
 
 function AddAndEditTransaction({ data, refetchTransactions }) {
   const isAdd = data ? false : true;
+  const [files, setFiles] = useState([]);
+  const {
+    uploadFiles,
+    loading: loadingUploadFiles,
+    error: errorUploadFiles,
+  } = useFileUpload('/finance/invoice/upload/:id');
+
   const form = useForm({
     mode: 'controlled',
     initialValues: {
@@ -126,12 +139,23 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
   const { mutate, isLoading, error } = useMutation(
     isAdd ? usePostTransaction : usePutTransaction,
     {
-      onSuccess: () => {
-        refetchTransactions();
-        modals.closeAll();
-        notificationSuccess(
-          `Transaction ${isAdd ? 'added' : 'updated'} successfully`
-        );
+      onSuccess: async (_, variables) => {
+        try {
+          const res = await useFileUpload(
+            `/finance/invoice/upload/${variables.id}`,
+            files
+          );
+          if (res?.code === 200) {
+            refetchTransactions();
+            modals.closeAll();
+            notificationSuccess(
+              `Transaction ${isAdd ? 'added' : 'updated'} successfully`
+            );
+          }
+        } catch (err) {
+          notificationError(err.message);
+          throw err;
+        }
       },
     }
   );
@@ -143,6 +167,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
 
     const body = {
       ...values,
+      ...(isAdd && { id: uuidv4() }),
       ...(!isAdd && { id: data?.id }),
       transaction_date: transactionDate,
     };
@@ -219,6 +244,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
           //   setInvoiceDate(value);
           // }}
         />
+        <UploadImage files={files} setFiles={setFiles} />
         <Textarea
           // withAsterisk
           autosize
@@ -345,9 +371,9 @@ function Transactions() {
         }),
       }),
     {
-      onSuccess: () => {
-        modals.closeAll();
-      },
+      // onSuccess: () => {
+      //   modals.closeAll();
+      // },
     }
   );
   const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(

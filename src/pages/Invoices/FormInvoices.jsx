@@ -308,7 +308,7 @@ function FormInvoices() {
 
   const recordsCategory = [
     {
-      group: 'Income',
+      group: 'Credit',
       items: (optionCategories?.response || [])
         .filter((category) => category.is_income === true)
         .map(({ id, name }) => ({ value: id, label: name })),

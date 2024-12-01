@@ -216,14 +216,6 @@ function MakeATransaction({ data, refetchInvoices }) {
           description={
             <Text size="xs">
               <NumberFormatter
-                value={(data?.amount || 0) * 0.02}
-                prefix="Rp "
-                decimalScale={2}
-                thousandSeparator="."
-                decimalSeparator=","
-              />{' '}
-              WHT 23 (2%), and{' '}
-              <NumberFormatter
                 value={dataTotalPaid?.response?.payment || 0}
                 prefix="Rp "
                 decimalScale={2}
@@ -233,9 +225,7 @@ function MakeATransaction({ data, refetchInvoices }) {
               has been paid, and{' '}
               <NumberFormatter
                 value={
-                  (data?.amount || 0) -
-                  (data?.amount || 0) * 0.02 -
-                  (dataTotalPaid?.response?.payment || 0)
+                  (data?.amount || 0) - (dataTotalPaid?.response?.payment || 0)
                 }
                 prefix="Rp "
                 decimalScale={2}
