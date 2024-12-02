@@ -142,7 +142,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
       onSuccess: async (_, variables) => {
         try {
           const res = await useFileUpload(
-            `/finance/invoice/upload/${variables.id}`,
+            `/finance/transaction/upload/${variables.id}`,
             files
           );
           if (res?.code === 200) {
