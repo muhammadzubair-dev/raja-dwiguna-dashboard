@@ -151,6 +151,9 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
             notificationSuccess(
               `Transaction ${isAdd ? 'added' : 'updated'} successfully`
             );
+          } else {
+            notificationError(err.message);
+            throw err;
           }
         } catch (err) {
           notificationError(err.message);
