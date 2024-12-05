@@ -300,7 +300,7 @@ function ViewImages({ id }) {
   console.log('data -----> ', data);
   return (
     <Container p={0}>
-      <Center h="90vh">
+      {/* <Center h="90vh">
         <Carousel
           withIndicators
           // slideSize={{ base: '100%', sm: '50%', md: '33.333333%' }}
@@ -333,9 +333,9 @@ function ViewImages({ id }) {
             />
           </Carousel.Slide>
         </Carousel>
-        {/* {isLoading && <Loader />}
-        {!isLoading && error && <Text c="red">Error: {error?.message}</Text>} */}
-      </Center>
+        {isLoading && <Loader />}
+        {!isLoading && error && <Text c="red">Error: {error?.message}</Text>}
+      </Center> */}
     </Container>
   );
 }
@@ -478,9 +478,9 @@ function Transactions() {
       title: 'View Images',
       centered: true,
       radius: 'md',
-      fullScreen: true,
+      // fullScreen: true,
       // padding: 0,
-      size: 'auto',
+      // size: 'auto',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <ViewImages id={id} />,
     });
