@@ -53,10 +53,16 @@ import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
 import moment from 'moment';
 import ErrorMessage from '../../components/ErrorMessage';
-import { notificationSuccess } from '../../helpers/notificationHelper';
+import {
+  notificationError,
+  notificationSuccess,
+} from '../../helpers/notificationHelper';
 import PrintInvoice from './PrintInvoice';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import useFileUpload from '../../helpers/useUploadFile';
+import UploadImage from '../../components/UploadImage';
+import { v4 as uuidv4 } from 'uuid';
 
 function AddAndEditItem({ data, setItems, setItemsFromData }) {
   const isAdd = data ? false : true;
@@ -235,6 +241,7 @@ function FormInvoices() {
   );
   const [itemsDeleted, setItemsDeleted] = useState([]);
   const [items, setItems] = useState([]);
+  const [files, setFiles] = useState([]);
   const form = useForm({
     mode: 'controlled',
     initialValues: {
@@ -287,10 +294,7 @@ function FormInvoices() {
 
   const { data: dataIN, isLoading: isLoadingIN } = useQuery(
     ['invoice-number'],
-    () => useGetInvoiceNumber(),
-    {
-      refetchOnWindowFocus: false,
-    }
+    () => useGetInvoiceNumber()
   );
 
   const { data: dataTotalPaid, isLoading: isLoadingTotalPaid } = useQuery(
@@ -336,11 +340,25 @@ function FormInvoices() {
     isLoading: isLoadingInvoice,
     error: errorInvoice,
   } = useMutation(isAdd ? usePostInvoice : usePutInvoice, {
-    onSuccess: () => {
-      notificationSuccess(
-        `Invoice ${isAdd ? 'Added' : 'Updated'} successfully`
-      );
-      navigate('/invoices');
+    onSuccess: async (_, variables) => {
+      try {
+        const res = await useFileUpload(
+          `/finance/invoice/upload/${variables.id}`,
+          files
+        );
+        if (res?.code === 200) {
+          notificationSuccess(
+            `Invoice ${isAdd ? 'Added' : 'Updated'} successfully`
+          );
+          navigate('/invoices');
+        } else {
+          notificationError(err.message);
+          throw err;
+        }
+      } catch (err) {
+        notificationError(err.message);
+        throw err;
+      }
     },
   });
 
@@ -353,6 +371,7 @@ function FormInvoices() {
     const body = {
       ...values,
       ...(isAdd && {
+        id: uuidv4(),
         list_invoice_item: items.map((item) => ({
           description: item.description,
           quantity: item.quantity,
@@ -587,6 +606,7 @@ function FormInvoices() {
                   />
                 </Grid.Col>
               </Grid>
+              <UploadImage files={files} setFiles={setFiles} />
               <Textarea
                 autosize
                 minRows={5}

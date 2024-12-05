@@ -19,6 +19,10 @@ import {
   Textarea,
   Title,
   Tooltip,
+  Image,
+  Grid,
+  Skeleton,
+  Center,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
@@ -30,6 +34,7 @@ import {
   IconFileTypePdf,
   IconFilter,
   IconPdf,
+  IconPhoto,
   IconPlus,
   IconSearch,
   IconTrash,
@@ -48,8 +53,12 @@ import {
   useDeleteInvoice,
   usePostInvoiceTransaction,
   useGetInvoiceTotalPaid,
+  useGetInvoiceImages,
 } from '../../helpers/apiHelper';
-import { notificationSuccess } from '../../helpers/notificationHelper';
+import {
+  notificationError,
+  notificationSuccess,
+} from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
 import { DatePickerInput } from '@mantine/dates';
 import useSizeContainer from '../../helpers/useSizeContainer';
@@ -58,7 +67,10 @@ import { useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import PrintInvoice from './PrintInvoice';
-
+import useFileUpload from '../../helpers/useUploadFile';
+import { v4 as uuidv4 } from 'uuid';
+import { useFullscreen } from '@mantine/hooks';
+import ImageFullScreen from '../../components/ImageFullScreen';
 function MakeATransaction({ data, refetchInvoices }) {
   const form = useForm({
     mode: 'controlled',
@@ -83,6 +95,8 @@ function MakeATransaction({ data, refetchInvoices }) {
         value.trim().length > 0 ? null : 'Reference number is required',
     },
   });
+
+  const [files, setFiles] = useState([]);
 
   form.watch('category_id', () => {
     form.setFieldValue('sub_category_id', null);
@@ -131,10 +145,24 @@ function MakeATransaction({ data, refetchInvoices }) {
   );
 
   const { mutate, isLoading, error } = useMutation(usePostInvoiceTransaction, {
-    onSuccess: () => {
-      refetchInvoices();
-      modals.closeAll();
-      notificationSuccess(`Make a Payment successfully`);
+    onSuccess: async (_, variables) => {
+      try {
+        const res = await useFileUpload(
+          `/finance/transaction/upload/${variables.id}`,
+          files
+        );
+        if (res?.code === 200) {
+          refetchInvoices();
+          modals.closeAll();
+          notificationSuccess(`Make a Payment successfully`);
+        } else {
+          notificationError(err.message);
+          throw err;
+        }
+      } catch (err) {
+        notificationError(err.message);
+        throw err;
+      }
     },
   });
 
@@ -145,6 +173,7 @@ function MakeATransaction({ data, refetchInvoices }) {
 
     mutate({
       ...values,
+      id: uuidv4(),
       transaction_date: transactionDate,
     });
   };
@@ -387,6 +416,42 @@ function FilterInvoices({
   );
 }
 
+function ViewImages({ id }) {
+  const { data, isLoading, error, isFetching } = useQuery(
+    ['invoice-images', id],
+    () => useGetInvoiceImages(id)
+  );
+
+  const spanGrid =
+    12 / (data?.response?.length > 2 ? 2 : data?.response?.length || 1);
+
+  return (
+    <Skeleton mih={200} visible={isLoading || isFetching}>
+      {error && (
+        <Center h={200}>
+          <ErrorMessage message={error?.message} />
+        </Center>
+      )}
+      {!error && (
+        <Grid gutter="xs">
+          {data?.response?.map((item, i) => (
+            <Grid.Col key={i + item} span={spanGrid}>
+              <ImageFullScreen
+                w="100%"
+                h="auto"
+                fit="contain"
+                radius="sm"
+                style={{ cursor: 'pointer' }}
+                src={`https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${item}`}
+              />
+            </Grid.Col>
+          ))}
+        </Grid>
+      )}
+    </Skeleton>
+  );
+}
+
 function Invoices() {
   const navigate = useNavigate();
   const [printData, setPrintData] = useState(null);
@@ -567,6 +632,19 @@ function Invoices() {
       // Open a new window for preview and allow printing
       const pdfPreview = pdf.output('bloburl');
       window.open(pdfPreview, '_blank', 'width=800,height=600');
+    });
+  };
+
+  const handleViewImages = (id) => {
+    modals.open({
+      title: 'View Images',
+      centered: true,
+      radius: 'md',
+      // fullScreen: true,
+      // padding: 0,
+      // size: 'auto',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: <ViewImages id={id} />,
     });
   };
 
@@ -752,6 +830,16 @@ function Invoices() {
                       </Menu.Item>
                     </Menu.Dropdown>
                   </Menu>
+                  <Tooltip label="View Images">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="teal"
+                      onClick={() => handleViewImages(data.id)}
+                    >
+                      <IconPhoto size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                   <Tooltip label="Edit Invoice">
                     <ActionIcon
                       size="sm"

@@ -106,7 +106,7 @@ function UploadImage(props) {
           </div>
         </Group>
       </Dropzone>
-      <Group position="center" mt="xs">
+      <Group position="center" my="xs">
         {previews}
       </Group>
     </Stack>

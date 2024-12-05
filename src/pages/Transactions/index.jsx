@@ -62,11 +62,6 @@ import useFileUpload from '../../helpers/useUploadFile';
 function AddAndEditTransaction({ data, refetchTransactions }) {
   const isAdd = data ? false : true;
   const [files, setFiles] = useState([]);
-  const {
-    uploadFiles,
-    loading: loadingUploadFiles,
-    error: errorUploadFiles,
-  } = useFileUpload('/finance/invoice/upload/:id');
 
   const form = useForm({
     mode: 'controlled',
@@ -291,13 +286,9 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
 function ViewImages({ id }) {
   const { data, isLoading, refetch, error } = useQuery(
     ['transactions-images'],
-    () => useGetTransactionImage(id),
-    {
-      refetchOnWindowFocus: false,
-    }
+    () => useGetTransactionImage(id)
   );
 
-  console.log('data -----> ', data);
   return (
     <Container p={0}>
       {/* <Center h="90vh">

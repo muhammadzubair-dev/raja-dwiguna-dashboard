@@ -113,7 +113,6 @@ function PercentageChart() {
       }),
     {
       refetchInterval: TEN_MINUTES,
-      refetchOnWindowFocus: false,
     }
   );
 
@@ -132,7 +131,6 @@ function PercentageChart() {
       }),
     {
       refetchInterval: TEN_MINUTES,
-      refetchOnWindowFocus: false,
     }
   );
 

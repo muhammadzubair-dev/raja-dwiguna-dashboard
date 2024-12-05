@@ -233,3 +233,7 @@ export const useGetPrivileges = async () => {
 export const useGetTransactionImage = async (id) => {
   return fetchRequest(`/finance/transaction/list-file/${id}`, 'GET');
 };
+
+export const useGetInvoiceImages = async (id) => {
+  return fetchRequest(`/finance/invoice/list-file/${id}`, 'GET');
+};

@@ -5,7 +5,13 @@ import { ModalsProvider } from '@mantine/modals';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Notifications } from '@mantine/notifications';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // Disable refetching on window focus globally
+    },
+  },
+});
 
 function App() {
   return (

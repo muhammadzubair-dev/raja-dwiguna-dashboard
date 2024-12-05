@@ -185,7 +185,6 @@ function Dashboard() {
       }),
     {
       refetchInterval: TEN_MINUTES,
-      refetchOnWindowFocus: false,
       onSuccess: (res) => {
         setSelectedCategory(res?.response?.checklist || []);
       },
@@ -209,7 +208,6 @@ function Dashboard() {
       }),
     {
       refetchInterval: TEN_MINUTES,
-      refetchOnWindowFocus: false,
       onSuccess: (res) => {
         setSelectedSubCategory(res?.response?.checklist || []);
       },
@@ -285,10 +283,7 @@ function Dashboard() {
 
   const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
     ['option-categories'],
-    () => useGetOptionCategories(),
-    {
-      refetchOnWindowFocus: false,
-    }
+    () => useGetOptionCategories()
   );
 
   const recordsCategory = [
