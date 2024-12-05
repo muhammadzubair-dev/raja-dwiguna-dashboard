@@ -464,7 +464,9 @@ function FormInvoices() {
         }
       }
 
-      pdf.save(`invoice-${data?.reference_number}.pdf`);
+      // Open a new window for preview and allow printing
+      const pdfPreview = pdf.output('bloburl');
+      window.open(pdfPreview, '_blank', 'width=800,height=600');
     });
   };
 
