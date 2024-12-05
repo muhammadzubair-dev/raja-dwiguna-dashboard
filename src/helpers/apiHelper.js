@@ -229,3 +229,7 @@ export const usePostResetPassword = async (body) => {
 export const useGetPrivileges = async () => {
   return fetchRequest(`/auth/privilege`, 'GET');
 };
+
+export const useGetTransactionImage = async (id) => {
+  return fetchRequest(`/finance/transaction/list-file/${id}`, 'GET');
+};

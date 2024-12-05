@@ -4,10 +4,14 @@ import {
   Box,
   Button,
   Card,
+  Center,
   Container,
   Flex,
+  Grid,
   Group,
+  Image,
   Input,
+  Loader,
   NumberFormatter,
   NumberInput,
   Select,
@@ -25,6 +29,7 @@ import {
   IconDownload,
   IconEdit,
   IconFilter,
+  IconPhoto,
   IconPlus,
   IconSearch,
 } from '@tabler/icons-react';
@@ -32,6 +37,7 @@ import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
+import { Carousel } from '@mantine/carousel';
 import ErrorMessage from '../../components/ErrorMessage';
 import {
   useGetOptionAccounts,
@@ -39,6 +45,7 @@ import {
   useGetTransactions,
   usePostTransaction,
   usePutTransaction,
+  useGetTransactionImage,
 } from '../../helpers/apiHelper';
 import {
   notificationError,
@@ -281,6 +288,58 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
   );
 }
 
+function ViewImages({ id }) {
+  const { data, isLoading, refetch, error } = useQuery(
+    ['transactions-images'],
+    () => useGetTransactionImage(id),
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  console.log('data -----> ', data);
+  return (
+    <Container p={0}>
+      <Center h="90vh">
+        <Carousel
+          withIndicators
+          // slideSize={{ base: '100%', sm: '50%', md: '33.333333%' }}
+          slideGap={{ base: 0, sm: 'md' }}
+          loop
+          align="start"
+        >
+          <Carousel.Slide>
+            <Image
+              // h="90vh"
+              // w="auto"
+              // fit="contain"
+              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
+            />
+          </Carousel.Slide>
+          <Carousel.Slide>
+            <Image
+              // h="90vh"
+              // w="auto"
+              // fit="contain"
+              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-9.png"
+            />
+          </Carousel.Slide>
+          <Carousel.Slide>
+            <Image
+              // h="90vh"
+              // w="auto"
+              // fit="contain"
+              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-10.png"
+            />
+          </Carousel.Slide>
+        </Carousel>
+        {/* {isLoading && <Loader />}
+        {!isLoading && error && <Text c="red">Error: {error?.message}</Text>} */}
+      </Center>
+    </Container>
+  );
+}
+
 function FilterTransactions({
   setIsIncome,
   isLoadingCategories,
@@ -411,6 +470,19 @@ function Transactions() {
       children: (
         <AddAndEditTransaction data={data} refetchTransactions={refetch} />
       ),
+    });
+  };
+
+  const handleViewImages = (id) => {
+    modals.open({
+      title: 'View Images',
+      centered: true,
+      radius: 'md',
+      fullScreen: true,
+      // padding: 0,
+      size: 'auto',
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: <ViewImages id={id} />,
     });
   };
 
@@ -634,6 +706,16 @@ function Transactions() {
               textAlign: 'right',
               render: (data) => (
                 <Group gap={4} justify="right" wrap="nowrap">
+                  <Tooltip label="View Images">
+                    <ActionIcon
+                      size="sm"
+                      variant="subtle"
+                      color="pink"
+                      onClick={() => handleViewImages(data.id)}
+                    >
+                      <IconPhoto size={16} />
+                    </ActionIcon>
+                  </Tooltip>
                   <Tooltip label="Edit Transaction">
                     <ActionIcon
                       size="sm"
