@@ -629,6 +629,7 @@ function FormInvoices() {
                 </Grid.Col>
               </Grid>
               <UploadImage
+                hImage={100}
                 files={files}
                 setFiles={setFiles}
                 disableUpload={modeDetail}

@@ -20,7 +20,7 @@ import { useState } from 'react';
 import ImageFullScreen from '../ImageFullScreen';
 
 function UploadImage(props) {
-  const { files, setFiles, disableUpload = false } = props;
+  const { files, setFiles, hImage = 50, disableUpload = false } = props;
   // const [files, setFiles] = useState([]);
   const previews = files.map((file, index) => {
     const isImageUrl = typeof file === 'string';
@@ -45,7 +45,7 @@ function UploadImage(props) {
           radius="sm"
           key={index}
           src={isImageUrl ? file : URL.createObjectURL(file)}
-          w={60}
+          h={hImage}
           onLoad={() => isImageUrl && URL.revokeObjectURL(imageUrl)}
         />
       </Box>
