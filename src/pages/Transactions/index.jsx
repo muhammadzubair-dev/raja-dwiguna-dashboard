@@ -15,6 +15,7 @@ import {
   NumberFormatter,
   NumberInput,
   Select,
+  Skeleton,
   Stack,
   Text,
   TextInput,
@@ -58,6 +59,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import UploadImage from '../../components/UploadImage';
 import { v4 as uuidv4 } from 'uuid';
 import useFileUpload from '../../helpers/useUploadFile';
+import ImageFullScreen from '../../components/ImageFullScreen';
 
 function AddAndEditTransaction({ data, refetchTransactions }) {
   const isAdd = data ? false : true;
@@ -284,50 +286,38 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
 }
 
 function ViewImages({ id }) {
-  const { data, isLoading, refetch, error } = useQuery(
-    ['transactions-images'],
+  const { data, isLoading, error, isFetching } = useQuery(
+    ['invoice-images', id],
     () => useGetTransactionImage(id)
   );
 
+  const spanGrid =
+    12 / (data?.response?.length > 2 ? 2 : data?.response?.length || 1);
+
   return (
-    <Container p={0}>
-      {/* <Center h="90vh">
-        <Carousel
-          withIndicators
-          // slideSize={{ base: '100%', sm: '50%', md: '33.333333%' }}
-          slideGap={{ base: 0, sm: 'md' }}
-          loop
-          align="start"
-        >
-          <Carousel.Slide>
-            <Image
-              // h="90vh"
-              // w="auto"
-              // fit="contain"
-              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
-            />
-          </Carousel.Slide>
-          <Carousel.Slide>
-            <Image
-              // h="90vh"
-              // w="auto"
-              // fit="contain"
-              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-9.png"
-            />
-          </Carousel.Slide>
-          <Carousel.Slide>
-            <Image
-              // h="90vh"
-              // w="auto"
-              // fit="contain"
-              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-10.png"
-            />
-          </Carousel.Slide>
-        </Carousel>
-        {isLoading && <Loader />}
-        {!isLoading && error && <Text c="red">Error: {error?.message}</Text>}
-      </Center> */}
-    </Container>
+    <Skeleton mih={200} visible={isLoading || isFetching}>
+      {error && (
+        <Center h={200}>
+          <ErrorMessage message={error?.message} />
+        </Center>
+      )}
+      {!error && (
+        <Grid gutter="xs">
+          {data?.response?.map((item, i) => (
+            <Grid.Col key={i + item} span={spanGrid}>
+              <ImageFullScreen
+                w="100%"
+                h="auto"
+                fit="contain"
+                radius="sm"
+                style={{ cursor: 'pointer' }}
+                src={`https://dev.arieslibre.my.id/api/v1/public/transaction/download/${id}/${item}`}
+              />
+            </Grid.Col>
+          ))}
+        </Grid>
+      )}
+    </Skeleton>
   );
 }
 
@@ -464,19 +454,6 @@ function Transactions() {
     });
   };
 
-  const handleViewImages = (id) => {
-    modals.open({
-      title: 'View Images',
-      centered: true,
-      radius: 'md',
-      // fullScreen: true,
-      // padding: 0,
-      // size: 'auto',
-      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: <ViewImages id={id} />,
-    });
-  };
-
   const handleAddTransaction = () => {
     modals.open({
       title: 'Add Transaction',
@@ -545,6 +522,18 @@ function Transactions() {
           />
         </Stack>
       ),
+    });
+  };
+
+  const handleViewImages = (id) => {
+    modals.open({
+      title: 'View Images',
+      centered: true,
+      radius: 'md',
+      size: 'xl',
+
+      overlayProps: { backgroundOpacity: 0.55, blur: 5 },
+      children: <ViewImages id={id} />,
     });
   };
 
@@ -701,7 +690,7 @@ function Transactions() {
                     <ActionIcon
                       size="sm"
                       variant="subtle"
-                      color="pink"
+                      color="teal"
                       onClick={() => handleViewImages(data.id)}
                     >
                       <IconPhoto size={16} />
