@@ -316,6 +316,8 @@ function ViewImages({ id }) {
   const spanGrid =
     12 / (data?.response?.length > 2 ? 2 : data?.response?.length || 1);
 
+  const dataIsFound = data?.response?.length === 0;
+
   return (
     <Skeleton mih={200} visible={isLoading || isFetching}>
       {error && (
@@ -323,7 +325,12 @@ function ViewImages({ id }) {
           <ErrorMessage message={error?.message} />
         </Center>
       )}
-      {!error && (
+      {!error && dataIsFound && (
+        <Center h={200}>
+          <Text>No Images</Text>
+        </Center>
+      )}
+      {!error && !dataIsFound && (
         <Grid gutter="xs">
           {data?.response?.map((item, i) => (
             <Grid.Col key={i + item} span={spanGrid}>
