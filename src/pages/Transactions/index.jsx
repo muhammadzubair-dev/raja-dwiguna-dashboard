@@ -530,7 +530,6 @@ function Transactions() {
       title: 'View Images',
       centered: true,
       radius: 'md',
-      size: 'xl',
 
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <ViewImages id={id} />,
