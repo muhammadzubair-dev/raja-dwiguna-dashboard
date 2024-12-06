@@ -4,7 +4,7 @@ import React from 'react';
 
 function ImageFullScreen(props) {
   const { ref, toggle, fullscreen } = useFullscreen();
-  return <Image {...props} ref={ref} onClick={toggle} />;
+  return <Image style={{ cursor: 'pointer' }} {...props} ref={ref} onClick={toggle} />;
 }
 
 export default ImageFullScreen;

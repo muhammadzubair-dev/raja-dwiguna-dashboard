@@ -465,7 +465,6 @@ function ViewImages({ id }) {
                 h="auto"
                 fit="contain"
                 radius="sm"
-                style={{ cursor: 'pointer' }}
                 src={`https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${item}`}
               />
             </Grid.Col>

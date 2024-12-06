@@ -97,6 +97,28 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
     form.setFieldValue('sub_category_id', null);
   });
 
+  const {
+    data: dataImages,
+    isLoading: isLoadingImages,
+    error: errorImages,
+  } = useQuery(
+    ['transaction-images', data?.id],
+    () => useGetTransactionImage(data?.id),
+    {
+      enabled: !isAdd,
+      onSuccess: (res) => {
+        if (res?.response?.length > 0) {
+          setFiles(
+            res?.response.map(
+              (item) =>
+                `https://dev.arieslibre.my.id/api/v1/public/transaction/download/${data?.id}/${item}`
+            )
+          );
+        }
+      },
+    }
+  );
+
   const { data: optionAccounts, isLoading: isLoadingAccounts } = useQuery(
     ['accounts'],
     () => useGetOptionAccounts()
@@ -310,7 +332,6 @@ function ViewImages({ id }) {
                 h="auto"
                 fit="contain"
                 radius="sm"
-                style={{ cursor: 'pointer' }}
                 src={`https://dev.arieslibre.my.id/api/v1/public/transaction/download/${id}/${item}`}
               />
             </Grid.Col>
