@@ -41,6 +41,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'react-query';
 import {
   useGetClients,
+  useGetInvoiceImages,
   useGetInvoiceNumber,
   useGetInvoiceTotalPaid,
   useGetOptionAccounts,
@@ -277,6 +278,27 @@ function FormInvoices() {
     form.setFieldValue('sub_category_id', null);
   });
 
+  const {
+    data: dataImages,
+    isLoading: isLoadingImages,
+    error: errorImages,
+  } = useQuery(
+    ['invoice-images', data?.id],
+    () => useGetInvoiceImages(data?.id),
+    {
+      onSuccess: (res) => {
+        if (res?.response?.length > 0) {
+          setFiles(
+            res?.response.map(
+              (item) =>
+                `https://dev.arieslibre.my.id/api/v1/public/invoice/download/${data?.id}/${item}`
+            )
+          );
+        }
+      },
+    }
+  );
+
   const { data: optionAccounts, isLoading: isLoadingAccounts } = useQuery(
     ['option-accounts'],
     () => useGetOptionAccounts()
@@ -344,7 +366,7 @@ function FormInvoices() {
       try {
         const res = await useFileUpload(
           `/finance/invoice/upload/${variables.id}`,
-          files
+          files.filter((file) => typeof file !== 'string')
         );
         if (res?.code === 200) {
           notificationSuccess(
@@ -606,7 +628,11 @@ function FormInvoices() {
                   />
                 </Grid.Col>
               </Grid>
-              <UploadImage files={files} setFiles={setFiles} />
+              <UploadImage
+                files={files}
+                setFiles={setFiles}
+                disableUpload={modeDetail}
+              />
               <Textarea
                 autosize
                 minRows={5}

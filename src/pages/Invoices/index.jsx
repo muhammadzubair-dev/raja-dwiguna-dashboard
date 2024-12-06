@@ -54,6 +54,7 @@ import {
   usePostInvoiceTransaction,
   useGetInvoiceTotalPaid,
   useGetInvoiceImages,
+  useGetTransactionImage,
 } from '../../helpers/apiHelper';
 import {
   notificationError,
@@ -71,6 +72,7 @@ import useFileUpload from '../../helpers/useUploadFile';
 import { v4 as uuidv4 } from 'uuid';
 import { useFullscreen } from '@mantine/hooks';
 import ImageFullScreen from '../../components/ImageFullScreen';
+import UploadImage from '../../components/UploadImage';
 function MakeATransaction({ data, refetchInvoices }) {
   const form = useForm({
     mode: 'controlled',
@@ -101,6 +103,27 @@ function MakeATransaction({ data, refetchInvoices }) {
   form.watch('category_id', () => {
     form.setFieldValue('sub_category_id', null);
   });
+
+  const {
+    data: dataImages,
+    isLoading: isLoadingImages,
+    error: errorImages,
+  } = useQuery(
+    ['invoice-images', data?.id],
+    () => useGetTransactionImage(data?.id),
+    {
+      onSuccess: (res) => {
+        if (res?.response?.length > 0) {
+          setFiles(
+            res?.response.map(
+              (item) =>
+                `https://dev.arieslibre.my.id/api/v1/public/transaction/download/${data?.id}/${item}`
+            )
+          );
+        }
+      },
+    }
+  );
 
   const { data: optionAccounts, isLoading: isLoadingAccounts } = useQuery(
     ['accounts'],
@@ -279,6 +302,7 @@ function MakeATransaction({ data, refetchInvoices }) {
           //   setInvoiceDate(value);
           // }}
         />
+        <UploadImage files={files} setFiles={setFiles} />
         <Textarea
           autosize
           minRows={3}
@@ -640,9 +664,8 @@ function Invoices() {
       title: 'View Images',
       centered: true,
       radius: 'md',
-      // fullScreen: true,
-      // padding: 0,
-      // size: 'auto',
+      size: 'xl',
+
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: <ViewImages id={id} />,
     });
