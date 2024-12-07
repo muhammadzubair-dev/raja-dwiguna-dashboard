@@ -40,6 +40,7 @@ import { DataTable } from 'mantine-datatable';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from 'react-query';
 import {
+  useDeleteInvoiceImages,
   useGetClients,
   useGetInvoiceImages,
   useGetInvoiceNumber,
@@ -243,6 +244,7 @@ function FormInvoices() {
   const [itemsDeleted, setItemsDeleted] = useState([]);
   const [items, setItems] = useState([]);
   const [files, setFiles] = useState([]);
+  const [deletedFiles, setDeletedFiles] = useState([]);
   const form = useForm({
     mode: 'controlled',
     initialValues: {
@@ -362,20 +364,27 @@ function FormInvoices() {
     isLoading: isLoadingInvoice,
     error: errorInvoice,
   } = useMutation(isAdd ? usePostInvoice : usePutInvoice, {
-    onSuccess: async (_, variables) => {
+    onSuccess: async (res, variables) => {
       try {
-        const res = await useFileUpload(
-          `/finance/invoice/upload/${variables.id}`,
-          files.filter((file) => typeof file !== 'string')
-        );
+        const containObject = files.some((url) => typeof url === 'object');
+        if (files.length > 0 && containObject) {
+          res = await useFileUpload(
+            `/finance/invoice/upload/${variables.id}`,
+            files.filter((file) => typeof file !== 'string')
+          );
+        }
+
+        if (deletedFiles.length > 0) {
+          res = await useDeleteInvoiceImages(variables.id, {
+            files: deletedFiles,
+          });
+        }
+
         if (res?.code === 200) {
           notificationSuccess(
             `Invoice ${isAdd ? 'Added' : 'Updated'} successfully`
           );
           navigate('/invoices');
-        } else {
-          notificationError(err.message);
-          throw err;
         }
       } catch (err) {
         notificationError(err.message);
@@ -633,6 +642,7 @@ function FormInvoices() {
                 wImage={100}
                 files={files}
                 setFiles={setFiles}
+                setDeletedFiles={setDeletedFiles}
                 disableUpload={modeDetail}
               />
               <Textarea

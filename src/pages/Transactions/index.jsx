@@ -47,6 +47,7 @@ import {
   usePostTransaction,
   usePutTransaction,
   useGetTransactionImage,
+  useDeleteTransactionImages,
 } from '../../helpers/apiHelper';
 import {
   notificationError,
@@ -64,6 +65,7 @@ import ImageFullScreen from '../../components/ImageFullScreen';
 function AddAndEditTransaction({ data, refetchTransactions }) {
   const isAdd = data ? false : true;
   const [files, setFiles] = useState([]);
+  const [deletedFiles, setDeletedFiles] = useState([]);
 
   const form = useForm({
     mode: 'controlled',
@@ -165,21 +167,28 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
   const { mutate, isLoading, error } = useMutation(
     isAdd ? usePostTransaction : usePutTransaction,
     {
-      onSuccess: async (_, variables) => {
+      onSuccess: async (res, variables) => {
         try {
-          const res = await useFileUpload(
-            `/finance/transaction/upload/${variables.id}`,
-            files
-          );
+          const containObject = files.some((url) => typeof url === 'object');
+          if (files.length > 0 && containObject) {
+            res = await useFileUpload(
+              `/finance/transaction/upload/${variables.id}`,
+              files.filter((file) => typeof file !== 'string')
+            );
+          }
+
+          if (deletedFiles.length > 0) {
+            res = await useDeleteTransactionImages(variables.id, {
+              files: deletedFiles,
+            });
+          }
+
           if (res?.code === 200) {
             refetchTransactions();
             modals.closeAll();
             notificationSuccess(
               `Transaction ${isAdd ? 'added' : 'updated'} successfully`
             );
-          } else {
-            notificationError(err.message);
-            throw err;
           }
         } catch (err) {
           notificationError(err.message);
@@ -273,7 +282,11 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
           //   setInvoiceDate(value);
           // }}
         />
-        <UploadImage files={files} setFiles={setFiles} />
+        <UploadImage
+          files={files}
+          setFiles={setFiles}
+          setDeletedFiles={setDeletedFiles}
+        />
         <Textarea
           // withAsterisk
           autosize

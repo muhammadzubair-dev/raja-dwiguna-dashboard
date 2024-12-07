@@ -251,3 +251,13 @@ export const useGetTransactionImage = async (id) => {
 export const useGetInvoiceImages = async (id) => {
   return fetchRequest(`/finance/invoice/list-file/${id}`, 'GET');
 };
+
+export const useDeleteInvoiceImages = async (id, body) => {
+  return fetchRequest(`/finance/invoice/list-file/${id}`, 'DELETE', { body });
+};
+
+export const useDeleteTransactionImages = async (id, body) => {
+  return fetchRequest(`/finance/transaction/list-file/${id}`, 'DELETE', {
+    body,
+  });
+};

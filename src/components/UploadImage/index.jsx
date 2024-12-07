@@ -23,6 +23,7 @@ function UploadImage(props) {
   const {
     files,
     setFiles,
+    setDeletedFiles,
     hImage = 50,
     wImage = 50,
     disableUpload = false,
@@ -32,21 +33,26 @@ function UploadImage(props) {
     const isImageUrl = typeof file === 'string';
     return (
       <Box pos="relative">
-        {!isImageUrl && (
-          <ActionIcon
-            color="red"
-            size="xs"
-            radius="xl"
-            pos="absolute"
-            right={-8}
-            top={-8}
-            onClick={() =>
-              setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
+        <ActionIcon
+          color="red"
+          size="xs"
+          radius="xl"
+          pos="absolute"
+          right={-8}
+          top={-8}
+          onClick={() => {
+            setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+            if (isImageUrl) {
+              setDeletedFiles((prevFiles) => [
+                ...prevFiles,
+                file.split('/').pop(),
+              ]);
             }
-          >
-            <IconX size={12} />
-          </ActionIcon>
-        )}
+          }}
+        >
+          <IconX size={12} />
+        </ActionIcon>
+
         <ImageFullScreen
           radius="sm"
           key={index}
@@ -55,11 +61,14 @@ function UploadImage(props) {
           fit="contain"
           bg="dark.9"
           h={hImage}
-          onLoad={() => isImageUrl && URL.revokeObjectURL(imageUrl)}
+          onLoad={() =>
+            !isImageUrl && URL.revokeObjectURL(URL.createObjectURL(file))
+          }
         />
       </Box>
     );
   });
+
   return (
     <Stack gap={2}>
       <Text size="sm">Upload Image</Text>
