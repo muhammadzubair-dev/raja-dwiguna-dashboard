@@ -1,9 +1,9 @@
 import { Text } from '@mantine/core';
 import React from 'react';
 
-function ErrorMessage({ message }) {
+function ErrorMessage({ message, ta }) {
   return (
-    <Text size="xs" c="red" mt={4} ta="center">
+    <Text size="xs" c="red" mt={4} ta={ta || 'center'}>
       Error: {message}
     </Text>
   );

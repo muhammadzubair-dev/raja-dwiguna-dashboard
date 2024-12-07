@@ -60,6 +60,14 @@ export const useGetInvoices = async (query) => {
   return fetchRequest(`/finance/invoice`, 'GET', { query });
 };
 
+export const usePostTemplate = async (body) => {
+  return fetchRequest(`/finance/settings/template`, 'POST', { body });
+};
+
+export const useGetTemplate = async (query) => {
+  return fetchRequest(`/finance/settings/template`, 'GET', { query });
+};
+
 export const useGetInvoiceNumber = async () => {
   return fetchRequest(`/finance/invoice/get-number`, 'GET');
 };

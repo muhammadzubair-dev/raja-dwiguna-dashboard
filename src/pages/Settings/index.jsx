@@ -5,6 +5,7 @@ import BankAccounts from './BankAccounts';
 import Categories from './Categories';
 import SubCategories from './SubCategories';
 import Clients from './Clients';
+import Reports from './Reports';
 
 function Settings() {
   const sizeContainer = useSizeContainer((state) => state.sizeContainer);
@@ -21,6 +22,7 @@ function Settings() {
           <Tabs.Tab value="categories">Categories</Tabs.Tab>
           <Tabs.Tab value="sub-categories">Sub Categories</Tabs.Tab>
           <Tabs.Tab value="clients">Clients</Tabs.Tab>
+          <Tabs.Tab value="reports">Reports</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="bank-account" pt="xs">
@@ -37,6 +39,10 @@ function Settings() {
 
         <Tabs.Panel value="clients" pt="xs">
           <Clients />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="reports" pt="xs">
+          <Reports />
         </Tabs.Panel>
       </Tabs>
     </Container>
