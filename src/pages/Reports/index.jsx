@@ -126,7 +126,7 @@ function Reports() {
   const colorTitle2 = isDark ? 'dark.7' : 'gray.3';
   const colorTitle3 = isDark ? 'dark.9' : 'gray.5';
 
-  const { data, isLoading, refetch, error } = useQuery(
+  const { data, isLoading, refetch, error, isFetching } = useQuery(
     ['reports-cash-flow'],
     () =>
       useGetReports({
@@ -193,6 +193,8 @@ function Reports() {
     });
   };
 
+  console.log('isFetching -----------> ', isFetching);
+
   return (
     <Container
       size="xl"
@@ -233,17 +235,17 @@ function Reports() {
       </Group>
       <Card withBorder p={{ base: 'xs', md: 'xl' }} radius="sm">
         <Container w="100%" maw={1100} p={0}>
-          {isLoading && (
+          {(isLoading || isFetching) && (
             <Center mih={300}>
               <Loader />
             </Center>
           )}
-          {!isLoading && error && (
+          {!isLoading && !isFetching && error && (
             <Center mih={300}>
               <ErrorMessage message={error?.message} />
             </Center>
           )}
-          {!isLoading && !error && (
+          {!isLoading && !isFetching && !error && (
             <>
               <Title order={2} mb="sm" ta="center">
                 PT Dwiguna Raja Semesta
