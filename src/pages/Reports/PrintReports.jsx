@@ -73,7 +73,7 @@ function PrintReports({ selectedMonth, dataIncome, dataOperationalExpenses }) {
       id="reports-to-capture"
       style={{ position: 'absolute', right: 999999 }}
     >
-      <Container w="100%" maw={1100} p={0} bg="white" pos="relative">
+      <Container w="100%" maw={1500} p={0} bg="white" pos="relative">
         <img
           height={70}
           src={logoImage}

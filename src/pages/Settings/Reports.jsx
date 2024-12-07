@@ -18,6 +18,8 @@ import {
   Grid,
   Fieldset,
   Divider,
+  Loader,
+  MultiSelect,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import {
@@ -43,9 +45,8 @@ const ProfitAndLoss = () => {
   const [profitAndLossIds, setProfitAndLossIds] = useState([]);
 
   const {
-    data: dataTemplate,
     isLoading: isLoadingTemplate,
-    error,
+    error: errorTemplate,
     refetch,
   } = useQuery(
     ['report-template'],
@@ -76,10 +77,11 @@ const ProfitAndLoss = () => {
     },
   });
 
-  const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
-    ['option-categories'],
-    () => useGetOptionCategories()
-  );
+  const {
+    data: optionCategories,
+    isLoading: isLoadingCategories,
+    error: errorCategories,
+  } = useQuery(['option-categories'], () => useGetOptionCategories());
 
   const dataDebit = (optionCategories?.response || []).filter(
     (category) => category.is_income === true
@@ -113,92 +115,221 @@ const ProfitAndLoss = () => {
 
   return (
     <Container fluid>
-      <Checkbox.Group
-        value={profitAndLossIds.map((item) => item.value)}
-        onChange={(ids) =>
-          setProfitAndLossIds(
-            ids.map((id) => ({ value: id, is_income: getIsIncome(id) }))
-          )
-        }
-      >
-        <Title order={4} mb="sm">
-          Income
-        </Title>
-        <Grid gutter="xs">
-          {dataDebit.map((item) => (
-            <Grid.Col key={item.id} span={3}>
-              <Fieldset radius="md" legend={item.name}>
-                <Stack gap="xs">
-                  {item.list_transaction_sub_category.map((itemSub) => (
-                    <Checkbox
-                      value={itemSub.id}
-                      key={itemSub.id}
-                      label={formatSnake(itemSub.name)}
-                    />
-                  ))}
-                </Stack>
-              </Fieldset>
-            </Grid.Col>
-          ))}
-        </Grid>
-        <Divider my="lg" />
-        <Title order={4} mb="sm">
-          Operational Expenses
-        </Title>
-        <Grid gutter="xs">
-          {dataCredit.map((item) => (
-            <Grid.Col key={item.id} span={3}>
-              <Fieldset radius="md" legend={item.name}>
-                <Stack gap="xs">
-                  {item.list_transaction_sub_category.map((itemSub) => (
-                    <Checkbox
-                      value={itemSub.id}
-                      key={itemSub.id}
-                      label={formatSnake(itemSub.name)}
-                    />
-                  ))}
-                </Stack>
-              </Fieldset>
-            </Grid.Col>
-          ))}
-        </Grid>
-      </Checkbox.Group>
-      <Box>
-        <Group justify="right" mt="lg">
-          <Button
-            loading={isLoadingPost}
-            rightSection={<IconDeviceFloppy />}
-            onClick={handleSave}
+      {(isLoadingTemplate || isLoadingCategories) && (
+        <Center h={300}>
+          <Loader />
+        </Center>
+      )}
+
+      {(errorTemplate || errorCategories) && (
+        <Center h={300}>
+          <ErrorMessage
+            message={errorTemplate?.message || errorCategories?.message}
+          />
+        </Center>
+      )}
+
+      {optionCategories?.response && (
+        <>
+          <Checkbox.Group
+            value={profitAndLossIds.map((item) => item.value)}
+            onChange={(ids) =>
+              setProfitAndLossIds(
+                ids.map((id) => ({ value: id, is_income: getIsIncome(id) }))
+              )
+            }
           >
-            Save
-          </Button>
-        </Group>
-        {errorPost && <ErrorMessage ta="right" error={errorPost?.message} />}
-      </Box>
+            <Title order={4} mb="sm">
+              Income
+            </Title>
+            <Grid gutter="xs">
+              {dataDebit.map((item) => (
+                <Grid.Col key={item.id} span={3}>
+                  <Fieldset radius="md" legend={item.name}>
+                    <Stack gap="xs">
+                      {item.list_transaction_sub_category.map((itemSub) => (
+                        <Checkbox
+                          value={itemSub.id}
+                          key={itemSub.id}
+                          label={formatSnake(itemSub.name)}
+                        />
+                      ))}
+                    </Stack>
+                  </Fieldset>
+                </Grid.Col>
+              ))}
+            </Grid>
+            <Divider my="lg" />
+            <Title order={4} mb="sm">
+              Operational Expenses
+            </Title>
+            <Grid gutter="xs">
+              {dataCredit.map((item) => (
+                <Grid.Col key={item.id} span={3}>
+                  <Fieldset radius="md" legend={item.name}>
+                    <Stack gap="xs">
+                      {item.list_transaction_sub_category.map((itemSub) => (
+                        <Checkbox
+                          value={itemSub.id}
+                          key={itemSub.id}
+                          label={formatSnake(itemSub.name)}
+                        />
+                      ))}
+                    </Stack>
+                  </Fieldset>
+                </Grid.Col>
+              ))}
+            </Grid>
+          </Checkbox.Group>
+          <Box>
+            <Group justify="right" mt="lg">
+              <Button
+                loading={isLoadingPost}
+                rightSection={<IconDeviceFloppy />}
+                onClick={handleSave}
+              >
+                Save
+              </Button>
+            </Group>
+            {errorPost && (
+              <ErrorMessage ta="right" error={errorPost?.message} />
+            )}
+          </Box>
+        </>
+      )}
     </Container>
   );
 };
 
-const groceries = [
-  {
-    emoji: '🍎',
-    value: 'Cash Flow',
-    description:
-      'Crisp and refreshing fruit. Apples are known for their versatility and nutritional benefits. They come in a variety of flavors and are great for snacking, baking, or adding to salads.',
-  },
-  {
-    emoji: '🍌',
-    value: 'Profit And Loss',
-    description: <ProfitAndLoss />,
-  },
-];
+const CashFlow = () => {
+  const [cashFlowIds, setCashFlowIds] = useState([]);
+  const [operational, setOperational] = useState([]);
+  const [investment, setInvestment] = useState([]);
+  const [funding, setFunding] = useState([]);
 
-const items = groceries.map((item) => (
-  <Accordion.Item key={item.value} value={item.value}>
-    <Accordion.Control icon={item.emoji}>{item.value}</Accordion.Control>
-    <Accordion.Panel>{item.description}</Accordion.Panel>
-  </Accordion.Item>
-));
+  const {
+    isLoading: isLoadingTemplate,
+    error: errorTemplate,
+    refetch,
+  } = useQuery(
+    ['report-template-cash-flow'],
+    () => useGetTemplate({ report_name: 'cash-flow' }),
+    {
+      onSuccess: (data) => {
+        setCashFlowIds(
+          data?.response?.flatMap((item) =>
+            item.data.map((entry) => ({
+              is_income: item.is_income,
+              value: entry.sub_category_id,
+            }))
+          )
+        );
+      },
+    }
+  );
+
+  const {
+    mutate,
+    isLoading: isLoadingPost,
+    error: errorPost,
+  } = useMutation(usePostTemplate, {
+    onSuccess: () => {
+      refetch();
+      modals.closeAll();
+      notificationSuccess(`Report Template updated successfully`);
+    },
+  });
+
+  const {
+    data: optionCategories,
+    isLoading: isLoadingCategories,
+    error: errorCategories,
+  } = useQuery(['option-categories'], () => useGetOptionCategories());
+
+  const dataCategories = (optionCategories?.response || []).map((category) => ({
+    group: `${category.name} (${category.is_income ? 'Debit' : 'Credit'})`,
+    items: category.list_transaction_sub_category.map((sub) => ({
+      value: sub.id,
+      label: sub.name,
+    })),
+  }));
+
+  const filterOptions = (valuesToRemove) => {
+    return dataCategories
+      .map((group) => {
+        return {
+          ...group,
+          items: group.items.filter(
+            (item) => !valuesToRemove.includes(item.value)
+          ),
+        };
+      })
+      .filter((group) => group.items.length > 0);
+  };
+
+  const optionsOperational = filterOptions([...investment, ...funding]);
+  const optionsInvestment = filterOptions([...operational, ...funding]);
+  const optionsFunding = filterOptions([...operational, ...investment]);
+
+  return (
+    <Container fluid>
+      {(isLoadingTemplate || isLoadingCategories) && (
+        <Center h={300}>
+          <Loader />
+        </Center>
+      )}
+
+      {(errorTemplate || errorCategories) && (
+        <Center h={300}>
+          <ErrorMessage
+            message={errorTemplate?.message || errorCategories?.message}
+          />
+        </Center>
+      )}
+
+      {optionCategories?.response && (
+        <>
+          <Title order={4} mb="sm">
+            Operational Activities
+          </Title>
+          <MultiSelect
+            size="md"
+            mb="xl"
+            searchable
+            placeholder="Select Sub Category"
+            data={optionsOperational}
+            value={operational}
+            onChange={setOperational}
+          />
+          <Title order={4} mb="sm">
+            Investment Activities
+          </Title>
+          <MultiSelect
+            size="md"
+            mb="xl"
+            searchable
+            placeholder="Select Sub Category"
+            data={optionsInvestment}
+            value={investment}
+            onChange={setInvestment}
+          />
+          <Title order={4} mb="sm">
+            Funding Activities
+          </Title>
+          <MultiSelect
+            size="md"
+            mb="xl"
+            searchable
+            placeholder="Select Sub Category"
+            data={optionsFunding}
+            value={funding}
+            onChange={setFunding}
+          />
+        </>
+      )}
+    </Container>
+  );
+};
 
 function Reports() {
   return (
@@ -208,52 +339,23 @@ function Reports() {
       defaultValue="Profit And Loss"
       variant="contained"
     >
-      {items}
+      {[
+        {
+          value: 'Cash Flow',
+          description: <CashFlow />,
+        },
+        {
+          value: 'Profit And Loss',
+          description: <ProfitAndLoss />,
+        },
+      ].map((item) => (
+        <Accordion.Item key={item.value} value={item.value}>
+          <Accordion.Control>{item.value}</Accordion.Control>
+          <Accordion.Panel>{item.description}</Accordion.Panel>
+        </Accordion.Item>
+      ))}
     </Accordion>
   );
 }
 
 export default Reports;
-
-const response = [
-  {
-    data: [
-      {
-        name: 'Lagu lama',
-        sub_category_id: '665b23a6-ab1e-457c-9502-00b7178b7d07',
-      },
-    ],
-    headers: 'income',
-  },
-  {
-    data: [
-      {
-        name: 'Lagu lama',
-        sub_category_id: '665b23a6-ab1e-457c-9502-poiuhyr45678',
-      },
-    ],
-    headers: 'operational-expenses',
-  },
-];
-
-const result = [
-  '665b23a6-ab1e-457c-9502-00b7178b7d07',
-  '665b23a6-ab1e-457c-9502-poiuhyr45678',
-];
-
-const body = [
-  [
-    {
-      sub_category_id: '665b23a6-ab1e-457c-9502-00b7178b7d07',
-      index: 1,
-      headers: 'income',
-      report_name: 'profit-and-loss',
-    },
-    {
-      sub_category_id: '665b23a6-ab1e-457c-9502-poiuhyr45678',
-      index: 2,
-      headers: 'operational-expenses',
-      report_name: 'profit-and-loss',
-    },
-  ],
-];
