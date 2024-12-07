@@ -630,6 +630,7 @@ function FormInvoices() {
               </Grid>
               <UploadImage
                 hImage={100}
+                wImage={100}
                 files={files}
                 setFiles={setFiles}
                 disableUpload={modeDetail}

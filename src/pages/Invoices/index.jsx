@@ -23,6 +23,7 @@ import {
   Grid,
   Skeleton,
   Center,
+  Loader,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
@@ -441,44 +442,72 @@ function FilterInvoices({
 }
 
 function ViewImages({ id }) {
+  const [selectedImage, setSelectedImage] = useState(null);
   const { data, isLoading, error, isFetching } = useQuery(
     ['invoice-images', id],
-    () => useGetInvoiceImages(id)
+    () => useGetInvoiceImages(id),
+    {
+      onSuccess: (res) => {
+        if (res?.code === 200 && res?.response?.length > 0) {
+          setSelectedImage(res?.response[0]);
+        }
+      },
+    }
   );
 
-  const spanGrid =
-    12 / (data?.response?.length > 2 ? 2 : data?.response?.length || 1);
-
-  const dataIsFound = data?.response?.length === 0;
+  const dataNotFound = data?.response?.length === 0;
 
   return (
-    <Skeleton mih={200} visible={isLoading || isFetching}>
-      {error && (
-        <Center h={200}>
-          <ErrorMessage message={error?.message} />
+    <Box>
+      {isLoading && (
+        <Center h={300}>
+          <Loader />
         </Center>
       )}
-      {!error && dataIsFound && (
-        <Center h={200}>
+
+      {!isLoading && !error && dataNotFound && (
+        <Center h={300}>
           <Text>No Images</Text>
         </Center>
       )}
-      {!error && !dataIsFound && (
-        <Grid gutter="xs">
-          {data?.response?.map((item, i) => (
-            <Grid.Col key={i + item} span={spanGrid}>
-              <ImageFullScreen
-                w="100%"
-                h="auto"
+
+      {!isLoading && !error && !dataNotFound && (
+        <>
+          <ImageFullScreen
+            w="100%"
+            h={400}
+            fit="contain"
+            radius="sm"
+            src={`https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${selectedImage}`}
+          />
+          <Box h={8} />
+          <Group gap="xs">
+            {data?.response?.map((item, i) => (
+              <Image
+                onClick={() => setSelectedImage(item)}
+                style={{
+                  cursor: 'pointer',
+                  border:
+                    selectedImage === item
+                      ? '2px solid var(--mantine-color-red-5)'
+                      : 'none',
+                  transform: selectedImage === item ? 'scale(1.2)' : 'scale(1)',
+                  transition: 'transform 0.1s ease-out', // Ease-in transition for smooth scaling
+                  width: 50,
+                  height: 50,
+                }}
+                w={50}
+                h={50}
+                bg={'dark.8'}
                 fit="contain"
                 radius="sm"
                 src={`https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${item}`}
               />
-            </Grid.Col>
-          ))}
-        </Grid>
+            ))}
+          </Group>
+        </>
       )}
-    </Skeleton>
+    </Box>
   );
 }
 

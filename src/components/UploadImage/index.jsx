@@ -20,8 +20,14 @@ import { useState } from 'react';
 import ImageFullScreen from '../ImageFullScreen';
 
 function UploadImage(props) {
-  const { files, setFiles, hImage = 50, disableUpload = false } = props;
-  // const [files, setFiles] = useState([]);
+  const {
+    files,
+    setFiles,
+    hImage = 50,
+    wImage = 50,
+    disableUpload = false,
+  } = props;
+
   const previews = files.map((file, index) => {
     const isImageUrl = typeof file === 'string';
     return (
@@ -45,6 +51,9 @@ function UploadImage(props) {
           radius="sm"
           key={index}
           src={isImageUrl ? file : URL.createObjectURL(file)}
+          w={wImage}
+          fit="contain"
+          bg="dark.9"
           h={hImage}
           onLoad={() => isImageUrl && URL.revokeObjectURL(imageUrl)}
         />
@@ -113,7 +122,7 @@ function UploadImage(props) {
         </Dropzone>
       )}
       {files.length > 0 && (
-        <Group position="center" my="xs">
+        <Group position="center" my="xs" gap={8}>
           {previews}
         </Group>
       )}

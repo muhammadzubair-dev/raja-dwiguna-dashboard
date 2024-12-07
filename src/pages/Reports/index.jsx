@@ -193,8 +193,6 @@ function Reports() {
     });
   };
 
-  console.log('isFetching -----------> ', isFetching);
-
   return (
     <Container
       size="xl"
