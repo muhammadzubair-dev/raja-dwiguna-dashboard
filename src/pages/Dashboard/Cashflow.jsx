@@ -22,8 +22,8 @@ function Cashflow({ isLoadingBarChart, errorBarChart, recordBarChart }) {
           withLegend
           barProps={{ radius: 10 }}
           series={[
-            { name: 'Credit', color: 'green' },
-            { name: 'Debit', color: 'red' },
+            { name: 'Credit', color: 'red' },
+            { name: 'Debit', color: 'green' },
           ]}
         />
       )}

@@ -290,7 +290,7 @@ function Dashboard() {
     ...(isIncomeCategory === 'Income' || isIncomeCategory === null
       ? [
           {
-            group: 'Income',
+            group: 'Debit',
             items: (optionCategories?.response || [])
               .filter((category) => category.is_income === true)
               .map(({ name }) => name),
@@ -301,7 +301,7 @@ function Dashboard() {
     ...(isIncomeCategory === 'Outcome' || isIncomeCategory === null
       ? [
           {
-            group: 'Outcome',
+            group: 'Credit',
             items: (optionCategories?.response || [])
               .filter((category) => category.is_income === false)
               .map(({ name }) => name),
@@ -317,7 +317,7 @@ function Dashboard() {
       return isIncome === isIncomeSubCategory;
     })
     .map((item) => ({
-      group: `${item.name} (${item.is_income ? 'Income' : 'Outcome'})`,
+      group: `${item.name} (${item.is_income ? 'Debit' : 'Credit'})`,
       items: item.list_transaction_sub_category.map(
         ({ name }) => `${item.name} - ${name}`
       ),
@@ -349,8 +349,8 @@ function Dashboard() {
 
   const recordBarChart = dataBarChart?.response?.map((item) => ({
     month: item.date,
-    Credit: item.incoming,
-    Debit: item.outcoming,
+    Debit: item.incoming,
+    Credit: item.outcoming,
   }));
 
   const recordBarChartCategory = dataBarChartCategory?.response?.chart || [];
@@ -373,21 +373,21 @@ function Dashboard() {
     },
     {
       title: 'Total Debit',
-      color: 'red',
-      data: dataOutcome?.response,
-      isLoading: isLoadingOutcome,
-      error: errorOutcome?.message,
-      subtitle: ' transactions for the current month',
-      icon: <IconCoin size={35} stroke={1.5} />,
-    },
-    {
-      title: 'Total Credit',
       color: 'green',
       data: dataIncome?.response,
       isLoading: isLoadingIncome,
       error: errorIncome?.message,
       subtitle: ' transactions for the current month',
       icon: <IconMoneybag size={35} stroke={1.5} />,
+    },
+    {
+      title: 'Total Credit',
+      color: 'red',
+      data: dataOutcome?.response,
+      isLoading: isLoadingOutcome,
+      error: errorOutcome?.message,
+      subtitle: ' transactions for the current month',
+      icon: <IconCoin size={35} stroke={1.5} />,
     },
     {
       title: 'Balance',
@@ -512,7 +512,10 @@ function Dashboard() {
                     <>
                       <Select
                         placeholder="Select Type"
-                        data={['Income', 'Outcome']}
+                        data={[
+                          { value: 'Income', label: 'Debit' },
+                          { value: 'Outcome', label: 'Credit' },
+                        ]}
                         onChange={(values) => {
                           setSelectedCategory([]);
                           setIsIncomeCategory(values);
@@ -533,7 +536,10 @@ function Dashboard() {
                     <>
                       <Select
                         placeholder="Select Type"
-                        data={['Income', 'Outcome']}
+                        data={[
+                          { value: 'Income', label: 'Debit' },
+                          { value: 'Outcome', label: 'Credit' },
+                        ]}
                         onChange={(values) => {
                           setSelectedSubCategory([]);
                           setIsIncomeSubCategory(values);
@@ -615,7 +621,7 @@ function Dashboard() {
                       radius="xl"
                       color={is_income ? 'green' : 'red'}
                     >
-                      {is_income ? 'Credit' : 'Debit'}
+                      {is_income ? 'Debit' : 'Credit'}
                     </Badge>
                   ),
                 },

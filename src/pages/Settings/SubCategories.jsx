@@ -49,13 +49,13 @@ function AddAndEditSubCategory({ data, refetchSubCategories }) {
 
   const recordsCategory = [
     {
-      group: 'Credit',
+      group: 'Debit',
       items: (optionCategories?.response || [])
         .filter((category) => category.is_income === true)
         .map(({ id, name }) => ({ value: id, label: name })),
     },
     {
-      group: 'Debit',
+      group: 'Credit',
       items: (optionCategories?.response || [])
         .filter((category) => category.is_income === false)
         .map(({ id, name }) => ({ value: id, label: name })),
@@ -322,7 +322,7 @@ function SubCategories() {
                   radius="xl"
                   color={is_income ? 'green' : 'red'}
                 >
-                  {is_income ? 'Credit' : 'Debit'}
+                  {is_income ? 'Debit' : 'Credit'}
                 </Badge>
               ),
             },
