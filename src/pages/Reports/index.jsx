@@ -1,110 +1,69 @@
 import {
-  ActionIcon,
-  Badge,
   Box,
   Button,
   Card,
+  Center,
   Container,
+  Divider,
   Flex,
   Group,
-  Input,
+  Loader,
   NumberFormatter,
-  NumberInput,
   Select,
   Stack,
   Text,
-  TextInput,
   Title,
-  Tooltip,
+  useMantineColorScheme,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { MonthPickerInput } from '@mantine/dates';
+import { useMediaQuery } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import {
   IconCalendar,
   IconDownload,
-  IconEdit,
+  IconFileSearch,
   IconFilter,
-  IconPlus,
-  IconSearch,
 } from '@tabler/icons-react';
-import { DataTable } from 'mantine-datatable';
-import moment from 'moment';
 import React, { useState } from 'react';
-import { useMutation, useQuery } from 'react-query';
-import ErrorMessage from '../../components/ErrorMessage';
-import {
-  useGetOptionAccounts,
-  useGetOptionCategories,
-  useGetTransactions,
-  usePostTransaction,
-  usePutTransaction,
-} from '../../helpers/apiHelper';
-import { notificationSuccess } from '../../helpers/notificationHelper';
-import usePagination from '../../helpers/usePagination';
-import { DatePickerInput } from '@mantine/dates';
+import logoImage from '../../assets/logo.png';
 import useSizeContainer from '../../helpers/useSizeContainer';
-import { useMediaQuery } from '@mantine/hooks';
-import useDownloadExcel from '../../helpers/useDownloadFile';
+import moment from 'moment';
+import { useQuery } from 'react-query';
+import { useGetReports } from '../../helpers/apiHelper';
+import ErrorMessage from '../../components/ErrorMessage';
 
 function FilterReports({
-  setIsIncome,
-  isLoadingCategories,
-  recordsCategory,
-  setCategory,
-  recordsSubCategory,
-  setSubCategory,
-  rangeDates,
-  setRangeDates,
-  isLoading,
+  setSelectedReport,
+  selectedMonth,
+  selectedReport,
+  setSelectedMonth,
   refetch,
+  isLoading,
 }) {
   return (
     <>
       <Select
-        placeholder="Select Type"
+        placeholder="Select Reports"
+        value={selectedReport}
         data={[
-          { label: 'Credit', value: 'Income' },
-          { label: 'Debit', value: 'Outcome' },
+          { label: 'Cash Flow', value: 'cash-flow' },
+          { label: 'Profit And Loss', value: 'profit-and-loss' },
         ]}
-        onChange={setIsIncome}
-        clearable
+        onChange={setSelectedReport}
       />
-      <Select
-        disabled={isLoadingCategories}
-        placeholder={isLoadingCategories ? 'Loading...' : 'Select Category'}
-        data={recordsCategory}
-        onChange={setCategory}
-        searchable
-        clearable
-      />
-      <Select
-        disabled={isLoadingCategories || recordsSubCategory?.length === 0}
-        placeholder={
-          isLoadingCategories
-            ? 'Loading...'
-            : recordsSubCategory?.length === 0
-            ? 'No Sub Category, Please select another Category'
-            : 'Select Sub Category'
-        }
-        data={recordsSubCategory}
-        onChange={setSubCategory}
-        searchable
-        clearable
-      />
-      <DatePickerInput
-        miw={185}
+      <MonthPickerInput
+        miw={200}
+        maxDate={new Date()}
         leftSection={<IconCalendar size={16} />}
         leftSectionPointerEvents="none"
-        type="range"
-        placeholder="Pick dates range"
-        value={rangeDates}
-        onChange={setRangeDates}
-        clearable
+        placeholder="Select Month"
+        value={selectedMonth}
+        onChange={setSelectedMonth}
       />
       <Button
         onClick={refetch}
         loading={isLoading}
-        leftSection={<IconSearch size={16} />}
+        leftSection={<IconFileSearch size={16} />}
       >
         Search
       </Button>
@@ -112,117 +71,71 @@ function FilterReports({
   );
 }
 
-function Reports() {
-  const [isIncome, setIsIncome] = useState(null);
-  const [category, setCategory] = useState(null);
-  const [subCategory, setSubCategory] = useState(null);
-  const isMobile = useMediaQuery(`(max-width: 1100px)`);
-  const [rangeDates, setRangeDates] = useState([
-    moment().startOf('month'),
-    moment().endOf('month'),
-  ]);
-  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
-  const { page, limit, handlePageChange, handleLimitChange } = usePagination(
-    1,
-    10
+function BuildRow({ isTitle, label, value, bg, fw = 600 }) {
+  return (
+    <Box bg={bg || ''}>
+      <Flex justify="space-between" p="md">
+        {isTitle ? (
+          <>
+            <Text fw={fw}>{label}</Text>
+            {value >= 0 && (
+              <Text fw={fw}>
+                <NumberFormatter
+                  value={value || 0}
+                  prefix="Rp "
+                  decimalScale={2}
+                  thousandSeparator="."
+                  decimalSeparator=","
+                />
+              </Text>
+            )}
+          </>
+        ) : (
+          <>
+            <Text>{label}</Text>
+            <NumberFormatter
+              value={value || 0}
+              prefix="Rp "
+              decimalScale={2}
+              thousandSeparator="."
+              decimalSeparator=","
+            />
+          </>
+        )}
+      </Flex>
+      <Divider />
+    </Box>
   );
-  const {
-    loading: loadingDownload,
-    error: errorDownload,
-    downloadExcelFile,
-  } = useDownloadExcel('/finance/report', {
-    fileName: 'report-transactions',
-    query: {
-      limit,
-      page,
-      is_excel: true,
-      ...(isIncome === 'Income' && { is_income: true }),
-      ...(isIncome === 'Outcome' && { is_income: false }),
-      ...(category && { category_id: category }),
-      ...(subCategory && { sub_category_id: subCategory }),
-      ...(rangeDates.every((el) => el !== null) && {
-        start_date: `${moment(rangeDates[0]).format('YYYY-MM-DD')}T00:00:00Z`,
-        end_date: `${moment(rangeDates[1]).format('YYYY-MM-DD')}T00:00:00Z`,
-      }),
-    },
-  });
+}
+
+function Reports() {
+  const { colorScheme } = useMantineColorScheme();
+  const isMobile = useMediaQuery(`(max-width: 1100px)`);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedReport, setSelectedReport] = useState('profit-and-loss');
+  const sizeContainer = useSizeContainer((state) => state.sizeContainer);
+
+  const isDark = colorScheme === 'dark';
+  const startMonth = moment(selectedMonth).startOf('month');
+  const endMonth = moment(selectedMonth).endOf('month');
+
+  const colorTitle1 = isDark ? 'dark.5' : 'gray.1';
+  const colorTitle2 = isDark ? 'dark.7' : 'gray.3';
+  const colorTitle3 = isDark ? 'dark.9' : 'gray.5';
 
   const { data, isLoading, refetch, error } = useQuery(
-    ['report-transactions', page, limit],
+    ['reports-cash-flow'],
     () =>
-      useGetTransactions({
-        limit,
-        page,
-        ...(isIncome === 'Income' && { is_income: true }),
-        ...(isIncome === 'Outcome' && { is_income: false }),
-        ...(category && { category_id: category }),
-        ...(subCategory && { sub_category_id: subCategory }),
-        ...(rangeDates.every((el) => el !== null) && {
-          start_date: `${moment(rangeDates[0]).format('YYYY-MM-DD')}T00:00:00Z`,
-          end_date: `${moment(rangeDates[1]).format('YYYY-MM-DD')}T00:00:00Z`,
-        }),
-      }),
-    {
-      onSuccess: () => {
-        modals.closeAll();
-      },
-    }
+      useGetReports({
+        start_date: `${startMonth.format('YYYY-MM-DD')}T00:00:00Z`,
+        end_date: `${endMonth.format('YYYY-MM-DD')}T00:00:00Z`,
+        report_name: selectedReport,
+      })
   );
 
-  const { data: optionCategories, isLoading: isLoadingCategories } = useQuery(
-    ['categories'],
-    () => useGetOptionCategories()
-  );
-
-  const records = data?.response?.data.map((item) => ({
-    id: item.id,
-    amount: item.amount,
-    is_income: item.list_category?.is_income,
-    category: item.list_category?.name,
-    sub_category: item.list_sub_category?.name,
-    bank_name: item.list_account?.bank_name,
-    description: item.description,
-    created_at: item.created_at,
-    account_id: item.list_account?.id,
-    category_id: item.list_category?.id,
-    sub_category_id: item.list_sub_category?.id,
-    reference_number: item.reference_number,
-    created_by: item.list_employee?.email,
-  }));
-
-  const recordsCategory = [
-    ...(isIncome === 'Income' || isIncome === null
-      ? [
-          {
-            group: 'Credit',
-            items: (optionCategories?.response || [])
-              .filter((category) => category.is_income === true)
-              .map(({ id, name }) => ({ value: id, label: name })),
-          },
-        ]
-      : []),
-
-    ...(isIncome === 'Outcome' || isIncome === null
-      ? [
-          {
-            group: 'Debit',
-            items: (optionCategories?.response || [])
-              .filter((category) => category.is_income === false)
-              .map(({ id, name }) => ({ value: id, label: name })),
-          },
-        ]
-      : []),
-  ];
-
-  const findSubCategory = optionCategories?.response.find(
-    ({ id }) => id === category
-  );
-
-  const recordsSubCategory = findSubCategory?.list_transaction_sub_category.map(
-    ({ id, name }) => ({
-      value: id,
-      label: name,
-    })
+  const dataIncome = data?.response?.find((el) => el.headers === 'income');
+  const dataOperationalExpenses = data?.response?.find(
+    (el) => el.headers === 'operational-expenses'
   );
 
   const handleFilter = () => {
@@ -235,16 +148,12 @@ function Reports() {
       children: (
         <Stack gap="md">
           <FilterReports
-            setIsIncome={setIsIncome}
-            isLoadingCategories={isLoadingCategories}
-            recordsCategory={recordsCategory}
-            setCategory={setCategory}
-            recordsSubCategory={recordsSubCategory}
-            setSubCategory={setSubCategory}
-            rangeDates={rangeDates}
-            setRangeDates={setRangeDates}
             refetch={refetch}
             isLoading={isLoading}
+            selectedMonth={selectedMonth}
+            selectedReport={selectedReport}
+            setSelectedMonth={setSelectedMonth}
+            setSelectedReport={setSelectedReport}
           />
         </Stack>
       ),
@@ -269,67 +178,20 @@ function Reports() {
           </Button>
         ) : (
           <Flex gap="sm">
-            <Select
-              placeholder="Select Type"
-              data={[
-                { label: 'Credit', value: 'Income' },
-                { label: 'Debit', value: 'Outcome' },
-              ]}
-              onChange={setIsIncome}
-              clearable
+            <FilterReports
+              refetch={refetch}
+              isLoading={isLoading}
+              selectedMonth={selectedMonth}
+              selectedReport={selectedReport}
+              setSelectedMonth={setSelectedMonth}
+              setSelectedReport={setSelectedReport}
             />
-            <Select
-              disabled={isLoadingCategories}
-              placeholder={
-                isLoadingCategories ? 'Loading...' : 'Select Category'
-              }
-              data={recordsCategory}
-              onChange={setCategory}
-              searchable
-              clearable
-            />
-            <Select
-              disabled={isLoadingCategories || recordsSubCategory?.length === 0}
-              placeholder={
-                isLoadingCategories
-                  ? 'Loading...'
-                  : recordsSubCategory?.length === 0
-                  ? 'No Sub Category, Please select another Category'
-                  : 'Select Sub Category'
-              }
-              data={recordsSubCategory}
-              onChange={setSubCategory}
-              searchable
-              clearable
-            />
-            <DatePickerInput
-              miw={185}
-              leftSection={<IconCalendar size={16} />}
-              leftSectionPointerEvents="none"
-              type="range"
-              placeholder="Pick dates range"
-              value={rangeDates}
-              onChange={setRangeDates}
-              clearable
-            />
-            <Button
-              onClick={refetch}
-              loading={isLoading}
-              leftSection={<IconSearch size={16} />}
-            >
-              Search
-            </Button>
           </Flex>
         )}
         <Group justify="flex-end">
-          {errorDownload && (
-            <Text size="xs" c="red">
-              Error: {errorDownload}
-            </Text>
-          )}
           <Button
-            onClick={downloadExcelFile}
-            loading={loadingDownload}
+            // onClick={downloadExcelFile}
+            // loading={loadingDownload}
             leftSection={<IconDownload size={14} />}
             variant="default"
           >
@@ -337,79 +199,79 @@ function Reports() {
           </Button>
         </Group>
       </Group>
-      <Card withBorder p="0" radius="sm">
-        <DataTable
-          verticalSpacing="md"
-          minHeight={400}
-          fetching={isLoading}
-          totalRecords={data?.response?.total || 0}
-          recordsPerPage={limit}
-          page={page}
-          onPageChange={handlePageChange}
-          recordsPerPageOptions={[10, 20, 50]}
-          onRecordsPerPageChange={handleLimitChange}
-          noRecordsText={
-            error ? `Error: ${error?.message}` : 'No records found'
-          }
-          records={records}
-          columns={[
-            { accessor: 'id', hidden: true },
-            {
-              accessor: 'index',
-              title: 'No',
-              textAlign: 'center',
-              width: 40,
-              render: (record) =>
-                records.indexOf(record) + 1 + limit * (page - 1),
-            },
-            {
-              accessor: 'is_income',
-              title: 'Type',
-              width: 100,
-              render: ({ is_income }) => (
-                <Badge
-                  variant="outline"
-                  radius="xl"
-                  color={is_income ? 'green' : 'red'}
-                >
-                  {is_income ? 'Credit' : 'Debit'}
-                </Badge>
-              ),
-            },
-            { accessor: 'bank_name' },
-            { accessor: 'category' },
-            { accessor: 'sub_category' },
-            {
-              accessor: 'amount',
-              noWrap: true,
-              render: ({ amount }) => (
-                <NumberFormatter
-                  value={amount}
-                  prefix="Rp "
-                  decimalScale={2}
-                  thousandSeparator="."
-                  decimalSeparator=","
-                />
-              ),
-            },
-            {
-              accessor: 'description',
-              ...(sizeContainer !== 'fluid' && { width: 250, ellipsis: true }),
-            },
-            {
-              accessor: 'reference_number',
-              ...(sizeContainer !== 'fluid' && { width: 150, ellipsis: true }),
-            },
-            { accessor: 'created_by', noWrap: true },
-            {
-              accessor: 'created_at',
-              noWrap: true,
-              render: ({ created_at }) => (
-                <Text>{moment(created_at).format('YYYY-MM-DD HH:mm')}</Text>
-              ),
-            },
-          ]}
-        />
+      <Card withBorder p={{ base: 'xs', md: 'xl' }} radius="sm">
+        <Container w="100%" maw={1100} p={0}>
+          {isLoading && (
+            <Center mih={300}>
+              <Loader />
+            </Center>
+          )}
+          {!isLoading && error && (
+            <Center mih={300}>
+              <ErrorMessage message={error?.message} />
+            </Center>
+          )}
+          {!isLoading && !error && (
+            <>
+              <Title order={2} mb="sm" ta="center">
+                PT Dwiguna Raja Semesta
+              </Title>
+              <Text fz={14} c="dimmed" ta="center">
+                Profit and Loss Reports
+              </Text>
+              <Divider mt="xl" mb="sm" />
+              <Title order={4} mb="xl" ta="center">
+                {startMonth.format('DD MMMM YYYY')} -{' '}
+                {endMonth.format('DD MMMM YYYY')}
+              </Title>
+              <BuildRow isTitle={true} label="Income" bg={colorTitle1} />
+              {dataIncome?.data?.map(({ name, amount }) => (
+                <BuildRow label={name} value={amount} />
+              ))}
+              <BuildRow
+                isTitle={true}
+                bg={colorTitle2}
+                label="Total Income"
+                value={dataIncome?.data?.reduce(
+                  (acc, el) => acc + el.amount,
+                  0
+                )}
+              />
+              <Box h={20} />
+              <BuildRow
+                isTitle={true}
+                bg={colorTitle1}
+                label="Operational Expenses"
+              />
+              {dataOperationalExpenses?.data?.map(({ name, amount }) => (
+                <BuildRow label={name} value={amount} />
+              ))}
+              <BuildRow
+                isTitle={true}
+                bg={colorTitle2}
+                label="Total Operational Expenses"
+                value={dataOperationalExpenses?.data?.reduce(
+                  (acc, el) => acc + el.amount,
+                  0
+                )}
+              />
+              <Box h={30} />
+              <BuildRow
+                isTitle={true}
+                bg={colorTitle3}
+                label="Net Profit"
+                fw={800}
+                value={
+                  dataIncome?.data?.reduce((acc, el) => acc + el.amount, 0) -
+                  dataOperationalExpenses?.data?.reduce(
+                    (acc, el) => acc + el.amount,
+                    0
+                  )
+                }
+              />
+            </>
+          )}
+        </Container>
       </Card>
     </Container>
   );

@@ -154,6 +154,12 @@ export const usePutClient = async (body) => {
   return fetchRequest(`/finance/settings/client`, 'PUT', { body });
 };
 
+export const useGetReports = async (query) => {
+  return fetchRequest(`/finance/report/cash-flow/sub-category`, 'GET', {
+    query,
+  });
+};
+
 export const useGetOptionCategories = async () => {
   return fetchRequest(`/options/transaction-category`, 'GET');
 };
