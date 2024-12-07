@@ -33,6 +33,7 @@ import { useGetReports } from '../../helpers/apiHelper';
 import ErrorMessage from '../../components/ErrorMessage';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import PrintReports from './PrintReports';
 
 function FilterReports({
   setSelectedReport,
@@ -231,7 +232,7 @@ function Reports() {
         </Group>
       </Group>
       <Card withBorder p={{ base: 'xs', md: 'xl' }} radius="sm">
-        <Container w="100%" maw={1100} p={0} id="reports-to-capture">
+        <Container w="100%" maw={1100} p={0}>
           {isLoading && (
             <Center mih={300}>
               <Loader />
@@ -247,7 +248,7 @@ function Reports() {
               <Title order={2} mb="sm" ta="center">
                 PT Dwiguna Raja Semesta
               </Title>
-              <Text fz={14} c="dimmed" ta="center">
+              <Text fz={18} c="dimmed" ta="center">
                 Profit and Loss Reports
               </Text>
               <Divider mt="xl" mb="sm" />
@@ -303,6 +304,11 @@ function Reports() {
             </>
           )}
         </Container>
+        <PrintReports
+          selectedMonth={selectedMonth}
+          dataIncome={dataIncome}
+          dataOperationalExpenses={dataOperationalExpenses}
+        />
       </Card>
     </Container>
   );
