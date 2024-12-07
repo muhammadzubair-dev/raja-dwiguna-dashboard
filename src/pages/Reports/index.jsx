@@ -31,6 +31,8 @@ import moment from 'moment';
 import { useQuery } from 'react-query';
 import { useGetReports } from '../../helpers/apiHelper';
 import ErrorMessage from '../../components/ErrorMessage';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 function FilterReports({
   setSelectedReport,
@@ -160,6 +162,36 @@ function Reports() {
     });
   };
 
+  const handleExportToPDF = () => {
+    const invoiceElement = document.getElementById('reports-to-capture');
+
+    html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/png');
+
+      const imgWidth = 190; // Width of the PDF (A4)
+      const pageHeight = 297; // Height of the PDF (A4)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 10; // Start position
+
+      // Add image to the PDF and handle multi-page content
+      while (heightLeft > 0) {
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+        if (heightLeft > 0) {
+          pdf.addPage();
+          position = 0;
+        }
+      }
+
+      // Open a new window for preview and allow printing
+      const pdfPreview = pdf.output('bloburl');
+      window.open(pdfPreview, '_blank', 'width=800,height=600');
+    });
+  };
+
   return (
     <Container
       size="xl"
@@ -190,8 +222,7 @@ function Reports() {
         )}
         <Group justify="flex-end">
           <Button
-            // onClick={downloadExcelFile}
-            // loading={loadingDownload}
+            onClick={handleExportToPDF}
             leftSection={<IconDownload size={14} />}
             variant="default"
           >
@@ -200,7 +231,7 @@ function Reports() {
         </Group>
       </Group>
       <Card withBorder p={{ base: 'xs', md: 'xl' }} radius="sm">
-        <Container w="100%" maw={1100} p={0}>
+        <Container w="100%" maw={1100} p={0} id="reports-to-capture">
           {isLoading && (
             <Center mih={300}>
               <Loader />
