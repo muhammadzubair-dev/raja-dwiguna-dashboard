@@ -304,6 +304,7 @@ function Reports() {
             </>
           )}
         </Container>
+        <Box h={50} />
         <PrintReports
           selectedMonth={selectedMonth}
           dataIncome={dataIncome}
