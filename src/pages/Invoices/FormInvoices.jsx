@@ -14,6 +14,7 @@ import {
   Group,
   NumberFormatter,
   NumberInput,
+  Radio,
   Select,
   Stack,
   Text,
@@ -236,7 +237,7 @@ function FormInvoices() {
   const data = location.state?.data;
   const modeDetail = location.state?.mode === 'detail';
   const modeEdit = location.state?.mode === 'edit' || !modeDetail;
-
+  const dataWithWHT = data?.with_holding_tax > 0 ? 'yes' : 'no';
   const isAdd = !data;
   const [itemsFromData, setItemsFromData] = useState(
     data?.list_invoice_item || []
@@ -245,6 +246,7 @@ function FormInvoices() {
   const [items, setItems] = useState([]);
   const [files, setFiles] = useState([]);
   const [deletedFiles, setDeletedFiles] = useState([]);
+  const [withWHT, setWithWHT] = useState(dataWithWHT);
   const form = useForm({
     mode: 'controlled',
     initialValues: {
@@ -399,44 +401,49 @@ function FormInvoices() {
       (total, item) => total + item.amount,
       0
     );
-    const body = {
-      ...values,
-      ...(isAdd && {
-        id: uuidv4(),
-        list_invoice_item: items.map((item) => ({
-          description: item.description,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          unit_type: item.unit_type,
-          amount: item.amount,
-        })),
-      }),
-      ...(!isAdd && {
-        id: data?.id,
-        delete_invoice_item: itemsDeleted,
-        update_invoice_item: itemsFromData.map((item) => ({
-          id: item.id,
-          description: item.description,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          unit_type: item.unit_type,
-          amount: item.amount,
-        })),
-        insert_invoice_item: items.map((item) => ({
-          description: item.description,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          unit_type: item.unit_type,
-          amount: item.amount,
-        })),
-      }),
-      reference_number: dataIN?.response,
-      invoice_date: `${moment(invoice_date).format('YYYY-MM-DD')}T00:00:00Z`,
-      with_holding_tax: total * 0.02, // 2% is equivalent to multiplying by 0.02
-      due_date: `${moment(due_date).format('YYYY-MM-DD')}T00:00:00Z`,
-      total: total - total * 0.02,
-    };
-    mutate(body);
+
+    if (total <= 0) {
+      notificationError('Total must be greater than 0');
+    } else {
+      const body = {
+        ...values,
+        ...(isAdd && {
+          id: uuidv4(),
+          list_invoice_item: items.map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            unit_type: item.unit_type,
+            amount: item.amount,
+          })),
+        }),
+        ...(!isAdd && {
+          id: data?.id,
+          delete_invoice_item: itemsDeleted,
+          update_invoice_item: itemsFromData.map((item) => ({
+            id: item.id,
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            unit_type: item.unit_type,
+            amount: item.amount,
+          })),
+          insert_invoice_item: items.map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            unit_type: item.unit_type,
+            amount: item.amount,
+          })),
+        }),
+        reference_number: dataIN?.response,
+        invoice_date: `${moment(invoice_date).format('YYYY-MM-DD')}T00:00:00Z`,
+        with_holding_tax: withWHT === 'yes' ? total * 0.02 : 0, // 2% is equivalent to multiplying by 0.02
+        due_date: `${moment(due_date).format('YYYY-MM-DD')}T00:00:00Z`,
+        total: withWHT === 'yes' ? total - total * 0.02 : total,
+      };
+      mutate(body);
+    }
   };
 
   const handleAddItem = () => {
@@ -586,6 +593,7 @@ function FormInvoices() {
                     label="Due Date"
                     key={form.key('due_date')}
                     {...form.getInputProps('due_date')}
+                    withAsterisk
                     // value={dueDate}
                     // onChange={setDueDate}
                   />
@@ -637,6 +645,19 @@ function FormInvoices() {
                   />
                 </Grid.Col>
               </Grid>
+              <Radio.Group
+                name="wht"
+                label="WHT 23 (2%)"
+                mb="lg"
+                value={withWHT}
+                onChange={setWithWHT}
+                withAsterisk
+              >
+                <Group mt="xs">
+                  <Radio value="yes" label="Yes" />
+                  <Radio value="no" label="No" />
+                </Group>
+              </Radio.Group>
               <UploadImage
                 disableActions={modeDetail}
                 hasDownload={modeDetail}
@@ -825,42 +846,51 @@ function FormInvoices() {
                   <Divider mt="md" mb="xs" />
                   <Group justify="space-between">
                     <Box>
-                      <Text>WHT 23 (2%)</Text>
+                      {withWHT === 'yes' && <Text>WHT 23 (2%)</Text>}
                       <Title order={4}>Total</Title>
                     </Box>
                     <Flex direction="column" align="flex-end">
-                      <Text>
-                        (
-                        <NumberFormatter
-                          value={
-                            [...itemsFromData, ...items].reduce(
-                              (acc, item) =>
-                                acc + item.quantity * item.unit_price,
-                              0
-                            ) * 0.02
-                          }
-                          prefix="Rp "
-                          decimalScale={2}
-                          thousandSeparator="."
-                          decimalSeparator=","
-                        />
-                        )
-                      </Text>
+                      {withWHT === 'yes' && (
+                        <Text>
+                          (
+                          <NumberFormatter
+                            value={
+                              [...itemsFromData, ...items].reduce(
+                                (acc, item) =>
+                                  acc + item.quantity * item.unit_price,
+                                0
+                              ) * 0.02
+                            }
+                            prefix="Rp "
+                            decimalScale={2}
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                          )
+                        </Text>
+                      )}
+
                       <Title order={4}>
                         <NumberFormatter
                           value={
-                            [...itemsFromData, ...items].reduce(
-                              (acc, item) =>
-                                acc + item.quantity * item.unit_price,
-                              0
-                            ) -
-                            [...itemsFromData, ...items].reduce(
-                              (acc, item) =>
-                                acc + item.quantity * item.unit_price,
-                              0
-                            ) *
-                              0.02 -
-                            (dataTotalPaid?.response?.payment || 0)
+                            withWHT === 'yes'
+                              ? [...itemsFromData, ...items].reduce(
+                                  (acc, item) =>
+                                    acc + item.quantity * item.unit_price,
+                                  0
+                                ) -
+                                [...itemsFromData, ...items].reduce(
+                                  (acc, item) =>
+                                    acc + item.quantity * item.unit_price,
+                                  0
+                                ) *
+                                  0.02 -
+                                (dataTotalPaid?.response?.payment || 0)
+                              : [...itemsFromData, ...items].reduce(
+                                  (acc, item) =>
+                                    acc + item.quantity * item.unit_price,
+                                  0
+                                )
                           }
                           prefix="Rp "
                           decimalScale={2}

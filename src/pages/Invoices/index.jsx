@@ -579,6 +579,7 @@ function Invoices() {
     sub_category_id: item.list_sub_category?.id,
     created_by: item.list_employee.email,
     list_invoice_item: item.list_invoice_item,
+    with_holding_tax: item.with_holding_tax,
   }));
 
   const handleEditInvoice = (data) => {

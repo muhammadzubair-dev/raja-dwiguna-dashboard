@@ -102,8 +102,6 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
     0
   );
 
-  console.log(JSON.stringify(dataOperational, null, 2));
-
   return (
     <>
       <Title order={2} mb="sm" ta="center">
