@@ -89,6 +89,21 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
   );
   const dataFunding = data?.find((el) => el.headers === 'funding-activities');
 
+  const totalOperational = dataOperational?.data?.reduce(
+    (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
+    0
+  );
+  const totalInvestment = dataInvestment?.data?.reduce(
+    (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
+    0
+  );
+  const totalFunding = dataFunding?.data?.reduce(
+    (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
+    0
+  );
+
+  console.log(JSON.stringify(dataOperational, null, 2));
+
   return (
     <>
       <Title order={2} mb="sm" ta="center">
@@ -109,14 +124,53 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
       {dataOperational?.data?.map(({ name, amount, is_income }) => (
         <BuildRow key={name} label={name} value={amount} isIncome={is_income} />
       ))}
+      <BuildRow
+        isTitle={true}
+        bg={colorTitle2}
+        label="Net Cash from Operational Activities"
+        value={totalOperational}
+        isIncome={totalOperational >= 0}
+      />
+      <Box h={20} />
+
       <BuildRow isTitle={true} label="Investment Activities" bg={colorTitle1} />
       {dataInvestment?.data?.map(({ name, amount, is_income }) => (
         <BuildRow key={name} label={name} value={amount} isIncome={is_income} />
       ))}
+      <BuildRow
+        isTitle={true}
+        bg={colorTitle2}
+        label="Net Cash from Investment Activities"
+        value={totalInvestment}
+        isIncome={totalInvestment >= 0}
+      />
+      <Box h={20} />
+
       <BuildRow isTitle={true} label="Funding Activities" bg={colorTitle1} />
       {dataFunding?.data?.map(({ name, amount, is_income }) => (
         <BuildRow key={name} label={name} value={amount} isIncome={is_income} />
       ))}
+      <BuildRow
+        isTitle={true}
+        bg={colorTitle2}
+        label="Net Cash from Funding Activities"
+        value={totalFunding}
+        isIncome={totalFunding >= 0}
+      />
+      <Box h={30} />
+
+      <BuildRow
+        isTitle={true}
+        bg={colorTitle3}
+        label="Net Increase in Cash"
+        fw={800}
+        value={totalOperational + totalInvestment + totalFunding}
+        isIncome={totalOperational + totalInvestment + totalFunding >= 0}
+      />
+
+      {/* net increase in cash */}
+      {/* cash at the beginning of the period */}
+      {/* cash at the end of the period */}
     </>
   );
 }
