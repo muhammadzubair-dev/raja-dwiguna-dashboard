@@ -88,7 +88,7 @@ function PrintProfitAndLoss({
           PT Dwiguna Raja Semesta
         </Title>
         <Text fz={18} c="#868e96" ta="center">
-          Profit and Loss Reports
+          Profit and Loss Report
         </Text>
         <Divider mt="xl" mb="sm" c="#dee2e6" />
         <Title c="#000" order={4} mb="xl" ta="center">

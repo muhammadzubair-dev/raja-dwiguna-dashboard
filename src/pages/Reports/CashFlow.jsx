@@ -35,7 +35,7 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import PrintProfitAndLoss from './PrintProfitAndLoss';
 
-function BuildRow({ isTitle, label, value, bg, fw = 600 }) {
+function BuildRow({ isTitle, label, value, bg, fw = 600, isIncome = false }) {
   return (
     <Box bg={bg || ''}>
       <Flex justify="space-between" p="md">
@@ -46,7 +46,8 @@ function BuildRow({ isTitle, label, value, bg, fw = 600 }) {
               <Text fw={fw}>
                 <NumberFormatter
                   value={value || 0}
-                  prefix="Rp "
+                  prefix={`${isIncome ? 'Rp ' : '( Rp '}`}
+                  suffix={isIncome ? '' : ' )'}
                   decimalScale={2}
                   thousandSeparator="."
                   decimalSeparator=","
@@ -59,7 +60,8 @@ function BuildRow({ isTitle, label, value, bg, fw = 600 }) {
             <Text>{label}</Text>
             <NumberFormatter
               value={value || 0}
-              prefix="Rp "
+              prefix={`${isIncome ? 'Rp ' : '( Rp '}`}
+              suffix={isIncome ? '' : ' )'}
               decimalScale={2}
               thousandSeparator="."
               decimalSeparator=","
@@ -93,12 +95,28 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
         PT Dwiguna Raja Semesta
       </Title>
       <Text fz={18} c="dimmed" ta="center">
-        Cash Flow Reports
+        Cash Flow Report
       </Text>
       <Divider mt="xl" mb="sm" />
       <Title order={4} mb="xl" ta="center">
         {startMonth.format('DD MMMM YYYY')} - {endMonth.format('DD MMMM YYYY')}
       </Title>
+      <BuildRow
+        isTitle={true}
+        label="Operational Activities"
+        bg={colorTitle1}
+      />
+      {dataOperational?.data?.map(({ name, amount, is_income }) => (
+        <BuildRow key={name} label={name} value={amount} isIncome={is_income} />
+      ))}
+      <BuildRow isTitle={true} label="Investment Activities" bg={colorTitle1} />
+      {dataInvestment?.data?.map(({ name, amount, is_income }) => (
+        <BuildRow key={name} label={name} value={amount} isIncome={is_income} />
+      ))}
+      <BuildRow isTitle={true} label="Funding Activities" bg={colorTitle1} />
+      {dataFunding?.data?.map(({ name, amount, is_income }) => (
+        <BuildRow key={name} label={name} value={amount} isIncome={is_income} />
+      ))}
     </>
   );
 }

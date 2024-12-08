@@ -90,7 +90,7 @@ function ProfitAndLoss({ startMonth, selectedMonth, endMonth, data }) {
         PT Dwiguna Raja Semesta
       </Title>
       <Text fz={18} c="dimmed" ta="center">
-        Profit and Loss Reports
+        Profit and Loss Report
       </Text>
       <Divider mt="xl" mb="sm" />
       <Title order={4} mb="xl" ta="center">

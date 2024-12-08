@@ -75,46 +75,10 @@ function FilterReports({
   );
 }
 
-function BuildRow({ isTitle, label, value, bg, fw = 600 }) {
-  return (
-    <Box bg={bg || ''}>
-      <Flex justify="space-between" p="md">
-        {isTitle ? (
-          <>
-            <Text fw={fw}>{label}</Text>
-            {value >= 0 && (
-              <Text fw={fw}>
-                <NumberFormatter
-                  value={value || 0}
-                  prefix="Rp "
-                  decimalScale={2}
-                  thousandSeparator="."
-                  decimalSeparator=","
-                />
-              </Text>
-            )}
-          </>
-        ) : (
-          <>
-            <Text>{label}</Text>
-            <NumberFormatter
-              value={value || 0}
-              prefix="Rp "
-              decimalScale={2}
-              thousandSeparator="."
-              decimalSeparator=","
-            />
-          </>
-        )}
-      </Flex>
-      <Divider />
-    </Box>
-  );
-}
-
 function Reports() {
   const isMobile = useMediaQuery(`(max-width: 1100px)`);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [currentReport, setCurrentReport] = useState('profit-and-loss');
   const [selectedReport, setSelectedReport] = useState('profit-and-loss');
   const sizeContainer = useSizeContainer((state) => state.sizeContainer);
 
@@ -128,12 +92,12 @@ function Reports() {
         start_date: `${startMonth.format('YYYY-MM-DD')}T00:00:00Z`,
         end_date: `${endMonth.format('YYYY-MM-DD')}T00:00:00Z`,
         report_name: selectedReport,
-      })
-  );
-
-  const dataIncome = data?.response?.find((el) => el.headers === 'income');
-  const dataOperationalExpenses = data?.response?.find(
-    (el) => el.headers === 'operational-expenses'
+      }),
+    {
+      onSuccess: () => {
+        setCurrentReport(selectedReport);
+      },
+    }
   );
 
   const handleFilter = () => {
@@ -160,7 +124,7 @@ function Reports() {
 
   const handleExportToPDF = () => {
     const reportElement = document.getElementById(
-      `${selectedReport}-to-capture`
+      `${currentReport}-to-capture`
     );
 
     html2canvas(reportElement, { scale: 2 }).then((canvas) => {
@@ -242,7 +206,7 @@ function Reports() {
           )}
           {!isLoading && !isFetching && !error && (
             <>
-              {selectedReport === 'profit-and-loss' && (
+              {currentReport === 'profit-and-loss' && (
                 <ProfitAndLoss
                   startMonth={startMonth}
                   selectedMonth={selectedMonth}
@@ -250,7 +214,7 @@ function Reports() {
                   data={data?.response || []}
                 />
               )}
-              {selectedReport === 'cash-flow' && (
+              {currentReport === 'cash-flow' && (
                 <CashFlow
                   startMonth={startMonth}
                   selectedMonth={selectedMonth}
