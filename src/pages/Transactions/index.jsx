@@ -48,6 +48,7 @@ import {
   usePutTransaction,
   useGetTransactionImage,
   useDeleteTransactionImages,
+  useGetDashboardBalance,
 } from '../../helpers/apiHelper';
 import {
   notificationError,
@@ -62,7 +63,7 @@ import { v4 as uuidv4 } from 'uuid';
 import useFileUpload from '../../helpers/useUploadFile';
 import ImageFullScreen from '../../components/ImageFullScreen';
 
-function AddAndEditTransaction({ data, refetchTransactions }) {
+function AddAndEditTransaction({ data, refetchTransactions, refetchBalance }) {
   const isAdd = data ? false : true;
   const [files, setFiles] = useState([]);
   const [deletedFiles, setDeletedFiles] = useState([]);
@@ -185,6 +186,7 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
 
           if (res?.code === 200) {
             refetchTransactions();
+            refetchBalance();
             modals.closeAll();
             notificationSuccess(
               `Transaction ${isAdd ? 'added' : 'updated'} successfully`
@@ -516,6 +518,17 @@ function Transactions() {
     () => useGetOptionCategories()
   );
 
+  const {
+    data: dataBalance,
+    isLoading: isLoadingBalance,
+    refetch: refetchBalance,
+  } = useQuery(['dashboard-balance'], () =>
+    useGetDashboardBalance({
+      start_date: `${moment().startOf('month').format('YYYY-MM-DD')}T00:00:00Z`,
+      end_date: `${moment().endOf('month').format('YYYY-MM-DD')}T00:00:00Z`,
+    })
+  );
+
   const records = data?.response?.data.map((item) => ({
     id: item.id,
     amount: item.amount,
@@ -541,7 +554,11 @@ function Transactions() {
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
-        <AddAndEditTransaction data={data} refetchTransactions={refetch} />
+        <AddAndEditTransaction
+          data={data}
+          refetchTransactions={refetch}
+          refetchBalance={refetchBalance}
+        />
       ),
     });
   };
@@ -552,7 +569,12 @@ function Transactions() {
       centered: true,
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: <AddAndEditTransaction refetchTransactions={refetch} />,
+      children: (
+        <AddAndEditTransaction
+          refetchTransactions={refetch}
+          refetchBalance={refetchBalance}
+        />
+      ),
     });
   };
 
@@ -670,6 +692,24 @@ function Transactions() {
           </Button>
         </Group>
       </Group>
+      <Group gap="xs" mb="xs" ml="xs" justify="flex-end">
+        <Text>Balance</Text>
+
+        {isLoadingBalance ? (
+          <Skeleton h={24} w={150} />
+        ) : (
+          <Text fw={800}>
+            :{' '}
+            <NumberFormatter
+              value={dataBalance?.response?.total || 0}
+              prefix="Rp "
+              decimalScale={2}
+              thousandSeparator="."
+              decimalSeparator=","
+            />
+          </Text>
+        )}
+      </Group>
       <Card withBorder p="0" radius="sm">
         <DataTable
           verticalSpacing="md"
@@ -709,6 +749,14 @@ function Transactions() {
                 </Badge>
               ),
             },
+            {
+              accessor: 'transaction_date',
+              title: 'Transaction Date',
+              noWrap: true,
+              render: ({ transaction_date }) => (
+                <Text>{moment(transaction_date).format('YYYY-MM-DD')}</Text>
+              ),
+            },
             { accessor: 'bank_name' },
             { accessor: 'category' },
             { accessor: 'sub_category' },
@@ -725,20 +773,20 @@ function Transactions() {
                 />
               ),
             },
-            {
-              accessor: 'current_balance',
-              title: 'Balance',
-              noWrap: true,
-              render: ({ current_balance }) => (
-                <NumberFormatter
-                  value={current_balance}
-                  prefix="Rp "
-                  decimalScale={2}
-                  thousandSeparator="."
-                  decimalSeparator=","
-                />
-              ),
-            },
+            // {
+            //   accessor: 'current_balance',
+            //   title: 'Balance',
+            //   noWrap: true,
+            //   render: ({ current_balance }) => (
+            //     <NumberFormatter
+            //       value={current_balance}
+            //       prefix="Rp "
+            //       decimalScale={2}
+            //       thousandSeparator="."
+            //       decimalSeparator=","
+            //     />
+            //   ),
+            // },
             // {
             //   accessor: 'transaction_date',
             //   title: 'Date Transaction',
@@ -756,14 +804,7 @@ function Transactions() {
               ...(sizeContainer !== 'fluid' && { width: 250, ellipsis: true }),
             },
             { accessor: 'created_by', noWrap: true },
-            {
-              accessor: 'transaction_date',
-              title: 'Transaction Date',
-              noWrap: true,
-              render: ({ transaction_date }) => (
-                <Text>{moment(transaction_date).format('YYYY-MM-DD')}</Text>
-              ),
-            },
+
             {
               accessor: 'created_at',
               noWrap: true,
