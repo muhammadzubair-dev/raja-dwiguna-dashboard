@@ -434,6 +434,16 @@ function ViewImages({ id }) {
     }
   );
 
+  const handleDownload = () => {
+    const imageUrl = `https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${selectedImage}`;
+    const a = document.createElement('a');
+    a.href = imageUrl;
+    a.download = selectedImage;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   const dataNotFound = data?.response?.length === 0;
 
   return (
@@ -452,13 +462,28 @@ function ViewImages({ id }) {
 
       {!isLoading && !error && !dataNotFound && (
         <>
-          <ImageFullScreen
-            w="100%"
-            h={400}
-            fit="contain"
-            radius="sm"
-            src={`https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${selectedImage}`}
-          />
+          <Box pos="relative">
+            <ImageFullScreen
+              w="100%"
+              h={400}
+              fit="contain"
+              radius="sm"
+              src={`https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${selectedImage}`}
+            />
+            <Tooltip label="Download">
+              <ActionIcon
+                color="blue"
+                size="lg"
+                radius="sm"
+                pos="absolute"
+                right={8}
+                top={8}
+                onClick={handleDownload}
+              >
+                <IconDownload strokeWidth={3} size={18} />
+              </ActionIcon>
+            </Tooltip>
+          </Box>
           <Box h={8} />
           <Group gap="xs">
             {data?.response?.map((item, i) => (

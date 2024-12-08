@@ -638,6 +638,8 @@ function FormInvoices() {
                 </Grid.Col>
               </Grid>
               <UploadImage
+                disableActions={modeDetail}
+                hasDownload={modeDetail}
                 hImage={100}
                 wImage={100}
                 files={files}

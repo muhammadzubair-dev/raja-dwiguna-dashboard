@@ -72,18 +72,17 @@ function BuildRow({ isTitle, label, value, bg, fw = 600 }) {
   );
 }
 
-function ProfitAndLoss({
-  startMonth,
-  selectedMonth,
-  endMonth,
-  dataIncome,
-  dataOperationalExpenses,
-}) {
+function ProfitAndLoss({ startMonth, selectedMonth, endMonth, data }) {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const colorTitle1 = isDark ? 'dark.5' : 'gray.1';
   const colorTitle2 = isDark ? 'dark.7' : 'gray.3';
   const colorTitle3 = isDark ? 'dark.9' : 'gray.5';
+
+  const dataIncome = data?.find((el) => el.headers === 'income');
+  const dataOperationalExpenses = data?.find(
+    (el) => el.headers === 'operational-expenses'
+  );
 
   return (
     <>

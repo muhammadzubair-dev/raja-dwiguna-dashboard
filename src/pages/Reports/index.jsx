@@ -247,8 +247,7 @@ function Reports() {
                   startMonth={startMonth}
                   selectedMonth={selectedMonth}
                   endMonth={endMonth}
-                  dataIncome={dataIncome}
-                  dataOperationalExpenses={dataOperationalExpenses}
+                  data={data?.response || []}
                 />
               )}
               {selectedReport === 'cash-flow' && (
@@ -256,8 +255,7 @@ function Reports() {
                   startMonth={startMonth}
                   selectedMonth={selectedMonth}
                   endMonth={endMonth}
-                  dataIncome={dataIncome}
-                  dataOperationalExpenses={dataOperationalExpenses}
+                  data={data?.response || []}
                 />
               )}
             </>

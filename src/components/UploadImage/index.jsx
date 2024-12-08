@@ -6,6 +6,7 @@ import {
   Indicator,
   Stack,
   Text,
+  Tooltip,
   rem,
 } from '@mantine/core';
 import {
@@ -14,6 +15,7 @@ import {
   IconX,
   IconMinimize,
   IconMinus,
+  IconDownload,
 } from '@tabler/icons-react';
 import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { useState } from 'react';
@@ -27,31 +29,60 @@ function UploadImage(props) {
     hImage = 50,
     wImage = 50,
     disableUpload = false,
+    disableActions = false,
+    hasDownload = false,
   } = props;
 
   const previews = files.map((file, index) => {
     const isImageUrl = typeof file === 'string';
+    const handleDownload = () => {
+      const a = document.createElement('a');
+      a.href = file;
+      a.download = file;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
     return (
       <Box pos="relative">
-        <ActionIcon
-          color="red"
-          size="xs"
-          radius="xl"
-          pos="absolute"
-          right={-8}
-          top={-8}
-          onClick={() => {
-            setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-            if (isImageUrl) {
-              setDeletedFiles((prevFiles) => [
-                ...prevFiles,
-                file.split('/').pop(),
-              ]);
-            }
-          }}
-        >
-          <IconX size={12} />
-        </ActionIcon>
+        {!disableActions && (
+          <ActionIcon
+            color="red"
+            size="xs"
+            radius="sm"
+            pos="absolute"
+            right={0}
+            top={0}
+            onClick={() => {
+              setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+              if (isImageUrl) {
+                setDeletedFiles((prevFiles) => [
+                  ...prevFiles,
+                  file.split('/').pop(),
+                ]);
+              }
+            }}
+          >
+            <IconX size={12} />
+          </ActionIcon>
+        )}
+
+        {hasDownload && (
+          <Tooltip label="Download">
+            <ActionIcon
+              color="blue"
+              size="sm"
+              radius="sm"
+              pos="absolute"
+              right={4}
+              top={4}
+              onClick={handleDownload}
+            >
+              <IconDownload strokeWidth={3} size={14} />
+            </ActionIcon>
+          </Tooltip>
+        )}
 
         <ImageFullScreen
           radius="sm"
