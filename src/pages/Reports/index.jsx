@@ -33,7 +33,8 @@ import { useGetReports } from '../../helpers/apiHelper';
 import ErrorMessage from '../../components/ErrorMessage';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import PrintReports from './PrintReports';
+import ProfitAndLoss from './ProfitAndLoss';
+import CashFlow from './CashFlow';
 
 function FilterReports({
   setSelectedReport,
@@ -112,19 +113,13 @@ function BuildRow({ isTitle, label, value, bg, fw = 600 }) {
 }
 
 function Reports() {
-  const { colorScheme } = useMantineColorScheme();
   const isMobile = useMediaQuery(`(max-width: 1100px)`);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedReport, setSelectedReport] = useState('profit-and-loss');
   const sizeContainer = useSizeContainer((state) => state.sizeContainer);
 
-  const isDark = colorScheme === 'dark';
   const startMonth = moment(selectedMonth).startOf('month');
   const endMonth = moment(selectedMonth).endOf('month');
-
-  const colorTitle1 = isDark ? 'dark.5' : 'gray.1';
-  const colorTitle2 = isDark ? 'dark.7' : 'gray.3';
-  const colorTitle3 = isDark ? 'dark.9' : 'gray.5';
 
   const { data, isLoading, refetch, error, isFetching } = useQuery(
     ['reports-cash-flow'],
@@ -164,9 +159,11 @@ function Reports() {
   };
 
   const handleExportToPDF = () => {
-    const invoiceElement = document.getElementById('reports-to-capture');
+    const reportElement = document.getElementById(
+      `${selectedReport}-to-capture`
+    );
 
-    html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
+    html2canvas(reportElement, { scale: 2 }).then((canvas) => {
       const pdf = new jsPDF('p', 'mm', 'a4');
       const imgData = canvas.toDataURL('image/png');
 
@@ -245,71 +242,28 @@ function Reports() {
           )}
           {!isLoading && !isFetching && !error && (
             <>
-              <Title order={2} mb="sm" ta="center">
-                PT Dwiguna Raja Semesta
-              </Title>
-              <Text fz={18} c="dimmed" ta="center">
-                Profit and Loss Reports
-              </Text>
-              <Divider mt="xl" mb="sm" />
-              <Title order={4} mb="xl" ta="center">
-                {startMonth.format('DD MMMM YYYY')} -{' '}
-                {endMonth.format('DD MMMM YYYY')}
-              </Title>
-              <BuildRow isTitle={true} label="Income" bg={colorTitle1} />
-              {dataIncome?.data?.map(({ name, amount }) => (
-                <BuildRow label={name} value={amount} />
-              ))}
-              <BuildRow
-                isTitle={true}
-                bg={colorTitle2}
-                label="Total Income"
-                value={dataIncome?.data?.reduce(
-                  (acc, el) => acc + el.amount,
-                  0
-                )}
-              />
-              <Box h={20} />
-              <BuildRow
-                isTitle={true}
-                bg={colorTitle1}
-                label="Operational Expenses"
-              />
-              {dataOperationalExpenses?.data?.map(({ name, amount }) => (
-                <BuildRow label={name} value={amount} />
-              ))}
-              <BuildRow
-                isTitle={true}
-                bg={colorTitle2}
-                label="Total Operational Expenses"
-                value={dataOperationalExpenses?.data?.reduce(
-                  (acc, el) => acc + el.amount,
-                  0
-                )}
-              />
-              <Box h={30} />
-              <BuildRow
-                isTitle={true}
-                bg={colorTitle3}
-                label="Net Profit"
-                fw={800}
-                value={
-                  dataIncome?.data?.reduce((acc, el) => acc + el.amount, 0) -
-                  dataOperationalExpenses?.data?.reduce(
-                    (acc, el) => acc + el.amount,
-                    0
-                  )
-                }
-              />
+              {selectedReport === 'profit-and-loss' && (
+                <ProfitAndLoss
+                  startMonth={startMonth}
+                  selectedMonth={selectedMonth}
+                  endMonth={endMonth}
+                  dataIncome={dataIncome}
+                  dataOperationalExpenses={dataOperationalExpenses}
+                />
+              )}
+              {selectedReport === 'cash-flow' && (
+                <CashFlow
+                  startMonth={startMonth}
+                  selectedMonth={selectedMonth}
+                  endMonth={endMonth}
+                  dataIncome={dataIncome}
+                  dataOperationalExpenses={dataOperationalExpenses}
+                />
+              )}
             </>
           )}
         </Container>
         <Box h={50} />
-        <PrintReports
-          selectedMonth={selectedMonth}
-          dataIncome={dataIncome}
-          dataOperationalExpenses={dataOperationalExpenses}
-        />
       </Card>
     </Container>
   );

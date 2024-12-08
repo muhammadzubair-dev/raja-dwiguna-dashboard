@@ -59,7 +59,11 @@ function BuildRow({ isTitle, label, value, bg, fw = 600 }) {
   );
 }
 
-function PrintReports({ selectedMonth, dataIncome, dataOperationalExpenses }) {
+function PrintProfitAndLoss({
+  selectedMonth,
+  dataIncome,
+  dataOperationalExpenses,
+}) {
   const startMonth = moment(selectedMonth).startOf('month');
   const endMonth = moment(selectedMonth).endOf('month');
 
@@ -70,7 +74,7 @@ function PrintReports({ selectedMonth, dataIncome, dataOperationalExpenses }) {
   return (
     <Box
       w="100%"
-      id="reports-to-capture"
+      id="profit-and-loss-to-capture"
       style={{ position: 'absolute', right: 999999 }}
     >
       <Container w="100%" maw={1500} p={0} bg="white" pos="relative">
@@ -93,7 +97,7 @@ function PrintReports({ selectedMonth, dataIncome, dataOperationalExpenses }) {
         </Title>
         <BuildRow isTitle={true} label="Income" bg={colorTitle1} />
         {dataIncome?.data?.map(({ name, amount }) => (
-          <BuildRow label={name} value={amount} />
+          <BuildRow key={name} label={name} value={amount} />
         ))}
         <BuildRow
           isTitle={true}
@@ -108,7 +112,7 @@ function PrintReports({ selectedMonth, dataIncome, dataOperationalExpenses }) {
           label="Operational Expenses"
         />
         {dataOperationalExpenses?.data?.map(({ name, amount }) => (
-          <BuildRow label={name} value={amount} />
+          <BuildRow key={name} label={name} value={amount} />
         ))}
         <BuildRow
           isTitle={true}
@@ -138,4 +142,4 @@ function PrintReports({ selectedMonth, dataIncome, dataOperationalExpenses }) {
   );
 }
 
-export default PrintReports;
+export default PrintProfitAndLoss;

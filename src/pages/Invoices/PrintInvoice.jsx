@@ -3,6 +3,7 @@ import React from 'react';
 import logoImage from '../../assets/logo.png';
 import moment from 'moment';
 import { NumberFormatter } from '@mantine/core';
+import separateString from '../../helpers/separateString';
 
 const PrintInvoice = ({ data }) => {
   return (
@@ -266,7 +267,9 @@ const PrintInvoice = ({ data }) => {
               <div>
                 <p style={{ marginTop: 0 }}>: {data?.bank_name}</p>
                 <p style={{ marginTop: -12 }}>: {data?.bank_account}</p>
-                <p style={{ marginTop: -12 }}>: {data?.bank_account_number}</p>
+                <p style={{ marginTop: -12 }}>
+                  : {separateString(data?.bank_account_number)}
+                </p>
               </div>
             </div>
             <div style={{ border: '1px solid #ccc', padding: 4, fontSize: 12 }}>
