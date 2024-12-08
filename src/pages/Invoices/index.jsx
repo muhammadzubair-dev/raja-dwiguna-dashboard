@@ -235,11 +235,7 @@ function MakeATransaction({ data, refetchInvoices }) {
           withAsterisk
           clampBehavior="strict"
           min={0}
-          max={
-            (data?.amount || 0) -
-            (data?.amount || 0) * 0.02 -
-            (dataTotalPaid?.response?.payment || 0)
-          }
+          max={(data?.amount || 0) - (dataTotalPaid?.response?.payment || 0)}
           prefix="Rp "
           thousandSeparator="."
           decimalSeparator=","
