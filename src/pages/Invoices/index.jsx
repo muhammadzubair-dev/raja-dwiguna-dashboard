@@ -56,6 +56,7 @@ import {
   useGetInvoiceTotalPaid,
   useGetInvoiceImages,
   useGetTransactionImage,
+  useDeleteTransactionImages,
 } from '../../helpers/apiHelper';
 import {
   notificationError,
@@ -100,6 +101,7 @@ function MakeATransaction({ data, refetchInvoices }) {
   });
 
   const [files, setFiles] = useState([]);
+  const [deletedFiles, setDeletedFiles] = useState([]);
 
   form.watch('category_id', () => {
     form.setFieldValue('sub_category_id', null);
@@ -148,19 +150,26 @@ function MakeATransaction({ data, refetchInvoices }) {
   );
 
   const { mutate, isLoading, error } = useMutation(usePostInvoiceTransaction, {
-    onSuccess: async (_, variables) => {
+    onSuccess: async (res, variables) => {
       try {
-        const res = await useFileUpload(
-          `/finance/transaction/upload/${variables.id}`,
-          files
-        );
+        const containObject = files.some((url) => typeof url === 'object');
+        if (files.length > 0 && containObject) {
+          res = await useFileUpload(
+            `/finance/transaction/upload/${variables.id}`,
+            files.filter((file) => typeof file !== 'string')
+          );
+        }
+
+        if (deletedFiles.length > 0) {
+          res = await useDeleteTransactionImages(variables.id, {
+            files: deletedFiles,
+          });
+        }
+
         if (res?.code === 200) {
           refetchInvoices();
           modals.closeAll();
           notificationSuccess(`Make a Payment successfully`);
-        } else {
-          notificationError(err.message);
-          throw err;
         }
       } catch (err) {
         notificationError(err.message);
@@ -278,7 +287,11 @@ function MakeATransaction({ data, refetchInvoices }) {
           //   setInvoiceDate(value);
           // }}
         />
-        <UploadImage files={files} setFiles={setFiles} />
+        <UploadImage
+          files={files}
+          setFiles={setFiles}
+          setDeletedFiles={setDeletedFiles}
+        />
         <Textarea
           autosize
           minRows={3}
