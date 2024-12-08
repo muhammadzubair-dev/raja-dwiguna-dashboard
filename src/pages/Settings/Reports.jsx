@@ -202,7 +202,6 @@ const ProfitAndLoss = () => {
 };
 
 const CashFlow = () => {
-  const [cashFlowIds, setCashFlowIds] = useState([]);
   const [operational, setOperational] = useState([]);
   const [investment, setInvestment] = useState([]);
   const [funding, setFunding] = useState([]);
@@ -216,14 +215,19 @@ const CashFlow = () => {
     () => useGetTemplate({ report_name: 'cash-flow' }),
     {
       onSuccess: (data) => {
-        setCashFlowIds(
-          data?.response?.flatMap((item) =>
-            item.data.map((entry) => ({
-              is_income: item.is_income,
-              value: entry.sub_category_id,
-            }))
-          )
-        );
+        if (data?.response.length > 0) {
+          const getData = (headers) => {
+            const findHeaders = data?.response.find(
+              (item) => item.headers === headers
+            );
+            const dataHeaders = findHeaders?.data || [];
+            return dataHeaders.map((item) => item.sub_category_id);
+          };
+
+          setOperational(getData('operational-activities'));
+          setInvestment(getData('investment-activities'));
+          setFunding(getData('funding-activities'));
+        }
       },
     }
   );
@@ -253,6 +257,34 @@ const CashFlow = () => {
       label: sub.name,
     })),
   }));
+
+  const handleSave = () => {
+    const operationalBody = operational.map((item) => ({
+      sub_category_id: item,
+      headers: 'operational-activities',
+    }));
+    const investmentBody = investment.map((item) => ({
+      sub_category_id: item,
+      headers: 'investment-activities',
+    }));
+    const fundingBody = funding.map((item) => ({
+      sub_category_id: item,
+      headers: 'funding-activities',
+    }));
+
+    const body = [...operationalBody, ...investmentBody, ...fundingBody].map(
+      (item, index) => ({
+        ...item,
+        index: index + 1,
+        report_name: 'cash-flow',
+      })
+    );
+
+    mutate({
+      report_name: 'cash-flow',
+      data: body,
+    });
+  };
 
   const filterOptions = (valuesToRemove) => {
     return dataCategories
@@ -325,6 +357,20 @@ const CashFlow = () => {
             value={funding}
             onChange={setFunding}
           />
+          <Box mt="lg">
+            <Group justify="right">
+              <Button
+                loading={isLoadingPost}
+                rightSection={<IconDeviceFloppy />}
+                onClick={handleSave}
+              >
+                Save
+              </Button>
+            </Group>
+            {errorPost && (
+              <ErrorMessage ta="right" error={errorPost?.message} />
+            )}
+          </Box>
         </>
       )}
     </Container>
