@@ -1,80 +1,44 @@
 import {
   Box,
-  Button,
-  Card,
-  Center,
-  Container,
   Divider,
   Flex,
-  Group,
-  Loader,
   NumberFormatter,
-  Select,
-  Stack,
   Text,
   Title,
   useMantineColorScheme,
 } from '@mantine/core';
-import { MonthPickerInput } from '@mantine/dates';
-import { useMediaQuery } from '@mantine/hooks';
-import { modals } from '@mantine/modals';
-import {
-  IconCalendar,
-  IconDownload,
-  IconFileSearch,
-  IconFilter,
-} from '@tabler/icons-react';
-import React, { useState } from 'react';
-import logoImage from '../../assets/logo.png';
-import useSizeContainer from '../../helpers/useSizeContainer';
-import moment from 'moment';
-import { useQuery } from 'react-query';
-import { useGetReports } from '../../helpers/apiHelper';
-import ErrorMessage from '../../components/ErrorMessage';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
-import PrintProfitAndLoss from './PrintProfitAndLoss';
+import React from 'react';
+import PrintCashFlow from './PrintCashFlow';
 
 function BuildRow({ isTitle, label, value, bg, fw = 600, isIncome = false }) {
+  if (value < 0) {
+    isIncome = false;
+    value = Math.abs(value);
+  }
   return (
     <Box bg={bg || ''}>
       <Flex justify="space-between" p="md">
-        {isTitle ? (
-          <>
-            <Text fw={fw}>{label}</Text>
-            {value >= 0 && (
-              <Text fw={fw}>
-                <NumberFormatter
-                  value={value || 0}
-                  prefix={`${isIncome ? 'Rp ' : '( Rp '}`}
-                  suffix={isIncome ? '' : ' )'}
-                  decimalScale={2}
-                  thousandSeparator="."
-                  decimalSeparator=","
-                />
-              </Text>
-            )}
-          </>
-        ) : (
-          <>
-            <Text>{label}</Text>
+        <Text fw={isTitle ? fw : 500}>{label}</Text>
+        <Text fw={isTitle ? fw : 500}>
+          {value !== undefined && (
             <NumberFormatter
               value={value || 0}
               prefix={`${isIncome ? 'Rp ' : '( Rp '}`}
               suffix={isIncome ? '' : ' )'}
               decimalScale={2}
+              allowNegative={true}
               thousandSeparator="."
               decimalSeparator=","
             />
-          </>
-        )}
+          )}
+        </Text>
       </Flex>
       <Divider />
     </Box>
   );
 }
 
-function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
+function CashFlow({ startMonth, selectedMonth, endMonth, data, dataBalance }) {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
   const colorTitle1 = isDark ? 'dark.5' : 'gray.1';
@@ -89,18 +53,21 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
   );
   const dataFunding = data?.find((el) => el.headers === 'funding-activities');
 
-  const totalOperational = dataOperational?.data?.reduce(
-    (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
-    0
-  );
-  const totalInvestment = dataInvestment?.data?.reduce(
-    (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
-    0
-  );
-  const totalFunding = dataFunding?.data?.reduce(
-    (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
-    0
-  );
+  const totalOperational =
+    dataOperational?.data?.reduce(
+      (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
+      0
+    ) || 0;
+  const totalInvestment =
+    dataInvestment?.data?.reduce(
+      (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
+      0
+    ) || 0;
+  const totalFunding =
+    dataFunding?.data?.reduce(
+      (acc, { amount, is_income }) => acc + (is_income ? amount : -amount),
+      0
+    ) || 0;
 
   return (
     <>
@@ -114,6 +81,8 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
       <Title order={4} mb="xl" ta="center">
         {startMonth.format('DD MMMM YYYY')} - {endMonth.format('DD MMMM YYYY')}
       </Title>
+
+      {/* Operational Activities */}
       <BuildRow
         isTitle={true}
         label="Operational Activities"
@@ -144,6 +113,7 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
       />
       <Box h={20} />
 
+      {/* Funding Activities */}
       <BuildRow isTitle={true} label="Funding Activities" bg={colorTitle1} />
       {dataFunding?.data?.map(({ name, amount, is_income }) => (
         <BuildRow key={name} label={name} value={amount} isIncome={is_income} />
@@ -159,16 +129,38 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data }) {
 
       <BuildRow
         isTitle={true}
-        bg={colorTitle3}
+        bg={colorTitle2}
         label="Net Increase in Cash"
         fw={800}
         value={totalOperational + totalInvestment + totalFunding}
         isIncome={totalOperational + totalInvestment + totalFunding >= 0}
       />
+      <BuildRow
+        isTitle={true}
+        bg={colorTitle2}
+        label="Cash at the beginning of the period"
+        fw={800}
+        value={dataBalance}
+        isIncome={dataBalance >= 0}
+      />
+      <BuildRow
+        isTitle={true}
+        bg={colorTitle3}
+        label="Cash at the End of the period"
+        fw={800}
+        value={totalOperational + totalInvestment + totalFunding + dataBalance}
+        isIncome={
+          totalOperational + totalInvestment + totalFunding + dataBalance >= 0
+        }
+      />
 
-      {/* net increase in cash */}
-      {/* cash at the beginning of the period */}
-      {/* cash at the end of the period */}
+      <PrintCashFlow
+        selectedMonth={selectedMonth}
+        dataOperational={dataOperational}
+        dataInvestment={dataInvestment}
+        dataFunding={dataFunding}
+        dataBalance={dataBalance}
+      />
     </>
   );
 }

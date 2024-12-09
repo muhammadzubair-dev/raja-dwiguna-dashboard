@@ -4,16 +4,11 @@ import {
   Card,
   Center,
   Container,
-  Divider,
   Flex,
   Group,
   Loader,
-  NumberFormatter,
   Select,
   Stack,
-  Text,
-  Title,
-  useMantineColorScheme,
 } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
 import { useMediaQuery } from '@mantine/hooks';
@@ -24,17 +19,16 @@ import {
   IconFileSearch,
   IconFilter,
 } from '@tabler/icons-react';
-import React, { useState } from 'react';
-import logoImage from '../../assets/logo.png';
-import useSizeContainer from '../../helpers/useSizeContainer';
-import moment from 'moment';
-import { useQuery } from 'react-query';
-import { useGetReports } from '../../helpers/apiHelper';
-import ErrorMessage from '../../components/ErrorMessage';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
-import ProfitAndLoss from './ProfitAndLoss';
+import moment from 'moment';
+import React, { useState } from 'react';
+import { useQuery } from 'react-query';
+import ErrorMessage from '../../components/ErrorMessage';
+import { useGetReportBalance, useGetReports } from '../../helpers/apiHelper';
+import useSizeContainer from '../../helpers/useSizeContainer';
 import CashFlow from './CashFlow';
+import ProfitAndLoss from './ProfitAndLoss';
 
 function FilterReports({
   setSelectedReport,
@@ -95,9 +89,22 @@ function Reports() {
       }),
     {
       onSuccess: () => {
+        refetchBalance();
         setCurrentReport(selectedReport);
       },
     }
+  );
+
+  const {
+    data: dataBalance,
+    isLoading: isLoadingBalance,
+    refetch: refetchBalance,
+    error: errorBalance,
+  } = useQuery(['reports-cash-flow-balance'], () =>
+    useGetReportBalance({
+      start_date: `${startMonth.format('YYYY-MM-DD')}T00:00:00Z`,
+      end_date: `${endMonth.format('YYYY-MM-DD')}T00:00:00Z`,
+    })
   );
 
   const handleFilter = () => {
@@ -218,6 +225,7 @@ function Reports() {
                 <CashFlow
                   startMonth={startMonth}
                   selectedMonth={selectedMonth}
+                  dataBalance={dataBalance?.response || 0}
                   endMonth={endMonth}
                   data={data?.response || []}
                 />

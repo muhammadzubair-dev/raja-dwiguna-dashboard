@@ -290,6 +290,7 @@ function FormInvoices() {
     ['invoice-images', data?.id],
     () => useGetInvoiceImages(data?.id),
     {
+      enabled: !modeDetail && !modeEdit,
       onSuccess: (res) => {
         if (res?.response?.length > 0) {
           setFiles(

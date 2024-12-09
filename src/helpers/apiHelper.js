@@ -160,6 +160,12 @@ export const useGetReports = async (query) => {
   });
 };
 
+export const useGetReportBalance = async (query) => {
+  return fetchRequest(`/finance/report/cash-flow/current-balance`, 'GET', {
+    query,
+  });
+};
+
 export const useGetOptionCategories = async () => {
   return fetchRequest(`/options/transaction-category`, 'GET');
 };
