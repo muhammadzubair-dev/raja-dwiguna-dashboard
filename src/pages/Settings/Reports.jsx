@@ -40,27 +40,35 @@ import { useMutation, useQuery } from 'react-query';
 import { useForm } from '@mantine/form';
 import { notificationSuccess } from '../../helpers/notificationHelper';
 import formatSnake from '../../helpers/formatSnake';
+import classes from './Report.module.css';
 
 const ProfitAndLoss = () => {
-  const [profitAndLossIds, setProfitAndLossIds] = useState([]);
+  const [income, setIncome] = useState([]);
+  const [costOfGoodsSold, setCostOfGoodsSold] = useState([]);
+  const [operationalExpenses, setOperationalExpenses] = useState([]);
 
   const {
     isLoading: isLoadingTemplate,
     error: errorTemplate,
     refetch,
   } = useQuery(
-    ['report-template'],
+    ['report-template-profit-and-loss'],
     () => useGetTemplate({ report_name: 'profit-and-loss' }),
     {
       onSuccess: (data) => {
-        setProfitAndLossIds(
-          data?.response?.flatMap((item) =>
-            item.data.map((entry) => ({
-              is_income: item.is_income,
-              value: entry.sub_category_id,
-            }))
-          )
-        );
+        if (data?.response.length > 0) {
+          const getData = (headers) => {
+            const findHeaders = data?.response.find(
+              (item) => item.headers === headers
+            );
+            const dataHeaders = findHeaders?.data || [];
+            return dataHeaders.map((item) => item.category_id);
+          };
+
+          setIncome(getData('income'));
+          setCostOfGoodsSold(getData('cost-of-goods-sold'));
+          setOperationalExpenses(getData('operational-expenses'));
+        }
       },
     }
   );
@@ -83,35 +91,81 @@ const ProfitAndLoss = () => {
     error: errorCategories,
   } = useQuery(['option-categories'], () => useGetOptionCategories());
 
-  const dataDebit = (optionCategories?.response || []).filter(
-    (category) => category.is_income === true
-  );
-  const dataCredit = (optionCategories?.response || []).filter(
-    (category) => category.is_income === false
-  );
+  const dataCategories = (optionCategories?.response || []).reduce(
+    (result, category) => {
+      let mapData = result.find(
+        (item) => item.group === (category.is_income ? 'Debit' : 'Credit')
+      );
 
-  const getIsIncome = (id) => {
-    const category = optionCategories?.response?.find((category) =>
-      category.list_transaction_sub_category.some((sub) => sub.id === id)
-    );
+      if (!mapData) {
+        mapData = {
+          group: category.is_income ? 'Debit' : 'Credit',
+          items: [],
+        };
+        result.push(mapData);
+      }
 
-    return category ? category.is_income : null;
-  };
+      mapData.items.push({ value: category.id, label: category.name });
+      return result;
+    },
+    []
+  );
 
   const handleSave = () => {
-    const body = profitAndLossIds.map((row, index) => {
-      return {
-        sub_category_id: row.value,
-        index: index + 1,
-        headers: row.is_income ? 'income' : 'operational-expenses',
-        report_name: 'profit-and-loss',
-      };
-    });
+    const incomeBody = income.map((item) => ({
+      category_id: item,
+      headers: 'income',
+    }));
+    const costOfGoodsSoldBody = costOfGoodsSold.map((item) => ({
+      category_id: item,
+      headers: 'cost-of-goods-sold',
+    }));
+    const operationalExpensesBody = operationalExpenses.map((item) => ({
+      category_id: item,
+      headers: 'operational-expenses',
+    }));
+
+    const body = [
+      ...incomeBody,
+      ...costOfGoodsSoldBody,
+      ...operationalExpensesBody,
+    ].map((item, index) => ({
+      ...item,
+      index: index + 1,
+      report_name: 'profit-and-loss',
+    }));
+
     mutate({
       report_name: 'profit-and-loss',
       data: body,
     });
   };
+
+  const filterOptions = (valuesToRemove) => {
+    return dataCategories
+      .map((group) => {
+        return {
+          ...group,
+          items: group.items.filter(
+            (item) => !valuesToRemove.includes(item.value)
+          ),
+        };
+      })
+      .filter((group) => group.items.length > 0);
+  };
+
+  const optionsIncome = filterOptions([
+    ...costOfGoodsSold,
+    ...operationalExpenses,
+  ]);
+  const optionsCostOfGoodsSold = filterOptions([
+    ...operationalExpenses,
+    ...income,
+  ]);
+  const optionsOperationalExpenses = filterOptions([
+    ...costOfGoodsSold,
+    ...income,
+  ]);
 
   return (
     <Container fluid>
@@ -131,58 +185,44 @@ const ProfitAndLoss = () => {
 
       {optionCategories?.response && (
         <>
-          <Checkbox.Group
-            value={profitAndLossIds.map((item) => item.value)}
-            onChange={(ids) =>
-              setProfitAndLossIds(
-                ids.map((id) => ({ value: id, is_income: getIsIncome(id) }))
-              )
-            }
-          >
-            <Title order={4} mb="sm">
-              Income
-            </Title>
-            <Grid gutter="xs">
-              {dataDebit.map((item) => (
-                <Grid.Col key={item.id} span={3}>
-                  <Fieldset radius="md" legend={item.name}>
-                    <Stack gap="xs">
-                      {item.list_transaction_sub_category.map((itemSub) => (
-                        <Checkbox
-                          value={itemSub.id}
-                          key={itemSub.id}
-                          label={formatSnake(itemSub.name)}
-                        />
-                      ))}
-                    </Stack>
-                  </Fieldset>
-                </Grid.Col>
-              ))}
-            </Grid>
-            <Divider my="lg" />
-            <Title order={4} mb="sm">
-              Operational Expenses
-            </Title>
-            <Grid gutter="xs">
-              {dataCredit.map((item) => (
-                <Grid.Col key={item.id} span={3}>
-                  <Fieldset radius="md" legend={item.name}>
-                    <Stack gap="xs">
-                      {item.list_transaction_sub_category.map((itemSub) => (
-                        <Checkbox
-                          value={itemSub.id}
-                          key={itemSub.id}
-                          label={formatSnake(itemSub.name)}
-                        />
-                      ))}
-                    </Stack>
-                  </Fieldset>
-                </Grid.Col>
-              ))}
-            </Grid>
-          </Checkbox.Group>
-          <Box>
-            <Group justify="right" mt="lg">
+          <Title order={4} mb="sm">
+            Income
+          </Title>
+          <MultiSelect
+            size="md"
+            mb="xl"
+            searchable
+            placeholder="Select Income"
+            data={optionsIncome}
+            value={income}
+            onChange={setIncome}
+          />
+          <Title order={4} mb="sm">
+            Cost of Goods Sold
+          </Title>
+          <MultiSelect
+            size="md"
+            mb="xl"
+            searchable
+            placeholder="Select Cost of Goods Sold"
+            data={optionsCostOfGoodsSold}
+            value={costOfGoodsSold}
+            onChange={setCostOfGoodsSold}
+          />
+          <Title order={4} mb="sm">
+            Operational Expenses
+          </Title>
+          <MultiSelect
+            size="md"
+            mb="xl"
+            searchable
+            placeholder="Select Operational Expenses"
+            data={optionsOperationalExpenses}
+            value={operationalExpenses}
+            onChange={setOperationalExpenses}
+          />
+          <Box mt="lg">
+            <Group justify="right">
               <Button
                 loading={isLoadingPost}
                 rightSection={<IconDeviceFloppy />}
@@ -221,9 +261,8 @@ const CashFlow = () => {
               (item) => item.headers === headers
             );
             const dataHeaders = findHeaders?.data || [];
-            return dataHeaders.map((item) => item.sub_category_id);
+            return dataHeaders.map((item) => item.category_id);
           };
-
           setOperational(getData('operational-activities'));
           setInvestment(getData('investment-activities'));
           setFunding(getData('funding-activities'));
@@ -250,25 +289,37 @@ const CashFlow = () => {
     error: errorCategories,
   } = useQuery(['option-categories'], () => useGetOptionCategories());
 
-  const dataCategories = (optionCategories?.response || []).map((category) => ({
-    group: `${category.name} (${category.is_income ? 'Debit' : 'Credit'})`,
-    items: category.list_transaction_sub_category.map((sub) => ({
-      value: sub.id,
-      label: sub.name,
-    })),
-  }));
+  const dataCategories = (optionCategories?.response || []).reduce(
+    (result, category) => {
+      let mapData = result.find(
+        (item) => item.group === (category.is_income ? 'Debit' : 'Credit')
+      );
+
+      if (!mapData) {
+        mapData = {
+          group: category.is_income ? 'Debit' : 'Credit',
+          items: [],
+        };
+        result.push(mapData);
+      }
+
+      mapData.items.push({ value: category.id, label: category.name });
+      return result;
+    },
+    []
+  );
 
   const handleSave = () => {
     const operationalBody = operational.map((item) => ({
-      sub_category_id: item,
+      category_id: item,
       headers: 'operational-activities',
     }));
     const investmentBody = investment.map((item) => ({
-      sub_category_id: item,
+      category_id: item,
       headers: 'investment-activities',
     }));
     const fundingBody = funding.map((item) => ({
-      sub_category_id: item,
+      category_id: item,
       headers: 'funding-activities',
     }));
 
@@ -379,28 +430,29 @@ const CashFlow = () => {
 
 function Reports() {
   return (
-    <Accordion
-      radius="md"
-      mt="md"
-      defaultValue="Profit And Loss"
-      variant="contained"
-    >
-      {[
-        {
-          value: 'Cash Flow',
-          description: <CashFlow />,
-        },
-        {
-          value: 'Profit And Loss',
-          description: <ProfitAndLoss />,
-        },
-      ].map((item) => (
-        <Accordion.Item key={item.value} value={item.value}>
-          <Accordion.Control>{item.value}</Accordion.Control>
-          <Accordion.Panel>{item.description}</Accordion.Panel>
-        </Accordion.Item>
-      ))}
-    </Accordion>
+    <Box p={{ base: 'sm', md: 'xl' }}>
+      <Accordion
+        radius="md"
+        defaultValue="Profit And Loss"
+        classNames={classes}
+      >
+        {[
+          {
+            value: 'Cash Flow',
+            description: <CashFlow />,
+          },
+          {
+            value: 'Profit And Loss',
+            description: <ProfitAndLoss />,
+          },
+        ].map((item) => (
+          <Accordion.Item key={item.value} value={item.value}>
+            <Accordion.Control>{item.value}</Accordion.Control>
+            <Accordion.Panel>{item.description}</Accordion.Panel>
+          </Accordion.Item>
+        ))}
+      </Accordion>
+    </Box>
   );
 }
 
