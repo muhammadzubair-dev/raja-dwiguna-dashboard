@@ -1,14 +1,11 @@
 import {
   ActionIcon,
-  Badge,
   Box,
   Button,
   Card,
   Center,
   Flex,
   Group,
-  Input,
-  NumberFormatter,
   NumberInput,
   Stack,
   Switch,
@@ -19,13 +16,7 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { modals } from '@mantine/modals';
-import {
-  IconDownload,
-  IconEdit,
-  IconFilter,
-  IconPlus,
-  IconSearch,
-} from '@tabler/icons-react';
+import { IconEdit, IconNumber62Small, IconPlus } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
 import React, { useState } from 'react';
@@ -51,7 +42,11 @@ function AddAndEditClient({ data, refetchClients }) {
     initialValues: {
       name: data?.name || '',
       email: data?.email || '',
-      phone: data?.phone || '',
+      phone: data?.phone
+        ? data?.phone.startsWith('62')
+          ? data?.phone.slice(2)
+          : data?.phone
+        : '',
       address: data?.address || '',
     },
 
@@ -83,7 +78,7 @@ function AddAndEditClient({ data, refetchClients }) {
   const handleSave = (values) => {
     const body = {
       ...values,
-      phone: String(values.phone),
+      phone: `62${values.phone}`,
       ...(!isAdd && { id: data?.id }),
     };
 
@@ -107,6 +102,7 @@ function AddAndEditClient({ data, refetchClients }) {
           {...form.getInputProps('email')}
         />
         <NumberInput
+          leftSection={<IconNumber62Small size={26} />}
           allowNegative={false}
           withAsterisk
           allowDecimal={false}
