@@ -237,7 +237,7 @@ function FormInvoices() {
   const data = location.state?.data;
   const modeDetail = location.state?.mode === 'detail';
   const modeEdit = location.state?.mode === 'edit' || !modeDetail;
-  const dataWithWHT = data?.with_holding_tax > 0 ? 'yes' : 'no';
+  const dataWithWHT = data?.with_holding_tax <= 0 ? 'no' : 'yes';
   const isAdd = !data;
   const [itemsFromData, setItemsFromData] = useState(
     data?.list_invoice_item || []
@@ -247,6 +247,7 @@ function FormInvoices() {
   const [files, setFiles] = useState([]);
   const [deletedFiles, setDeletedFiles] = useState([]);
   const [withWHT, setWithWHT] = useState(dataWithWHT);
+  const [withVAT, setWithVAT] = useState(dataWithWHT);
   const form = useForm({
     mode: 'controlled',
     initialValues: {
@@ -646,19 +647,35 @@ function FormInvoices() {
                   />
                 </Grid.Col>
               </Grid>
-              <Radio.Group
-                name="wht"
-                label="WHT 23 (2%)"
-                mb="lg"
-                value={withWHT}
-                onChange={setWithWHT}
-                withAsterisk
-              >
-                <Group mt="xs">
-                  <Radio value="yes" label="Yes" />
-                  <Radio value="no" label="No" />
-                </Group>
-              </Radio.Group>
+              <Flex gap="xl" justify="space-between" maw={300}>
+                <Radio.Group
+                  name="wht"
+                  label="WHT 23 (2%)"
+                  mb="lg"
+                  value={withWHT}
+                  onChange={setWithWHT}
+                  withAsterisk
+                >
+                  <Group mt="xs">
+                    <Radio disabled={modeDetail} value="yes" label="Yes" />
+                    <Radio disabled={modeDetail} value="no" label="No" />
+                  </Group>
+                </Radio.Group>
+                <Radio.Group
+                  name="vat"
+                  label="VAT (0%)"
+                  mb="lg"
+                  value={withVAT}
+                  onChange={setWithVAT}
+                  withAsterisk
+                >
+                  <Group mt="xs">
+                    <Radio disabled={modeDetail} value="yes" label="Yes" />
+                    <Radio disabled={modeDetail} value="no" label="No" />
+                  </Group>
+                </Radio.Group>
+              </Flex>
+
               <UploadImage
                 disableActions={modeDetail}
                 hasDownload={modeDetail}

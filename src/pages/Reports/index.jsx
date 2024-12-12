@@ -10,7 +10,7 @@ import {
   Select,
   Stack,
 } from '@mantine/core';
-import { MonthPickerInput } from '@mantine/dates';
+import { MonthPickerInput, YearPickerInput } from '@mantine/dates';
 import { useMediaQuery } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import {
@@ -31,10 +31,14 @@ import CashFlow from './CashFlow';
 import ProfitAndLoss from './ProfitAndLoss';
 
 function FilterReports({
+  selectedInterval,
+  setSelectedInterval,
   setSelectedReport,
   selectedMonth,
   selectedReport,
   setSelectedMonth,
+  selectedYear,
+  setSelectedYear,
   refetch,
   isLoading,
 }) {
@@ -49,15 +53,37 @@ function FilterReports({
         ]}
         onChange={setSelectedReport}
       />
-      <MonthPickerInput
-        miw={200}
-        maxDate={new Date()}
-        leftSection={<IconCalendar size={16} />}
-        leftSectionPointerEvents="none"
-        placeholder="Select Month"
-        value={selectedMonth}
-        onChange={setSelectedMonth}
+      <Select
+        placeholder="Select Period"
+        value={selectedInterval}
+        data={[
+          { label: 'Monthly', value: 'month' },
+          { label: 'Yearly', value: 'year' },
+        ]}
+        onChange={setSelectedInterval}
       />
+      {selectedInterval === 'year' && (
+        <YearPickerInput
+          miw={150}
+          maxDate={new Date()}
+          leftSection={<IconCalendar size={16} />}
+          leftSectionPointerEvents="none"
+          placeholder="Select Month"
+          value={selectedYear}
+          onChange={setSelectedYear}
+        />
+      )}
+      {selectedInterval === 'month' && (
+        <MonthPickerInput
+          miw={200}
+          maxDate={new Date()}
+          leftSection={<IconCalendar size={16} />}
+          leftSectionPointerEvents="none"
+          placeholder="Select Month"
+          value={selectedMonth}
+          onChange={setSelectedMonth}
+        />
+      )}
       <Button
         onClick={refetch}
         loading={isLoading}
@@ -72,12 +98,15 @@ function FilterReports({
 function Reports() {
   const isMobile = useMediaQuery(`(max-width: 1100px)`);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [selectedYear, setSelectedYear] = useState(new Date());
+  const [selectedInterval, setSelectedInterval] = useState('month');
   const [currentReport, setCurrentReport] = useState('profit-and-loss');
   const [selectedReport, setSelectedReport] = useState('profit-and-loss');
   const sizeContainer = useSizeContainer((state) => state.sizeContainer);
+  const interval = selectedInterval === 'month' ? selectedMonth : selectedYear;
 
-  const startMonth = moment(selectedMonth).startOf('month');
-  const endMonth = moment(selectedMonth).endOf('month');
+  const startMonth = moment(interval).startOf(selectedInterval);
+  const endMonth = moment(interval).endOf(selectedInterval);
 
   const { data, isLoading, refetch, error, isFetching } = useQuery(
     ['reports-cash-flow'],
@@ -119,8 +148,12 @@ function Reports() {
           <FilterReports
             refetch={refetch}
             isLoading={isLoading}
+            selectedInterval={selectedInterval}
+            setSelectedInterval={setSelectedInterval}
             selectedMonth={selectedMonth}
             selectedReport={selectedReport}
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
             setSelectedMonth={setSelectedMonth}
             setSelectedReport={setSelectedReport}
           />
@@ -182,8 +215,12 @@ function Reports() {
             <FilterReports
               refetch={refetch}
               isLoading={isLoading}
+              selectedInterval={selectedInterval}
+              setSelectedInterval={setSelectedInterval}
               selectedMonth={selectedMonth}
               selectedReport={selectedReport}
+              selectedYear={selectedYear}
+              setSelectedYear={setSelectedYear}
               setSelectedMonth={setSelectedMonth}
               setSelectedReport={setSelectedReport}
             />

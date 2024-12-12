@@ -219,41 +219,52 @@ function AddAndEditTransaction({ data, refetchTransactions, refetchBalance }) {
   return (
     <form onSubmit={form.onSubmit(handleSave)}>
       <Stack gap="xs">
-        <Select
+        {isAdd && (
+          <>
+            <Select
+              withAsterisk
+              disabled={isLoadingAccounts}
+              placeholder={isLoadingAccounts ? 'Loading...' : ''}
+              label="Bank Account"
+              data={recordsAccount}
+              searchable
+              key={form.key('account_id')}
+              {...form.getInputProps('account_id')}
+            />
+            <Select
+              withAsterisk
+              disabled={isLoadingCategories}
+              placeholder={isLoadingCategories ? 'Loading...' : ''}
+              label="Category"
+              data={recordsCategory}
+              searchable
+              key={form.key('category_id')}
+              {...form.getInputProps('category_id')}
+            />
+            <Select
+              withAsterisk
+              disabled={isLoadingCategories || recordsSubCategory?.length === 0}
+              placeholder={
+                isLoadingCategories
+                  ? 'Loading...'
+                  : recordsSubCategory?.length === 0
+                  ? 'No Sub Category, Please select another Category'
+                  : ''
+              }
+              label="Sub Category"
+              data={recordsSubCategory}
+              searchable
+              key={form.key('sub_category_id')}
+              {...form.getInputProps('sub_category_id')}
+            />
+          </>
+        )}
+        <TextInput
           withAsterisk
-          disabled={isLoadingAccounts}
-          placeholder={isLoadingAccounts ? 'Loading...' : ''}
-          label="Bank Account"
-          data={recordsAccount}
-          searchable
-          key={form.key('account_id')}
-          {...form.getInputProps('account_id')}
-        />
-        <Select
-          withAsterisk
-          disabled={isLoadingCategories}
-          placeholder={isLoadingCategories ? 'Loading...' : ''}
-          label="Category"
-          data={recordsCategory}
-          searchable
-          key={form.key('category_id')}
-          {...form.getInputProps('category_id')}
-        />
-        <Select
-          withAsterisk
-          disabled={isLoadingCategories || recordsSubCategory?.length === 0}
-          placeholder={
-            isLoadingCategories
-              ? 'Loading...'
-              : recordsSubCategory?.length === 0
-              ? 'No Sub Category, Please select another Category'
-              : ''
-          }
-          label="Sub Category"
-          data={recordsSubCategory}
-          searchable
-          key={form.key('sub_category_id')}
-          {...form.getInputProps('sub_category_id')}
+          disabled={!isAdd}
+          label="Reference Number"
+          key={form.key('reference_number')}
+          {...form.getInputProps('reference_number')}
         />
         <NumberInput
           allowNegative={false}
@@ -265,12 +276,6 @@ function AddAndEditTransaction({ data, refetchTransactions, refetchBalance }) {
           label="Amount"
           key={form.key('amount')}
           {...form.getInputProps('amount')}
-        />
-        <TextInput
-          withAsterisk
-          label="Reference Number"
-          key={form.key('reference_number')}
-          {...form.getInputProps('reference_number')}
         />
         <DatePickerInput
           maxDate={new Date()}
@@ -693,12 +698,43 @@ function Transactions() {
         </Group>
       </Group>
       <Group gap="xs" mb="xs" ml="xs" justify="flex-end">
-        <Text>Balance</Text>
-
+        <Text>Debit</Text>
         {isLoadingBalance ? (
           <Skeleton h={24} w={150} />
         ) : (
-          <Text fw={800}>
+          <Text fw={700} c="green">
+            :{' '}
+            <NumberFormatter
+              value={dataBalance?.response?.total || 0}
+              prefix="Rp "
+              decimalScale={2}
+              thousandSeparator="."
+              decimalSeparator=","
+            />
+          </Text>
+        )}
+        <Center>|</Center>
+        <Text>Credit</Text>
+        {isLoadingBalance ? (
+          <Skeleton h={24} w={150} />
+        ) : (
+          <Text fw={700} c="red">
+            :{' '}
+            <NumberFormatter
+              value={dataBalance?.response?.total || 0}
+              prefix="Rp "
+              decimalScale={2}
+              thousandSeparator="."
+              decimalSeparator=","
+            />
+          </Text>
+        )}
+        <Center>|</Center>
+        <Text>Balance</Text>
+        {isLoadingBalance ? (
+          <Skeleton h={24} w={150} />
+        ) : (
+          <Text fw={700} c="blue">
             :{' '}
             <NumberFormatter
               value={dataBalance?.response?.total || 0}

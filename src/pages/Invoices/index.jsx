@@ -333,29 +333,67 @@ function DeleteInvoice({ id, reference_number, refetchInvoices }) {
     },
   });
 
+  const {
+    data: dataTotalPaid,
+    isLoading: isLoadingTotalPaid,
+    error: errorTotalPaid,
+  } = useQuery(['total-paid', reference_number], () =>
+    useGetInvoiceTotalPaid({ reference_number: reference_number })
+  );
+
+  const hasPayment = dataTotalPaid?.response?.payment > 0;
+
   const handleDelete = () => mutate({ id });
+
+  console.log('dataTotalPaid ------> ', dataTotalPaid);
 
   return (
     <>
-      <Text size="sm">
-        Are you sure you want to delete invoice {reference_number} ?
-      </Text>
-      <Group justify="flex-end" mt="xl">
-        <Button
-          variant="outline"
-          color="gray"
-          onClick={() => modals.closeAll()}
-        >
-          Cancel
-        </Button>
-        <Button color="red" loading={isLoading} onClick={handleDelete}>
-          Delete
-        </Button>
-      </Group>
-      {error && (
-        <Flex justify="flex-end">
-          <ErrorMessage message={error?.message} />
-        </Flex>
+      {isLoadingTotalPaid && (
+        <Center h={100}>
+          <Loader />
+        </Center>
+      )}
+      {!isLoadingTotalPaid && errorTotalPaid && (
+        <Center h={100}>
+          <ErrorMessage message="ini error" />
+        </Center>
+      )}
+      {!isLoadingTotalPaid && !errorTotalPaid && (
+        <>
+          {hasPayment && (
+            <Center h={100}>
+              <Text size="sm">
+                This invoice {reference_number} cannot be deleted because
+                payment has already been made.
+              </Text>
+            </Center>
+          )}
+          {!hasPayment && (
+            <>
+              <Text size="sm">
+                Are you sure you want to delete invoice ${reference_number} ?
+              </Text>
+              <Group justify="flex-end" mt="xl">
+                <Button
+                  variant="outline"
+                  color="gray"
+                  onClick={() => modals.closeAll()}
+                >
+                  Cancel
+                </Button>
+                <Button color="red" loading={isLoading} onClick={handleDelete}>
+                  Delete
+                </Button>
+              </Group>
+              {error && (
+                <Flex justify="flex-end">
+                  <ErrorMessage message={error?.message} />
+                </Flex>
+              )}
+            </>
+          )}
+        </>
       )}
     </>
   );
@@ -883,9 +921,6 @@ function Invoices() {
                         color="green.8"
                         onClick={() => {
                           setPrintData(data);
-                          // setTimeout(() => {
-                          //   handleExportToPDF();
-                          // }, 500);
                         }}
                       >
                         <IconDownload size={16} />
@@ -911,28 +946,32 @@ function Invoices() {
                       <IconPhoto size={16} />
                     </ActionIcon>
                   </Tooltip>
-                  <Tooltip label="Edit Invoice">
-                    <ActionIcon
-                      size="sm"
-                      variant="subtle"
-                      color="blue"
-                      onClick={() => handleEditInvoice(data)}
-                    >
-                      <IconEdit size={16} />
-                    </ActionIcon>
-                  </Tooltip>
-                  <Tooltip label="Delete Invoice">
-                    <ActionIcon
-                      size="sm"
-                      variant="subtle"
-                      color="red"
-                      onClick={() =>
-                        handleDeleteInvoice(data.id, data.reference_number)
-                      }
-                    >
-                      <IconTrash size={16} />
-                    </ActionIcon>
-                  </Tooltip>
+                  {!data.is_paid && (
+                    <>
+                      <Tooltip label="Edit Invoice">
+                        <ActionIcon
+                          size="sm"
+                          variant="subtle"
+                          color="blue"
+                          onClick={() => handleEditInvoice(data)}
+                        >
+                          <IconEdit size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                      <Tooltip label="Delete Invoice">
+                        <ActionIcon
+                          size="sm"
+                          variant="subtle"
+                          color="red"
+                          onClick={() =>
+                            handleDeleteInvoice(data.id, data.reference_number)
+                          }
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </>
+                  )}
                 </Group>
               ),
             },

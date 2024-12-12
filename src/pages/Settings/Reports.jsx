@@ -1,45 +1,25 @@
 import {
   Accordion,
   Box,
+  Button,
   Center,
-  Paper,
-  Stack,
-  Title,
-  Text,
   Container,
   Group,
-  ActionIcon,
-  Tooltip,
-  Flex,
-  Button,
-  Select,
-  TextInput,
-  Checkbox,
-  Grid,
-  Fieldset,
-  Divider,
   Loader,
   MultiSelect,
+  Title,
 } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import {
-  IconDeviceFloppy,
-  IconEdit,
-  IconPlus,
-  IconTrash,
-} from '@tabler/icons-react';
-import { DataTable } from 'mantine-datatable';
+import { IconDeviceFloppy } from '@tabler/icons-react';
 import React, { useState } from 'react';
+import { useMutation, useQuery } from 'react-query';
+import ErrorMessage from '../../components/ErrorMessage';
 import {
   useGetOptionCategories,
   useGetTemplate,
   usePostTemplate,
 } from '../../helpers/apiHelper';
-import ErrorMessage from '../../components/ErrorMessage';
-import { useMutation, useQuery } from 'react-query';
-import { useForm } from '@mantine/form';
 import { notificationSuccess } from '../../helpers/notificationHelper';
-import formatSnake from '../../helpers/formatSnake';
 import classes from './Report.module.css';
 
 const ProfitAndLoss = () => {
