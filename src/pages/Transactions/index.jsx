@@ -662,7 +662,7 @@ function Transactions() {
       fluid={sizeContainer === 'fluid'}
       p={{ base: 'md', md: 'xl' }}
     >
-      <Group justify="space-between" mb="lg">
+      <Group justify="space-between" mb="xl">
         {isMobile ? (
           <Button
             variant="light"
