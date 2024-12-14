@@ -164,52 +164,45 @@ function Invoice() {
     });
   };
 
-  const {
-    name = '-',
-    position = '-',
-    contact_person = '-',
-    with_holding_tax_percentage = 0,
-    value_added_tax_percentage = 0,
-    updated_at,
-  } = data?.response;
+  const records = data?.response;
 
   return (
     <Card withBorder p="0" radius="sm" mt="xl">
       <Group justify="center">
-        <Box miw={1000} py="md">
+        <Box w="100%" maw={1000} py="md">
           {/* Name */}
           {/* <Divider mt="xl" /> */}
           <Flex justify="space-between" gap="lg" p="lg">
             <Text>Name</Text>
-            <Text>{name}</Text>
+            <Text>{records?.name || '-'}</Text>
           </Flex>
           <Divider />
 
           {/* Position */}
           <Flex justify="space-between" gap="lg" p="lg">
             <Text>Position</Text>
-            <Text>{position}</Text>
+            <Text>{records?.position || '-'}</Text>
           </Flex>
           <Divider />
 
           {/* contact_person */}
           <Flex justify="space-between" gap="lg" p="lg">
             <Text>Contact Person</Text>
-            <Text>{contact_person}</Text>
+            <Text>{records?.contact_person || '-'}</Text>
           </Flex>
           <Divider />
 
           {/* with_holding_tax_percentage */}
           <Flex justify="space-between" gap="lg" p="lg">
             <Text>Holding Tax Percentage</Text>
-            <Text>{with_holding_tax_percentage} %</Text>
+            <Text>{records?.with_holding_tax_percentage || 0} %</Text>
           </Flex>
           <Divider />
 
           {/* value_added_tax_percentage */}
           <Flex justify="space-between" gap="lg" p="lg">
             <Text>Value Added Percentage</Text>
-            <Text>{value_added_tax_percentage} %</Text>
+            <Text>{records?.value_added_tax_percentage || 0} %</Text>
           </Flex>
           <Divider />
 
@@ -217,7 +210,9 @@ function Invoice() {
           <Flex justify="space-between" gap="lg" p="lg">
             <Text>Updated At</Text>
             <Text>
-              {updated_at ? moment(updated_at).format('YYYY-MM-DD HH:mm') : '-'}
+              {records?.updated_at
+                ? moment(records?.updated_at).format('YYYY-MM-DD HH:mm')
+                : '-'}
             </Text>
           </Flex>
           <Divider />
