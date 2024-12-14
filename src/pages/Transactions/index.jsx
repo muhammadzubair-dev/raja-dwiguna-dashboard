@@ -63,7 +63,7 @@ import { v4 as uuidv4 } from 'uuid';
 import useFileUpload from '../../helpers/useUploadFile';
 import ImageFullScreen from '../../components/ImageFullScreen';
 
-function AddAndEditTransaction({ data, refetchTransactions, refetchBalance }) {
+function AddAndEditTransaction({ data, refetchTransactions }) {
   const isAdd = data ? false : true;
   const [files, setFiles] = useState([]);
   const [deletedFiles, setDeletedFiles] = useState([]);
@@ -186,7 +186,6 @@ function AddAndEditTransaction({ data, refetchTransactions, refetchBalance }) {
 
           if (res?.code === 200) {
             refetchTransactions();
-            refetchBalance();
             modals.closeAll();
             notificationSuccess(
               `Transaction ${isAdd ? 'added' : 'updated'} successfully`
@@ -523,17 +522,6 @@ function Transactions() {
     () => useGetOptionCategories()
   );
 
-  const {
-    data: dataBalance,
-    isLoading: isLoadingBalance,
-    refetch: refetchBalance,
-  } = useQuery(['dashboard-balance'], () =>
-    useGetDashboardBalance({
-      start_date: `${moment().startOf('month').format('YYYY-MM-DD')}T00:00:00Z`,
-      end_date: `${moment().endOf('month').format('YYYY-MM-DD')}T00:00:00Z`,
-    })
-  );
-
   const records = data?.response?.data.map((item) => ({
     id: item.id,
     amount: item.amount,
@@ -559,11 +547,7 @@ function Transactions() {
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
-        <AddAndEditTransaction
-          data={data}
-          refetchTransactions={refetch}
-          refetchBalance={refetchBalance}
-        />
+        <AddAndEditTransaction data={data} refetchTransactions={refetch} />
       ),
     });
   };
@@ -574,12 +558,7 @@ function Transactions() {
       centered: true,
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: (
-        <AddAndEditTransaction
-          refetchTransactions={refetch}
-          refetchBalance={refetchBalance}
-        />
-      ),
+      children: <AddAndEditTransaction refetchTransactions={refetch} />,
     });
   };
 
@@ -698,14 +677,13 @@ function Transactions() {
         </Group>
       </Group>
       <Group gap="xs" mb="xs" ml="xs" justify="flex-end">
-        <Text>Debit</Text>
-        {isLoadingBalance ? (
+        <Text>Debit : </Text>
+        {isLoading ? (
           <Skeleton h={24} w={150} />
         ) : (
           <Text fw={700} c="green">
-            :{' '}
             <NumberFormatter
-              value={dataBalance?.response?.total || 0}
+              value={data?.response?.total_income || 0}
               prefix="Rp "
               decimalScale={2}
               thousandSeparator="."
@@ -714,14 +692,13 @@ function Transactions() {
           </Text>
         )}
         <Center>|</Center>
-        <Text>Credit</Text>
-        {isLoadingBalance ? (
+        <Text>Credit : </Text>
+        {isLoading ? (
           <Skeleton h={24} w={150} />
         ) : (
           <Text fw={700} c="red">
-            :{' '}
             <NumberFormatter
-              value={dataBalance?.response?.total || 0}
+              value={data?.response?.total_outcome || 0}
               prefix="Rp "
               decimalScale={2}
               thousandSeparator="."
@@ -730,14 +707,13 @@ function Transactions() {
           </Text>
         )}
         <Center>|</Center>
-        <Text>Balance</Text>
-        {isLoadingBalance ? (
+        <Text>Balance : </Text>
+        {isLoading ? (
           <Skeleton h={24} w={150} />
         ) : (
           <Text fw={700} c="blue">
-            :{' '}
             <NumberFormatter
-              value={dataBalance?.response?.total || 0}
+              value={data?.response?.current_balance || 0}
               prefix="Rp "
               decimalScale={2}
               thousandSeparator="."
