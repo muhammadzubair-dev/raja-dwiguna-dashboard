@@ -345,8 +345,6 @@ function DeleteInvoice({ id, reference_number, refetchInvoices }) {
 
   const handleDelete = () => mutate({ id });
 
-  console.log('dataTotalPaid ------> ', dataTotalPaid);
-
   return (
     <>
       {isLoadingTotalPaid && (

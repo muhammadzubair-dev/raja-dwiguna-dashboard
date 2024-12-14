@@ -267,3 +267,11 @@ export const useDeleteTransactionImages = async (id, body) => {
     body,
   });
 };
+
+export const useGetInvoiceSettings = async () => {
+  return fetchRequest(`/finance/settings/invoice`, 'GET');
+};
+
+export const usePostInvoiceSettings = async (body) => {
+  return fetchRequest(`/finance/settings/invoice`, 'POST', { body });
+};
