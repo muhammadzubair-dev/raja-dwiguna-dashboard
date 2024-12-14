@@ -176,7 +176,7 @@ function Invoice() {
   return (
     <Card withBorder p="0" radius="sm" mt="xl">
       <Group justify="center">
-        <Box maw={1000} py="md">
+        <Box miw={1000} py="md">
           {/* Name */}
           {/* <Divider mt="xl" /> */}
           <Flex justify="space-between" gap="lg" p="lg">
@@ -215,7 +215,7 @@ function Invoice() {
 
           {/* updated_at */}
           <Flex justify="space-between" gap="lg" p="lg">
-            <Text>Position</Text>
+            <Text>Updated At</Text>
             <Text>
               {updated_at ? moment(updated_at).format('YYYY-MM-DD HH:mm') : '-'}
             </Text>

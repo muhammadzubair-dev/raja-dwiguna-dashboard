@@ -32,10 +32,10 @@ function UserButton({ data, isLoadingProfile }) {
           </Skeleton>
         </div>
 
-        <IconChevronRight
+        {/* <IconChevronRight
           style={{ width: rem(14), height: rem(14) }}
           stroke={1.5}
-        />
+        /> */}
       </Group>
     </UnstyledButton>
   );
