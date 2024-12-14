@@ -45,6 +45,7 @@ import {
   useGetClients,
   useGetInvoiceImages,
   useGetInvoiceNumber,
+  useGetInvoiceSettings,
   useGetInvoiceTotalPaid,
   useGetOptionAccounts,
   useGetOptionCategories,
@@ -238,6 +239,7 @@ function FormInvoices() {
   const modeDetail = location.state?.mode === 'detail';
   const modeEdit = location.state?.mode === 'edit' || !modeDetail;
   const dataWithWHT = data?.with_holding_tax <= 0 ? 'no' : 'yes';
+  const dataWithVAT = data?.value_added_tax <= 0 ? 'no' : 'yes';
   const isAdd = !data;
   const [itemsFromData, setItemsFromData] = useState(
     data?.list_invoice_item || []
@@ -247,7 +249,7 @@ function FormInvoices() {
   const [files, setFiles] = useState([]);
   const [deletedFiles, setDeletedFiles] = useState([]);
   const [withWHT, setWithWHT] = useState(dataWithWHT);
-  const [withVAT, setWithVAT] = useState(dataWithWHT);
+  const [withVAT, setWithVAT] = useState(dataWithVAT);
   const form = useForm({
     mode: 'controlled',
     initialValues: {
@@ -331,6 +333,16 @@ function FormInvoices() {
     { enabled: !!data?.reference_number }
   );
 
+  const { data: dataSettings, isLoading: isLoadingSettings } = useQuery(
+    ['invoice-settings'],
+    () => useGetInvoiceSettings()
+  );
+
+  const settings = dataSettings?.response;
+  const wht =
+    withWHT === 'yes' ? settings?.with_holding_tax_percentage || 0 : 0;
+  const vat = withVAT === 'yes' ? settings?.value_added_tax_percentage || 0 : 0;
+
   const recordsAccount = optionAccounts?.response.map(
     ({ bank_name, name, id }) => ({
       value: id,
@@ -396,57 +408,6 @@ function FormInvoices() {
       }
     },
   });
-
-  const handleSave = (values) => {
-    const { invoice_date, due_date } = values;
-    const total = [...itemsFromData, ...items].reduce(
-      (total, item) => total + item.amount,
-      0
-    );
-
-    if (total <= 0) {
-      notificationError('Total must be greater than 0');
-    } else {
-      const body = {
-        ...values,
-        ...(isAdd && {
-          id: uuidv4(),
-          list_invoice_item: items.map((item) => ({
-            description: item.description,
-            quantity: item.quantity,
-            unit_price: item.unit_price,
-            unit_type: item.unit_type,
-            amount: item.amount,
-          })),
-        }),
-        ...(!isAdd && {
-          id: data?.id,
-          delete_invoice_item: itemsDeleted,
-          update_invoice_item: itemsFromData.map((item) => ({
-            id: item.id,
-            description: item.description,
-            quantity: item.quantity,
-            unit_price: item.unit_price,
-            unit_type: item.unit_type,
-            amount: item.amount,
-          })),
-          insert_invoice_item: items.map((item) => ({
-            description: item.description,
-            quantity: item.quantity,
-            unit_price: item.unit_price,
-            unit_type: item.unit_type,
-            amount: item.amount,
-          })),
-        }),
-        reference_number: dataIN?.response,
-        invoice_date: `${moment(invoice_date).format('YYYY-MM-DD')}T00:00:00Z`,
-        with_holding_tax: withWHT === 'yes' ? total * 0.02 : 0, // 2% is equivalent to multiplying by 0.02
-        due_date: `${moment(due_date).format('YYYY-MM-DD')}T00:00:00Z`,
-        total: withWHT === 'yes' ? total - total * 0.02 : total,
-      };
-      mutate(body);
-    }
-  };
 
   const handleAddItem = () => {
     modals.open({
@@ -527,6 +488,65 @@ function FormInvoices() {
       const pdfPreview = pdf.output('bloburl');
       window.open(pdfPreview, '_blank', 'width=800,height=600');
     });
+  };
+
+  const totalItem = [...itemsFromData, ...items].reduce(
+    (acc, item) => acc + item.quantity * item.unit_price,
+    0
+  );
+
+  const handleSave = (values) => {
+    const { invoice_date, due_date } = values;
+    const total = [...itemsFromData, ...items].reduce(
+      (total, item) => total + item.amount,
+      0
+    );
+
+    if (total <= 0) {
+      notificationError('Total must be greater than 0');
+    } else {
+      const body = {
+        ...values,
+        ...(isAdd && {
+          id: uuidv4(),
+          list_invoice_item: items.map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            unit_type: item.unit_type,
+            amount: item.amount,
+          })),
+        }),
+        ...(!isAdd && {
+          id: data?.id,
+          delete_invoice_item: itemsDeleted,
+          update_invoice_item: itemsFromData.map((item) => ({
+            id: item.id,
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            unit_type: item.unit_type,
+            amount: item.amount,
+          })),
+          insert_invoice_item: items.map((item) => ({
+            description: item.description,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            unit_type: item.unit_type,
+            amount: item.amount,
+          })),
+        }),
+        reference_number: dataIN?.response,
+        invoice_date: `${moment(invoice_date).format('YYYY-MM-DD')}T00:00:00Z`,
+        with_holding_tax: withWHT === 'yes' ? (total * wht) / 100 : 0,
+        value_added_tax: withVAT === 'yes' ? (total * vat) / 100 : 0,
+        with_holding_tax_percentage: withWHT === 'yes' ? wht : 0,
+        value_added_tax_percentage: withVAT === 'yes' ? vat : 0,
+        due_date: `${moment(due_date).format('YYYY-MM-DD')}T00:00:00Z`,
+        total: total - (total * wht) / 100 - (total * vat) / 100,
+      };
+      mutate(body);
+    }
   };
 
   return (
@@ -650,28 +670,44 @@ function FormInvoices() {
               <Flex gap="xl" justify="space-between" maw={300}>
                 <Radio.Group
                   name="wht"
-                  label="WHT 23 (2%)"
+                  label={`WHT 23 (${wht}%)`}
                   mb="lg"
                   value={withWHT}
                   onChange={setWithWHT}
                   withAsterisk
                 >
                   <Group mt="xs">
-                    <Radio disabled={modeDetail} value="yes" label="Yes" />
-                    <Radio disabled={modeDetail} value="no" label="No" />
+                    <Radio
+                      disabled={modeDetail || modeEdit}
+                      value="yes"
+                      label="Yes"
+                    />
+                    <Radio
+                      disabled={modeDetail || modeEdit}
+                      value="no"
+                      label="No"
+                    />
                   </Group>
                 </Radio.Group>
                 <Radio.Group
                   name="vat"
-                  label="VAT (0%)"
+                  label={`VAT (${vat}%)`}
                   mb="lg"
                   value={withVAT}
                   onChange={setWithVAT}
                   withAsterisk
                 >
                   <Group mt="xs">
-                    <Radio disabled={modeDetail} value="yes" label="Yes" />
-                    <Radio disabled={modeDetail} value="no" label="No" />
+                    <Radio
+                      disabled={modeDetail || modeEdit}
+                      value="yes"
+                      label="Yes"
+                    />
+                    <Radio
+                      disabled={modeDetail || modeEdit}
+                      value="no"
+                      label="No"
+                    />
                   </Group>
                 </Radio.Group>
               </Flex>
@@ -828,22 +864,52 @@ function FormInvoices() {
               <Group mb="sm" mt="xl" justify="flex-end">
                 <Box w={300}>
                   <Group justify="space-between">
-                    <Text>Subtotal</Text>
-                    <NumberFormatter
-                      value={[...itemsFromData, ...items].reduce(
-                        (acc, item) => acc + item.quantity * item.unit_price,
-                        0
+                    <Box>
+                      <Text>Subtotal</Text>
+                      {withVAT === 'yes' && <Text>VAT ({vat}%)</Text>}
+                      {withWHT === 'yes' && <Text>WHT 23 ({wht}%)</Text>}
+                    </Box>
+                    <Flex direction={'column'} align={'flex-end'}>
+                      <NumberFormatter
+                        value={totalItem}
+                        prefix="Rp "
+                        decimalScale={2}
+                        thousandSeparator="."
+                        decimalSeparator=","
+                      />
+                      {withVAT === 'yes' && (
+                        <Text>
+                          (
+                          <NumberFormatter
+                            value={(totalItem * vat) / 100}
+                            prefix="Rp "
+                            decimalScale={2}
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                          )
+                        </Text>
                       )}
-                      prefix="Rp "
-                      decimalScale={2}
-                      thousandSeparator="."
-                      decimalSeparator=","
-                    />
+
+                      {withWHT === 'yes' && (
+                        <Text>
+                          (
+                          <NumberFormatter
+                            value={(totalItem * wht) / 100}
+                            prefix="Rp "
+                            decimalScale={2}
+                            thousandSeparator="."
+                            decimalSeparator=","
+                          />
+                          )
+                        </Text>
+                      )}
+                    </Flex>
                   </Group>
-                  <Group justify="space-between">
-                    <Text>VAT (0%)</Text>
+                  {/* <Group justify="space-between">
+                    <Text>VAT ({vat}%)</Text>
                     <Text>0</Text>
-                  </Group>
+                  </Group> */}
                   {dataTotalPaid && dataTotalPaid?.response?.payment > 0 && (
                     <Group justify="space-between">
                       <Text>Paid</Text>
@@ -864,51 +930,16 @@ function FormInvoices() {
                   <Divider mt="md" mb="xs" />
                   <Group justify="space-between">
                     <Box>
-                      {withWHT === 'yes' && <Text>WHT 23 (2%)</Text>}
                       <Title order={4}>Total</Title>
                     </Box>
                     <Flex direction="column" align="flex-end">
-                      {withWHT === 'yes' && (
-                        <Text>
-                          (
-                          <NumberFormatter
-                            value={
-                              [...itemsFromData, ...items].reduce(
-                                (acc, item) =>
-                                  acc + item.quantity * item.unit_price,
-                                0
-                              ) * 0.02
-                            }
-                            prefix="Rp "
-                            decimalScale={2}
-                            thousandSeparator="."
-                            decimalSeparator=","
-                          />
-                          )
-                        </Text>
-                      )}
-
                       <Title order={4}>
                         <NumberFormatter
                           value={
-                            withWHT === 'yes'
-                              ? [...itemsFromData, ...items].reduce(
-                                  (acc, item) =>
-                                    acc + item.quantity * item.unit_price,
-                                  0
-                                ) -
-                                [...itemsFromData, ...items].reduce(
-                                  (acc, item) =>
-                                    acc + item.quantity * item.unit_price,
-                                  0
-                                ) *
-                                  0.02 -
-                                (dataTotalPaid?.response?.payment || 0)
-                              : [...itemsFromData, ...items].reduce(
-                                  (acc, item) =>
-                                    acc + item.quantity * item.unit_price,
-                                  0
-                                )
+                            totalItem -
+                            (totalItem * wht) / 100 -
+                            (totalItem * vat) / 100 -
+                            (dataTotalPaid?.response?.payment || 0)
                           }
                           prefix="Rp "
                           decimalScale={2}

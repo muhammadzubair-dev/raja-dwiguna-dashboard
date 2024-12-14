@@ -200,7 +200,7 @@ function MakeATransaction({ data, refetchInvoices }) {
           key={form.key('reference_number')}
           {...form.getInputProps('reference_number')}
         />
-        <Select
+        {/* <Select
           readOnly
           withAsterisk
           disabled={isLoadingAccounts}
@@ -238,7 +238,7 @@ function MakeATransaction({ data, refetchInvoices }) {
           searchable
           key={form.key('sub_category_id')}
           {...form.getInputProps('sub_category_id')}
-        />
+        /> */}
         <NumberInput
           allowNegative={false}
           withAsterisk
@@ -625,6 +625,9 @@ function Invoices() {
     created_by: item.list_employee.email,
     list_invoice_item: item.list_invoice_item,
     with_holding_tax: item.with_holding_tax,
+    value_added_tax: item.value_added_tax,
+    value_added_tax_percentage: item.value_added_tax_percentage,
+    with_holding_tax_percentage: item.with_holding_tax_percentage,
   }));
 
   const handleEditInvoice = (data) => {

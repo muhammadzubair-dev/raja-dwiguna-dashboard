@@ -4,8 +4,27 @@ import logoImage from '../../assets/logo.png';
 import moment from 'moment';
 import { NumberFormatter } from '@mantine/core';
 import separateString from '../../helpers/separateString';
+import { useQuery } from 'react-query';
+import {
+  useGetInvoiceSettings,
+  useGetInvoiceTotalPaid,
+} from '../../helpers/apiHelper';
 
 const PrintInvoice = ({ data }) => {
+  const { data: dataSettings, isLoading: isLoadingSettings } = useQuery(
+    ['invoice-settings'],
+    () => useGetInvoiceSettings()
+  );
+
+  const { data: dataTotalPaid, isLoading: isLoadingTotalPaid } = useQuery(
+    ['total-paid', data?.reference_number],
+    () => useGetInvoiceTotalPaid({ reference_number: data?.reference_number }),
+    { enabled: !!data?.reference_number }
+  );
+
+  const settings = dataSettings?.response;
+  const paid = dataTotalPaid?.response?.payment || 0;
+
   return (
     <div>
       <div
@@ -178,40 +197,121 @@ const PrintInvoice = ({ data }) => {
                 </td>
               </tr>
             ))}
-            <tr>
-              <td
-                style={{
-                  textAlign: 'right',
-                  border: '1px solid #ddd',
-                  padding: '6px 14px',
+            {/* WHT */}
+            {data?.with_holding_tax > 0 && (
+              <tr>
+                <td
+                  style={{
+                    textAlign: 'right',
+                    border: '1px solid #ddd',
+                    padding: '6px 14px',
 
-                  fontSize: 14,
-                }}
-                colSpan="4"
-              >
-                WHT 23 (2%)
-              </td>
-              <td
-                style={{
-                  textAlign: 'right',
-                  border: '1px solid #ddd',
-                  padding: '6px 14px',
+                    fontSize: 14,
+                  }}
+                  colSpan="4"
+                >
+                  WHT 23 ({data?.with_holding_tax_percentage}%)
+                </td>
+                <td
+                  style={{
+                    textAlign: 'right',
+                    border: '1px solid #ddd',
+                    padding: '6px 14px',
 
-                  fontSize: 14,
-                }}
-                colSpan="4"
-              >
-                (
-                <NumberFormatter
-                  value={(data?.amount || 0) * 0.02}
-                  prefix="Rp "
-                  decimalScale={2}
-                  thousandSeparator="."
-                  decimalSeparator=","
-                />
-                )
-              </td>
-            </tr>
+                    fontSize: 14,
+                  }}
+                  colSpan="4"
+                >
+                  (
+                  <NumberFormatter
+                    value={data?.with_holding_tax || 0}
+                    prefix="Rp "
+                    decimalScale={2}
+                    thousandSeparator="."
+                    decimalSeparator=","
+                  />
+                  )
+                </td>
+              </tr>
+            )}
+
+            {/* VAT */}
+            {data?.value_added_tax > 0 && (
+              <tr>
+                <td
+                  style={{
+                    textAlign: 'right',
+                    border: '1px solid #ddd',
+                    padding: '6px 14px',
+
+                    fontSize: 14,
+                  }}
+                  colSpan="4"
+                >
+                  VAT ({data?.value_added_tax_percentage}%)
+                </td>
+                <td
+                  style={{
+                    textAlign: 'right',
+                    border: '1px solid #ddd',
+                    padding: '6px 14px',
+
+                    fontSize: 14,
+                  }}
+                  colSpan="4"
+                >
+                  (
+                  <NumberFormatter
+                    value={data?.value_added_tax || 0}
+                    prefix="Rp "
+                    decimalScale={2}
+                    thousandSeparator="."
+                    decimalSeparator=","
+                  />
+                  )
+                </td>
+              </tr>
+            )}
+
+            {/* PAID */}
+            {paid > 0 && (
+              <tr>
+                <td
+                  style={{
+                    textAlign: 'right',
+                    border: '1px solid #ddd',
+                    padding: '6px 14px',
+
+                    fontSize: 14,
+                  }}
+                  colSpan="4"
+                >
+                  Paid
+                </td>
+                <td
+                  style={{
+                    textAlign: 'right',
+                    border: '1px solid #ddd',
+                    padding: '6px 14px',
+
+                    fontSize: 14,
+                  }}
+                  colSpan="4"
+                >
+                  (
+                  <NumberFormatter
+                    value={paid}
+                    prefix="Rp "
+                    decimalScale={2}
+                    thousandSeparator="."
+                    decimalSeparator=","
+                  />
+                  )
+                </td>
+              </tr>
+            )}
+
+            {/* TOTAL */}
             <tr>
               <td
                 style={{
@@ -236,7 +336,7 @@ const PrintInvoice = ({ data }) => {
                 colSpan="4"
               >
                 <NumberFormatter
-                  value={(data?.amount || 0) - (data?.amount || 0) * 0.02}
+                  value={(data?.amount || 0) - paid}
                   prefix="Rp "
                   decimalScale={2}
                   thousandSeparator="."
@@ -263,6 +363,7 @@ const PrintInvoice = ({ data }) => {
                 <p style={{ marginTop: 0 }}>Transfer to Account</p>
                 <p style={{ marginTop: -12 }}>Account Name</p>
                 <p style={{ marginTop: -12 }}>Account Number</p>
+                <p style={{ marginTop: -12 }}>Contact Person</p>
               </div>
               <div>
                 <p style={{ marginTop: 0 }}>: {data?.bank_name}</p>
@@ -270,6 +371,7 @@ const PrintInvoice = ({ data }) => {
                 <p style={{ marginTop: -12 }}>
                   : {separateString(data?.bank_account_number)}
                 </p>
+                <p style={{ marginTop: -12 }}>: {settings?.contact_person}</p>
               </div>
             </div>
             <div style={{ border: '1px solid #ccc', padding: 4, fontSize: 12 }}>
@@ -314,7 +416,7 @@ const PrintInvoice = ({ data }) => {
                   textAlign: 'center',
                 }}
               >
-                Ray William Fransiscus Sembiring
+                {settings?.name}
               </p>
               <div style={{ borderTop: '1px solid #000' }}>
                 <p
@@ -324,7 +426,7 @@ const PrintInvoice = ({ data }) => {
                     textAlign: 'center',
                   }}
                 >
-                  Direktur Utama
+                  {settings?.position}
                 </p>
               </div>
             </div>

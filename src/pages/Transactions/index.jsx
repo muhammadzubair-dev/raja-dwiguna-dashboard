@@ -261,7 +261,7 @@ function AddAndEditTransaction({ data, refetchTransactions, refetchBalance }) {
         )}
         <TextInput
           withAsterisk
-          disabled={!isAdd}
+          readOnly={!isAdd}
           label="Reference Number"
           key={form.key('reference_number')}
           {...form.getInputProps('reference_number')}
