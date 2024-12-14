@@ -237,6 +237,7 @@ function FormInvoices() {
   const location = useLocation();
   const data = location.state?.data;
   const modeDetail = location.state?.mode === 'detail';
+  const modeEditOnly = location.state?.mode === 'edit';
   const modeEdit = location.state?.mode === 'edit' || !modeDetail;
   const dataWithWHT = data?.with_holding_tax <= 0 ? 'no' : 'yes';
   const dataWithVAT = data?.value_added_tax <= 0 ? 'no' : 'yes';
@@ -678,12 +679,12 @@ function FormInvoices() {
                 >
                   <Group mt="xs">
                     <Radio
-                      disabled={modeDetail || modeEdit}
+                      disabled={modeDetail || modeEditOnly}
                       value="yes"
                       label="Yes"
                     />
                     <Radio
-                      disabled={modeDetail || modeEdit}
+                      disabled={modeDetail || modeEditOnly}
                       value="no"
                       label="No"
                     />
@@ -699,12 +700,12 @@ function FormInvoices() {
                 >
                   <Group mt="xs">
                     <Radio
-                      disabled={modeDetail || modeEdit}
+                      disabled={modeDetail || modeEditOnly}
                       value="yes"
                       label="Yes"
                     />
                     <Radio
-                      disabled={modeDetail || modeEdit}
+                      disabled={modeDetail || modeEditOnly}
                       value="no"
                       label="No"
                     />
