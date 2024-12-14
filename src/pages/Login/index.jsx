@@ -21,6 +21,7 @@ import logoImage from '../../assets/logo.png';
 import ErrorMessage from '../../components/ErrorMessage';
 import { usePostLogin } from '../../helpers/apiHelper';
 import { notificationError } from '../../helpers/notificationHelper';
+import mappingPermission from '../../helpers/mappingPermission';
 
 function Login() {
   const navigate = useNavigate();
@@ -44,7 +45,10 @@ function Login() {
           );
         if (truePermissions.length !== 0) {
           localStorage.setItem('token', data.response.token);
-          navigate(`/${truePermissions[0]}`);
+          const findPath = mappingPermission.find(
+            (item) => item.permission === truePermissions[0]
+          );
+          navigate(findPath.path);
         } else {
           notificationError("You don't have permission");
         }
