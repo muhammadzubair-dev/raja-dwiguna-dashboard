@@ -12,6 +12,7 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
+import { jwtDecode } from 'jwt-decode';
 import { hasLength, useForm } from '@mantine/form';
 import { useEffect } from 'react';
 import { useMutation, useQuery } from 'react-query';
@@ -19,13 +20,35 @@ import { useNavigate } from 'react-router-dom';
 import logoImage from '../../assets/logo.png';
 import ErrorMessage from '../../components/ErrorMessage';
 import { usePostLogin } from '../../helpers/apiHelper';
+import { notificationError } from '../../helpers/notificationHelper';
 
 function Login() {
   const navigate = useNavigate();
   const { mutate, isLoading, error } = useMutation(usePostLogin, {
     onSuccess: (data) => {
-      localStorage.setItem('token', data.response.token);
-      navigate('/');
+      const decoded = jwtDecode(data.response.token);
+      const findDashboard = decoded.privilege.find(
+        (item) => item.module === 'dashboard'
+      );
+
+      if (findDashboard.permission.dashboard) {
+        localStorage.setItem('token', data.response.token);
+        navigate('/');
+      } else {
+        const truePermissions = decoded.privilege
+          .filter((item) => item.status)
+          .flatMap((item) =>
+            Object.entries(item.permission)
+              .filter(([key, value]) => value)
+              .map(([key, value]) => key)
+          );
+        if (truePermissions.length !== 0) {
+          localStorage.setItem('token', data.response.token);
+          navigate(`/${truePermissions[0]}`);
+        } else {
+          notificationError("You don't have permission");
+        }
+      }
     },
   });
 
