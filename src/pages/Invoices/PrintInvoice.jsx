@@ -6,14 +6,14 @@ import { NumberFormatter } from '@mantine/core';
 import separateString from '../../helpers/separateString';
 import { useQuery } from 'react-query';
 import {
-  useGetInvoiceSettings,
+  useGetFinanceInvoiceSettings,
   useGetInvoiceTotalPaid,
 } from '../../helpers/apiHelper';
 
 const PrintInvoice = ({ data }) => {
   const { data: dataSettings, isLoading: isLoadingSettings } = useQuery(
-    ['invoice-settings'],
-    () => useGetInvoiceSettings()
+    ['finance-invoice-settings'],
+    () => useGetFinanceInvoiceSettings()
   );
 
   const { data: dataTotalPaid, isLoading: isLoadingTotalPaid } = useQuery(

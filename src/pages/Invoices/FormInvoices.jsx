@@ -45,7 +45,7 @@ import {
   useGetClients,
   useGetInvoiceImages,
   useGetInvoiceNumber,
-  useGetInvoiceSettings,
+  useGetFinanceInvoiceSettings,
   useGetInvoiceTotalPaid,
   useGetOptionAccounts,
   useGetOptionCategories,
@@ -335,8 +335,8 @@ function FormInvoices() {
   );
 
   const { data: dataSettings, isLoading: isLoadingSettings } = useQuery(
-    ['invoice-settings'],
-    () => useGetInvoiceSettings()
+    ['finance-invoice-settings'],
+    () => useGetFinanceInvoiceSettings()
   );
 
   const settings = dataSettings?.response;

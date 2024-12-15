@@ -275,3 +275,8 @@ export const useGetInvoiceSettings = async () => {
 export const usePostInvoiceSettings = async (body) => {
   return fetchRequest(`/finance/settings/invoice`, 'POST', { body });
 };
+
+export const useGetFinanceInvoiceSettings = async () => {
+  return fetchRequest(`/finance/invoice/setting`, 'GET');
+};
+
