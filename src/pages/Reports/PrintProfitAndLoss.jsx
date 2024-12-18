@@ -84,7 +84,7 @@ function PrintProfitAndLoss({
           style={{ position: 'absolute', top: 10, left: 10 }}
         />
         <Title c="#000" order={2} mb="sm" ta="center">
-          PT Dwiguna Raja Semesta
+          PT Raja Dwiguna Semesta
         </Title>
         <Text fz={18} c="#868e96" ta="center">
           Profit and Loss Report
@@ -114,8 +114,8 @@ function PrintProfitAndLoss({
         />
         <Box h={20} />
 
-        {/* Cost of Goods Sold */}
-        <BuildRow isTitle={true} label="Cost of Goods Sold" bg={colorTitle1} />
+        {/* Project Expenses */}
+        <BuildRow isTitle={true} label="Project Expenses" bg={colorTitle1} />
         {dataCostOfGoodsSold?.data?.map(({ name, amount, is_income }) => (
           <BuildRow
             key={name}
@@ -127,9 +127,20 @@ function PrintProfitAndLoss({
         <BuildRow
           isTitle={true}
           bg={colorTitle2}
-          label="Total Cost of Goods Sold"
+          label="Total Project Expenses"
           value={totalCostOfGoodsSold}
           isIncome={totalCostOfGoodsSold >= 0}
+        />
+        <Box h={20} />
+
+        {/* Gross Profit */}
+        <BuildRow
+          isTitle={true}
+          bg={colorTitle3}
+          label="Gross Profit"
+          fw={800}
+          value={totalIncome + totalCostOfGoodsSold}
+          isIncome={totalIncome + totalCostOfGoodsSold >= 0}
         />
         <Box h={20} />
 

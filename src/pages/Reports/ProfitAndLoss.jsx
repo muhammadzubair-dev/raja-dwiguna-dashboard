@@ -72,7 +72,7 @@ function ProfitAndLoss({ startMonth, selectedMonth, endMonth, data }) {
   return (
     <>
       <Title order={2} mb="sm" ta="center">
-        PT Dwiguna Raja Semesta
+        PT Raja Dwiguna Semesta
       </Title>
       <Text fz={18} c="dimmed" ta="center">
         Profit and Loss Report
@@ -96,17 +96,28 @@ function ProfitAndLoss({ startMonth, selectedMonth, endMonth, data }) {
       />
       <Box h={20} />
 
-      {/* Cost of Goods Sold */}
-      <BuildRow isTitle={true} label="Cost of Goods Sold" bg={colorTitle1} />
+      {/* Project Expenses */}
+      <BuildRow isTitle={true} label="Project Expenses" bg={colorTitle1} />
       {dataCostOfGoodsSold?.data?.map(({ name, amount, is_income }) => (
         <BuildRow key={name} label={name} value={amount} isIncome={is_income} />
       ))}
       <BuildRow
         isTitle={true}
         bg={colorTitle2}
-        label="Total Cost of Goods Sold"
+        label="Total Project Expenses"
         value={totalCostOfGoodsSold}
         isIncome={totalCostOfGoodsSold >= 0}
+      />
+      <Box h={20} />
+
+      {/* Gross Profit */}
+      <BuildRow
+        isTitle={true}
+        bg={colorTitle3}
+        label="Gross Profit"
+        fw={800}
+        value={totalIncome + totalCostOfGoodsSold}
+        isIncome={totalIncome + totalCostOfGoodsSold >= 0}
       />
       <Box h={20} />
 

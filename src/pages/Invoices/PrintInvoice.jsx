@@ -198,7 +198,7 @@ const PrintInvoice = ({ data }) => {
               </tr>
             ))}
             {/* WHT */}
-            {data?.with_holding_tax > 0 && (
+            {/* {data?.with_holding_tax > 0 && (
               <tr>
                 <td
                   style={{
@@ -233,7 +233,7 @@ const PrintInvoice = ({ data }) => {
                   )
                 </td>
               </tr>
-            )}
+            )} */}
 
             {/* VAT */}
             {data?.value_added_tax > 0 && (
@@ -336,7 +336,9 @@ const PrintInvoice = ({ data }) => {
                 colSpan="4"
               >
                 <NumberFormatter
-                  value={(data?.amount || 0) - paid}
+                  value={
+                    (data?.amount || 0) + (data?.with_holding_tax || 0) - paid
+                  }
                   prefix="Rp "
                   decimalScale={2}
                   thousandSeparator="."

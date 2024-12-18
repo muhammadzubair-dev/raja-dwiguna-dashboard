@@ -85,7 +85,7 @@ function PrintCashFlow({
           style={{ position: 'absolute', top: 10, left: 10 }}
         />
         <Title c="#000" order={2} mb="sm" ta="center">
-          PT Dwiguna Raja Semesta
+          PT Raja Dwiguna Semesta
         </Title>
         <Text fz={18} c="#868e96" ta="center">
           Cash Flow Report

@@ -72,7 +72,7 @@ function CashFlow({ startMonth, selectedMonth, endMonth, data, dataBalance }) {
   return (
     <>
       <Title order={2} mb="sm" ta="center">
-        PT Dwiguna Raja Semesta
+        PT Raja Dwiguna Semesta
       </Title>
       <Text fz={18} c="dimmed" ta="center">
         Cash Flow Report
