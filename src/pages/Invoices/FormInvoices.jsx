@@ -590,7 +590,7 @@ function FormInvoices() {
                 <Grid.Col span={{ base: 12, md: 4 }}>
                   <DatePickerInput
                     readOnly={modeDetail}
-                    minDate={new Date()}
+                    // minDate={new Date()}
                     rightSection={<IconCalendar size={18} />}
                     label="Invoice Date"
                     key={form.key('invoice_date')}
