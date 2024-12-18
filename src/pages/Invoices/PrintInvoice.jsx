@@ -376,7 +376,9 @@ const PrintInvoice = ({ data }) => {
             </div>
             <div style={{ border: '1px solid #ccc', padding: 4, fontSize: 12 }}>
               <p style={{ margin: 0 }}>Notes:</p>
-              <p style={{ margin: 0, maxWidth: 300 }}>{data?.notes}</p>
+              <pre style={{ margin: 0, maxWidth: 300, lineHeight: 1.2 }}>
+                {data?.notes}
+              </pre>
             </div>
           </div>
           <div
