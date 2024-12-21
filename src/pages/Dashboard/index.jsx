@@ -495,12 +495,24 @@ function Dashboard() {
                     placeholder="Select month range"
                     value={valueBarChart}
                     onChange={setValueBarChart}
-                    disabled={isLoadingBarChart}
+                    disabled={
+                      isLoadingBarChart ||
+                      isLoadingBarChartCategory ||
+                      isLoadingBarChartSubCategory
+                    }
                     rightSection={
                       <ActionIcon
                         variant="subtle"
-                        loading={isLoadingBarChart}
-                        onClick={refetchBarChart}
+                        loading={
+                          isLoadingBarChart ||
+                          isLoadingBarChartCategory ||
+                          isLoadingBarChartSubCategory
+                        }
+                        onClick={() => {
+                          refetchBarChart();
+                          refetchBarChartCategory();
+                          refetchBarChartSubCategory();
+                        }}
                       >
                         <IconSearch size={14} />
                       </ActionIcon>
