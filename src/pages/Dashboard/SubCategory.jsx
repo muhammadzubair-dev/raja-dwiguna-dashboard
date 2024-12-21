@@ -4,12 +4,31 @@ import React from 'react';
 import shortCurrency from '../../helpers/shortCurrency';
 import randomColors from '../../helpers/randomColors';
 
+function removeSymbolsFromKeys(data) {
+  return data.map((obj) => {
+    let cleanedObj = {};
+    Object.keys(obj).forEach((key) => {
+      // Clean the key by removing symbols
+      let cleanedKey = key.replace(/[^a-zA-Z0-9\s]/g, '');
+      cleanedObj[cleanedKey] = obj[key];
+    });
+    return cleanedObj;
+  });
+}
+
+function removeSymbolsFromArr(data) {
+  return data.map((row) => row.replace(/[^a-zA-Z0-9\s]/g, ''));
+}
+
 function SubCategory({
   isLoadingBarChartSubCategory,
   errorBarChartSubCategory,
   recordBarChartSubCategory,
   selectedSubCategory,
 }) {
+  const records = removeSymbolsFromKeys(recordBarChartSubCategory);
+  const selectedRecords = removeSymbolsFromArr(selectedSubCategory);
+
   return (
     <Skeleton visible={isLoadingBarChartSubCategory}>
       {errorBarChartSubCategory ? (
@@ -20,13 +39,13 @@ function SubCategory({
         <BarChart
           h={300}
           valueFormatter={(value) => shortCurrency(value)}
-          data={recordBarChartSubCategory}
+          data={records}
           dataKey="date"
           withLegend
           barProps={{ radius: 10 }}
           series={
-            selectedSubCategory.length !== 0
-              ? selectedSubCategory.map((key, index) => ({
+            selectedRecords.length !== 0
+              ? selectedRecords.map((key, index) => ({
                   name: key,
                   color: randomColors[index],
                 }))
