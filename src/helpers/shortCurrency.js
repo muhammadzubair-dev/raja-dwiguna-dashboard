@@ -1,4 +1,4 @@
-function shortCurrency(number, space = true) {
+function shortCurrency(number = 0, space = true) {
   const absNumber = Math.abs(number);
   const withSpace = space ? ' ' : '';
   if (absNumber >= 1e9) {
