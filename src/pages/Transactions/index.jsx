@@ -218,46 +218,46 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
   return (
     <form onSubmit={form.onSubmit(handleSave)}>
       <Stack gap="xs">
-        {isAdd && (
-          <>
-            <Select
-              withAsterisk
-              disabled={isLoadingAccounts}
-              placeholder={isLoadingAccounts ? 'Loading...' : ''}
-              label="Bank Account"
-              data={recordsAccount}
-              searchable
-              key={form.key('account_id')}
-              {...form.getInputProps('account_id')}
-            />
-            <Select
-              withAsterisk
-              disabled={isLoadingCategories}
-              placeholder={isLoadingCategories ? 'Loading...' : ''}
-              label="Category"
-              data={recordsCategory}
-              searchable
-              key={form.key('category_id')}
-              {...form.getInputProps('category_id')}
-            />
-            <Select
-              withAsterisk
-              disabled={isLoadingCategories || recordsSubCategory?.length === 0}
-              placeholder={
-                isLoadingCategories
-                  ? 'Loading...'
-                  : recordsSubCategory?.length === 0
-                  ? 'No Sub Category, Please select another Category'
-                  : ''
-              }
-              label="Sub Category"
-              data={recordsSubCategory}
-              searchable
-              key={form.key('sub_category_id')}
-              {...form.getInputProps('sub_category_id')}
-            />
-          </>
-        )}
+        {/* {isAdd && (
+          <> */}
+        <Select
+          withAsterisk
+          disabled={isLoadingAccounts}
+          placeholder={isLoadingAccounts ? 'Loading...' : ''}
+          label="Bank Account"
+          data={recordsAccount}
+          searchable
+          key={form.key('account_id')}
+          {...form.getInputProps('account_id')}
+        />
+        <Select
+          withAsterisk
+          disabled={isLoadingCategories}
+          placeholder={isLoadingCategories ? 'Loading...' : ''}
+          label="Category"
+          data={recordsCategory}
+          searchable
+          key={form.key('category_id')}
+          {...form.getInputProps('category_id')}
+        />
+        <Select
+          withAsterisk
+          disabled={isLoadingCategories || recordsSubCategory?.length === 0}
+          placeholder={
+            isLoadingCategories
+              ? 'Loading...'
+              : recordsSubCategory?.length === 0
+              ? 'No Sub Category, Please select another Category'
+              : ''
+          }
+          label="Sub Category"
+          data={recordsSubCategory}
+          searchable
+          key={form.key('sub_category_id')}
+          {...form.getInputProps('sub_category_id')}
+        />
+        {/* </>
+        )} */}
         <TextInput
           withAsterisk
           readOnly={!isAdd}
