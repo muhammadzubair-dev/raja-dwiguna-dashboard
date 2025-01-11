@@ -282,7 +282,7 @@ function FormInvoices() {
     ['invoice-images', data?.id],
     () => useGetInvoiceImages(data?.id),
     {
-      enabled: !modeDetail && !modeEdit,
+      enabled: !isAdd,
       onSuccess: (res) => {
         if (res?.response?.length > 0) {
           setFiles(
@@ -682,6 +682,7 @@ function FormInvoices() {
                 disableUpload={modeDetail}
               />
               <Textarea
+                mt={5}
                 autosize
                 minRows={5}
                 label="Additional Notes"

@@ -17,7 +17,7 @@ import {
   IconMinus,
   IconDownload,
 } from '@tabler/icons-react';
-import { Dropzone, IMAGE_MIME_TYPE } from '@mantine/dropzone';
+import { Dropzone, IMAGE_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
 import { useState } from 'react';
 import ImageFullScreen from '../ImageFullScreen';
 
@@ -35,6 +35,13 @@ function UploadImage(props) {
 
   const previews = files.map((file, index) => {
     const isImageUrl = typeof file === 'string';
+    let isPdf = false;
+    if (isImageUrl) {
+      isPdf = file.toLowerCase().endsWith('.pdf');
+    } else {
+      isPdf = file.type === PDF_MIME_TYPE[0];
+    }
+
     const handleDownload = () => {
       const a = document.createElement('a');
       a.href = file;
@@ -87,7 +94,13 @@ function UploadImage(props) {
         <ImageFullScreen
           radius="sm"
           key={index}
-          src={isImageUrl ? file : URL.createObjectURL(file)}
+          src={
+            isPdf
+              ? 'https://placehold.co/100x70/101113/FFF?text=pdf&font=lato'
+              : isImageUrl
+              ? file
+              : URL.createObjectURL(file)
+          }
           w={wImage}
           fit="contain"
           bg="dark.9"
@@ -109,7 +122,7 @@ function UploadImage(props) {
           onDrop={(files) => setFiles((prevFile) => [...prevFile, ...files])}
           onReject={(files) => console.log('rejected files', files)}
           maxSize={5 * 1024 ** 2}
-          accept={IMAGE_MIME_TYPE}
+          accept={[...IMAGE_MIME_TYPE, ...PDF_MIME_TYPE]}
           {...props}
         >
           <Group

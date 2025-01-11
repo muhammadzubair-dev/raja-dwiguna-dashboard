@@ -480,6 +480,7 @@ function ViewImages({ id }) {
   };
 
   const dataNotFound = data?.response?.length === 0;
+  const isPdf = (selectedImage || '').toLowerCase().endsWith('.pdf');
 
   return (
     <Box>
@@ -503,7 +504,11 @@ function ViewImages({ id }) {
               h={400}
               fit="contain"
               radius="sm"
-              src={`https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${selectedImage}`}
+              src={
+                isPdf
+                  ? 'https://placehold.co/100x70/101113/FFF?text=pdf&font=lato'
+                  : `https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${selectedImage}`
+              }
             />
             <Tooltip label="Download">
               <ActionIcon
@@ -521,28 +526,35 @@ function ViewImages({ id }) {
           </Box>
           <Box h={8} />
           <Group gap="xs">
-            {data?.response?.map((item, i) => (
-              <Image
-                onClick={() => setSelectedImage(item)}
-                style={{
-                  cursor: 'pointer',
-                  border:
-                    selectedImage === item
-                      ? '2px solid var(--mantine-color-red-5)'
-                      : 'none',
-                  transform: selectedImage === item ? 'scale(1.2)' : 'scale(1)',
-                  transition: 'transform 0.1s ease-out', // Ease-in transition for smooth scaling
-                  width: 50,
-                  height: 50,
-                }}
-                w={50}
-                h={50}
-                bg={'dark.8'}
-                fit="contain"
-                radius="sm"
-                src={`https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${item}`}
-              />
-            ))}
+            {data?.response?.map((item, i) => {
+              const isPdf = item.toLowerCase().endsWith('.pdf');
+              const itemImage = isPdf
+                ? 'https://placehold.co/100x70/101113/FFF?text=pdf&font=lato'
+                : `https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${item}`;
+              return (
+                <Image
+                  onClick={() => setSelectedImage(item)}
+                  style={{
+                    cursor: 'pointer',
+                    border:
+                      selectedImage === item
+                        ? '2px solid var(--mantine-color-red-5)'
+                        : 'none',
+                    transform:
+                      selectedImage === item ? 'scale(1.2)' : 'scale(1)',
+                    transition: 'transform 0.1s ease-out', // Ease-in transition for smooth scaling
+                    width: 50,
+                    height: 50,
+                  }}
+                  w={50}
+                  h={50}
+                  bg={'dark.8'}
+                  fit="contain"
+                  radius="sm"
+                  src={itemImage}
+                />
+              );
+            })}
           </Group>
         </>
       )}
