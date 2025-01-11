@@ -45,7 +45,7 @@ const getBackgroundImage = () => {
     return afternoonImage; // Afternoon image from 11:00 to 15:59
   } else if (
     currentFormattedTime >= '15:01' &&
-    currentFormattedTime <= '20:37'
+    currentFormattedTime <= '18:31'
   ) {
     return eveningImage; // Evening image from 15:01 to 18:59
   } else {
