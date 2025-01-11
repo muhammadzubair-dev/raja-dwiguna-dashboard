@@ -1,37 +1,27 @@
 import {
-  ActionIcon,
   Box,
   Button,
   Card,
-  Center,
   Divider,
   Flex,
   Group,
   NumberInput,
   Stack,
-  Switch,
   Text,
   TextInput,
-  Textarea,
-  Tooltip,
 } from '@mantine/core';
-import { DataTable } from 'mantine-datatable';
+import { useForm } from '@mantine/form';
+import { modals } from '@mantine/modals';
+import { IconNumber62Small, IconPencil } from '@tabler/icons-react';
+import moment from 'moment';
 import React from 'react';
 import { useMutation, useQuery } from 'react-query';
+import ErrorMessage from '../../components/ErrorMessage';
 import {
   useGetInvoiceSettings,
   usePostInvoiceSettings,
 } from '../../helpers/apiHelper';
-import { modals } from '@mantine/modals';
 import { notificationSuccess } from '../../helpers/notificationHelper';
-import { useForm } from '@mantine/form';
-import {
-  IconNumber62Small,
-  IconPencil,
-  IconPercentage,
-} from '@tabler/icons-react';
-import ErrorMessage from '../../components/ErrorMessage';
-import moment from 'moment';
 
 function AddAndEditInvoice({ data, refetchInvoice }) {
   const isAdd = data ? false : true;
@@ -48,18 +38,23 @@ function AddAndEditInvoice({ data, refetchInvoice }) {
         : '',
       position: data?.position || '',
       name: data?.name || '',
+      contact_person_name: data?.contact_person_name || '',
     },
 
     validate: {
       with_holding_tax_percentage: (value) =>
-        String(value).trim().length > 0 ? null : 'Contact Person is required',
+        String(value).trim().length > 0 ? null : 'WHT is required',
       value_added_tax_percentage: (value) =>
-        String(value).trim().length > 0 ? null : 'Contact Person is required',
+        String(value).trim().length > 0 ? null : 'VAT is required',
       contact_person: (value) =>
-        String(value).trim().length > 0 ? null : 'Contact Person is required',
+        String(value).trim().length > 0
+          ? null
+          : 'Contact Person Number is required',
       position: (value) =>
         value.trim().length > 0 ? null : 'Position is required',
       name: (value) => (value.trim().length > 0 ? null : 'Name is required'),
+      contact_person_name: (value) =>
+        value.trim().length > 0 ? null : 'Contact Person Name is required',
     },
   });
 
@@ -103,6 +98,12 @@ function AddAndEditInvoice({ data, refetchInvoice }) {
           label="Contact Person"
           key={form.key('contact_person')}
           {...form.getInputProps('contact_person')}
+        />
+        <TextInput
+          withAsterisk
+          label="Contact Name"
+          key={form.key('contact_person_name')}
+          {...form.getInputProps('contact_person_name')}
         />
         <NumberInput
           suffix=" %"
@@ -155,7 +156,7 @@ function Invoice() {
     modals.open({
       title: 'Update Invoice Settings',
       centered: true,
-      size: 'xs',
+      size: 'sm',
       radius: 'md',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
       children: (
@@ -189,6 +190,13 @@ function Invoice() {
           <Flex justify="space-between" gap="lg" p="lg">
             <Text>Contact Person</Text>
             <Text>{records?.contact_person || '-'}</Text>
+          </Flex>
+          <Divider />
+
+          {/* contact_person_name */}
+          <Flex justify="space-between" gap="lg" p="lg">
+            <Text>Contact Person Name</Text>
+            <Text>{records?.contact_person_name || '-'}</Text>
           </Flex>
           <Divider />
 

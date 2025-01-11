@@ -1,0 +1,8 @@
+.adjustTooltip {
+    color: red;
+
+    & .mantine-DonutChart-root .recharts-tooltip-wrapper.recharts-tooltip-wrapper-left.recharts-tooltip-wrapper-top {
+        top: 200px;
+    }
+  }
+  

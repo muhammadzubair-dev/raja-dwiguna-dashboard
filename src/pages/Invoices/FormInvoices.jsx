@@ -1,11 +1,7 @@
 import {
   ActionIcon,
-  Anchor,
-  Badge,
   Box,
   Button,
-  Center,
-  Chip,
   Container,
   Divider,
   Fieldset,
@@ -21,31 +17,30 @@ import {
   TextInput,
   Textarea,
   Title,
-  Tooltip,
 } from '@mantine/core';
-import React, { useState } from 'react';
-import useSizeContainer from '../../helpers/useSizeContainer';
 import { DatePickerInput } from '@mantine/dates';
+import { useForm } from '@mantine/form';
+import { modals } from '@mantine/modals';
 import {
   IconCalendar,
-  IconDetails,
   IconDownload,
   IconEdit,
-  IconInfoCircle,
-  IconInfoSmall,
-  IconPdf,
   IconPlus,
   IconTrash,
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
-import { useLocation, useNavigate } from 'react-router-dom';
+import moment from 'moment';
+import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
+import ErrorMessage from '../../components/ErrorMessage';
+import UploadImage from '../../components/UploadImage';
 import {
   useDeleteInvoiceImages,
-  useGetClients,
+  useGetFinanceInvoiceSettings,
   useGetInvoiceImages,
   useGetInvoiceNumber,
-  useGetFinanceInvoiceSettings,
   useGetInvoiceTotalPaid,
   useGetOptionAccounts,
   useGetOptionCategories,
@@ -53,20 +48,13 @@ import {
   usePostInvoice,
   usePutInvoice,
 } from '../../helpers/apiHelper';
-import { useForm } from '@mantine/form';
-import { modals } from '@mantine/modals';
-import moment from 'moment';
-import ErrorMessage from '../../components/ErrorMessage';
+import exportToPDF from '../../helpers/exportToPDF';
 import {
   notificationError,
   notificationSuccess,
 } from '../../helpers/notificationHelper';
-import PrintInvoice from './PrintInvoice';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import useFileUpload from '../../helpers/useUploadFile';
-import UploadImage from '../../components/UploadImage';
-import { v4 as uuidv4 } from 'uuid';
+import PrintInvoice from './PrintInvoice';
 
 function AddAndEditItem({ data, setItems, setItemsFromData }) {
   const isAdd = data ? false : true;
@@ -458,36 +446,6 @@ function FormInvoices() {
           setItemsDeleted={setItemsDeleted}
         />
       ),
-    });
-  };
-
-  const handleExportToPDF = () => {
-    const invoiceElement = document.getElementById('invoice-to-capture');
-
-    html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/png');
-
-      const imgWidth = 190; // Width of the PDF (A4)
-      const pageHeight = 297; // Height of the PDF (A4)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      let position = 10; // Start position
-
-      // Add image to the PDF and handle multi-page content
-      while (heightLeft > 0) {
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        if (heightLeft > 0) {
-          pdf.addPage();
-          position = 0;
-        }
-      }
-
-      // Open a new window for preview and allow printing
-      const pdfPreview = pdf.output('bloburl');
-      window.open(pdfPreview, '_blank', 'width=800,height=600');
     });
   };
 
@@ -960,7 +918,7 @@ function FormInvoices() {
             <Button
               color="green"
               loading={isLoadingInvoice}
-              onClick={handleExportToPDF}
+              onClick={() => exportToPDF('invoice')}
               leftSection={<IconDownload size={16} />}
             >
               Export to PDF

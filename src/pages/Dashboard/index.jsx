@@ -1,30 +1,21 @@
 import {
-  BarChart,
-  DonutChart,
-  PieChart,
-  RadialBarChart,
-} from '@mantine/charts';
-import {
   ActionIcon,
   Badge,
   Box,
   Button,
   Card,
-  Center,
   Container,
   Flex,
   Grid,
-  Group,
   MultiSelect,
   NumberFormatter,
   SegmentedControl,
   Select,
   Skeleton,
   Stack,
-  Tabs,
   Text,
   ThemeIcon,
-  rem,
+  rem
 } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
 import {
@@ -36,7 +27,7 @@ import {
 } from '@tabler/icons-react';
 import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -53,15 +44,11 @@ import {
   useGetOptionCategories,
   useGetTransactions,
 } from '../../helpers/apiHelper';
-import shortCurrency from '../../helpers/shortCurrency';
 import useSizeContainer from '../../helpers/useSizeContainer';
-import randomColors from '../../helpers/randomColors';
-import Category from './Category';
-import SubCategory from './SubCategory';
 import Cashflow from './Cashflow';
-import calculatePercentage from '../../helpers/calculatePercentage';
-import { Tooltip } from 'recharts';
+import Category from './Category';
 import PercentageChart from './PercentageChart';
+import SubCategory from './SubCategory';
 
 const TEN_MINUTES = 600000;
 

@@ -19,13 +19,12 @@ import {
   IconFileSearch,
   IconFilter,
 } from '@tabler/icons-react';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
 import ErrorMessage from '../../components/ErrorMessage';
 import { useGetReportBalance, useGetReports } from '../../helpers/apiHelper';
+import exportToPDF from '../../helpers/exportToPDF';
 import useSizeContainer from '../../helpers/useSizeContainer';
 import CashFlow from './CashFlow';
 import ProfitAndLoss from './ProfitAndLoss';
@@ -162,38 +161,6 @@ function Reports() {
     });
   };
 
-  const handleExportToPDF = () => {
-    const reportElement = document.getElementById(
-      `${currentReport}-to-capture`
-    );
-
-    html2canvas(reportElement, { scale: 2 }).then((canvas) => {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/png');
-
-      const imgWidth = 190; // Width of the PDF (A4)
-      const pageHeight = 297; // Height of the PDF (A4)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      let position = 10; // Start position
-
-      // Add image to the PDF and handle multi-page content
-      while (heightLeft > 0) {
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        if (heightLeft > 0) {
-          pdf.addPage();
-          position = 0;
-        }
-      }
-
-      // Open a new window for preview and allow printing
-      const pdfPreview = pdf.output('bloburl');
-      window.open(pdfPreview, '_blank', 'width=800,height=600');
-    });
-  };
-
   return (
     <Container
       size="xl"
@@ -228,7 +195,7 @@ function Reports() {
         )}
         <Group justify="flex-end">
           <Button
-            onClick={handleExportToPDF}
+            onClick={() => exportToPDF(currentReport)}
             leftSection={<IconDownload size={14} />}
             variant="default"
           >

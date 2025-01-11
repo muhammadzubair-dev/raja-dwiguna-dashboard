@@ -1,69 +1,34 @@
 import {
-  BarChart,
   DonutChart,
-  PieChart,
-  RadialBarChart,
+  PieChart
 } from '@mantine/charts';
 import {
   ActionIcon,
-  Badge,
-  Box,
-  Button,
   Card,
   Center,
-  Container,
   Flex,
-  Grid,
   Group,
-  MultiSelect,
-  NumberFormatter,
-  SegmentedControl,
-  Select,
   Skeleton,
   Stack,
-  Tabs,
   Text,
-  ThemeIcon,
   rem,
-  useMantineColorScheme,
-  useMantineTheme,
+  useMantineColorScheme
 } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
 import {
-  IconBuildingBank,
-  IconCoin,
-  IconCoinOff,
-  IconMoneybag,
-  IconSearch,
+  IconSearch
 } from '@tabler/icons-react';
-import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from 'react-query';
-import { useNavigate } from 'react-router-dom';
 import {
-  useGetDashboardBalance,
   useGetDashboardBarChart,
   useGetDashboardBarChartCategory,
-  useGetDashboardBarChartSubCategory,
-  useGetDashboardIncome,
-  useGetDashboardOutcome,
-  useGetDashboardReceivable,
-  useGetDashboardTopIncome,
-  useGetDashboardTopOutcome,
-  useGetInvoices,
-  useGetOptionCategories,
-  useGetTransactions,
+  useGetDashboardBarChartSubCategory
 } from '../../helpers/apiHelper';
-import shortCurrency from '../../helpers/shortCurrency';
-import useSizeContainer from '../../helpers/useSizeContainer';
 import randomColors from '../../helpers/randomColors';
-import Category from './Category';
-import SubCategory from './SubCategory';
-import Cashflow from './Cashflow';
-import calculatePercentage from '../../helpers/calculatePercentage';
-import { Tooltip } from 'recharts';
-
+import shortCurrency from '../../helpers/shortCurrency';
+import classes from './index.module.css';
 const TEN_MINUTES = 600000;
 
 const iconStyle = { width: rem(12), height: rem(12) };
@@ -178,7 +143,7 @@ function PercentageChart() {
   };
 
   return (
-    <Card withBorder radius="lg" pb={0}>
+    <Card withBorder radius="lg" pb={0} style={{ overflow: 'visible' }}>
       <Flex
         justify="space-between"
         gap="md"
@@ -250,7 +215,7 @@ function PercentageChart() {
           </Group>
         </Skeleton>
         <Skeleton flex={1} visible={isLoadingPieChartCategory}>
-          <Center>
+          <Center className={classes.adjustTooltip}>
             {errorPieChartCategory ? (
               <Text c="red">Error: {errorPieChartCategory?.message}</Text>
             ) : (

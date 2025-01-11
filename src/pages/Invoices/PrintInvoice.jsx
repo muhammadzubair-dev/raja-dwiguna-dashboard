@@ -373,7 +373,9 @@ const PrintInvoice = ({ data }) => {
                 <p style={{ marginTop: -12 }}>
                   : {separateString(data?.bank_account_number)}
                 </p>
-                <p style={{ marginTop: -12 }}>: {settings?.contact_person}</p>
+                <p style={{ marginTop: -12 }}>
+                  : {settings?.contact_person_name} - {settings?.contact_person}
+                </p>
               </div>
             </div>
             <div style={{ border: '1px solid #ccc', padding: 4, fontSize: 12 }}>

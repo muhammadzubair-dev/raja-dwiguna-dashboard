@@ -5,10 +5,12 @@ import {
   Box,
   Button,
   Card,
+  Center,
   Container,
   Flex,
   Group,
-  Input,
+  Image,
+  Loader,
   Menu,
   NumberFormatter,
   NumberInput,
@@ -17,15 +19,11 @@ import {
   Text,
   TextInput,
   Textarea,
-  Title,
   Tooltip,
-  Image,
-  Grid,
-  Skeleton,
-  Center,
-  Loader,
 } from '@mantine/core';
+import { DatePickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
+import { useMediaQuery } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import {
   IconCalendar,
@@ -34,7 +32,6 @@ import {
   IconEdit,
   IconFileTypePdf,
   IconFilter,
-  IconPdf,
   IconPhoto,
   IconPlus,
   IconSearch,
@@ -44,37 +41,30 @@ import { DataTable } from 'mantine-datatable';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { useMutation, useQuery } from 'react-query';
+import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import ErrorMessage from '../../components/ErrorMessage';
+import ImageFullScreen from '../../components/ImageFullScreen';
+import UploadImage from '../../components/UploadImage';
 import {
+  useDeleteInvoice,
+  useDeleteTransactionImages,
+  useGetInvoiceImages,
+  useGetInvoiceTotalPaid,
+  useGetInvoices,
   useGetOptionAccounts,
   useGetOptionCategories,
-  useGetInvoices,
-  usePostInvoice,
-  usePutInvoice,
-  useDeleteInvoice,
   usePostInvoiceTransaction,
-  useGetInvoiceTotalPaid,
-  useGetInvoiceImages,
-  useGetTransactionImage,
-  useDeleteTransactionImages,
 } from '../../helpers/apiHelper';
+import exportToPDF from '../../helpers/exportToPDF';
 import {
   notificationError,
   notificationSuccess,
 } from '../../helpers/notificationHelper';
 import usePagination from '../../helpers/usePagination';
-import { DatePickerInput } from '@mantine/dates';
 import useSizeContainer from '../../helpers/useSizeContainer';
-import { useMediaQuery } from '@mantine/hooks';
-import { useNavigate } from 'react-router-dom';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
-import PrintInvoice from './PrintInvoice';
 import useFileUpload from '../../helpers/useUploadFile';
-import { v4 as uuidv4 } from 'uuid';
-import { useFullscreen } from '@mantine/hooks';
-import ImageFullScreen from '../../components/ImageFullScreen';
-import UploadImage from '../../components/UploadImage';
+import PrintInvoice from './PrintInvoice';
 function MakeATransaction({ data, refetchInvoices }) {
   const form = useForm({
     mode: 'controlled',
@@ -717,36 +707,6 @@ function Invoices() {
     });
   };
 
-  const handleExportToPDF = () => {
-    const invoiceElement = document.getElementById('invoice-to-capture');
-
-    html2canvas(invoiceElement, { scale: 2 }).then((canvas) => {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/png');
-
-      const imgWidth = 190; // Width of the PDF (A4)
-      const pageHeight = 297; // Height of the PDF (A4)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      let position = 10; // Start position
-
-      // Add image to the PDF and handle multi-page content
-      while (heightLeft > 0) {
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        if (heightLeft > 0) {
-          pdf.addPage();
-          position = 0;
-        }
-      }
-
-      // Open a new window for preview and allow printing
-      const pdfPreview = pdf.output('bloburl');
-      window.open(pdfPreview, '_blank', 'width=800,height=600');
-    });
-  };
-
   const handleViewImages = (id) => {
     modals.open({
       title: 'View Images',
@@ -930,7 +890,7 @@ function Invoices() {
 
                     <Menu.Dropdown>
                       <Menu.Item
-                        onClick={handleExportToPDF}
+                        onClick={() => exportToPDF('invoice')}
                         rightSection={<IconFileTypePdf size={20} />}
                       >
                         Download as PDF
