@@ -44,7 +44,7 @@ function UploadImage(props) {
     };
 
     return (
-      <Box pos="relative">
+      <Box pos="relative" key={file}>
         {!disableActions && (
           <ActionIcon
             color="red"
@@ -53,6 +53,7 @@ function UploadImage(props) {
             pos="absolute"
             right={0}
             top={0}
+            style={{ zIndex: 20 }}
             onClick={() => {
               setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
               if (isImageUrl) {
@@ -77,6 +78,7 @@ function UploadImage(props) {
               right={4}
               top={4}
               onClick={handleDownload}
+              style={{ zIndex: 20 }}
             >
               <IconDownload strokeWidth={3} size={14} />
             </ActionIcon>
@@ -85,7 +87,6 @@ function UploadImage(props) {
 
         <ImageFullScreen
           radius="sm"
-          key={index}
           src={file}
           w={wImage}
           fit="contain"

@@ -16,15 +16,50 @@ function ImageFullScreen(props) {
 
   if (isPdf) {
     return (
-      <Box w={props.w} h={props.h} onClick={toggle}>
+      <Box
+        w={props.w}
+        h={props.h}
+        ref={ref}
+        onClick={() => window.open(file)}
+        style={{
+          cursor: 'pointer',
+        }}
+      >
+        <div
+          style={{
+            borderRadius: 4,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            color: 'white',
+            fontSize: '14px',
+            textAlign: 'center',
+            zIndex: 2, // Higher z-index to ensure overlay is on top
+          }}
+        />
         <object
-          ref={ref}
-          data={isImageUrl ? file : URL.createObjectURL(file)}
+          data={
+            isImageUrl
+              ? file
+              : URL.createObjectURL(file) + '#toolbar=0&scrollbar=0'
+          }
           type="application/pdf"
           aria-label="Invoice Preview"
           width={'100%'}
           height={'100%'}
-          style={{ overflow: 'hidden' }}
+          style={{
+            borderRadius: 4,
+            position: 'absolute',
+            overflow: 'hidden',
+            top: 0,
+            left: 0,
+            zIndex: 1,
+          }}
         >
           <p>
             Your browser does not support PDFs. Please{' '}

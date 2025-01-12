@@ -2,14 +2,12 @@ import {
   ActionIcon,
   Anchor,
   Badge,
-  Box,
   Button,
   Card,
   Center,
   Container,
   Flex,
   Group,
-  Image,
   Loader,
   Menu,
   NumberFormatter,
@@ -44,12 +42,11 @@ import { useMutation, useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import ErrorMessage from '../../components/ErrorMessage';
-import ImageFullScreen from '../../components/ImageFullScreen';
+import PreviewImages from '../../components/PreviewImages';
 import UploadImage from '../../components/UploadImage';
 import {
   useDeleteInvoice,
   useDeleteTransactionImages,
-  useGetInvoiceImages,
   useGetInvoiceTotalPaid,
   useGetInvoices,
   useGetOptionAccounts,
@@ -65,7 +62,6 @@ import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
 import useFileUpload from '../../helpers/useUploadFile';
 import PrintInvoice from './PrintInvoice';
-import PreviewImages from '../../components/PreviewImages';
 function MakeATransaction({ data, refetchInvoices }) {
   const form = useForm({
     mode: 'controlled',
@@ -453,113 +449,6 @@ function FilterInvoices({
         Search
       </Button>
     </>
-  );
-}
-
-function ViewImages({ id }) {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const { data, isLoading, error, isFetching } = useQuery(
-    ['invoice-images', id],
-    () => useGetInvoiceImages(id),
-    {
-      onSuccess: (res) => {
-        if (res?.code === 200 && res?.response?.length > 0) {
-          setSelectedImage(res?.response[0]);
-        }
-      },
-    }
-  );
-
-  const handleDownload = () => {
-    const imageUrl = `https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${selectedImage}`;
-    const a = document.createElement('a');
-    a.href = imageUrl;
-    a.download = selectedImage;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const dataNotFound = data?.response?.length === 0;
-  const isPdf = (selectedImage || '').toLowerCase().endsWith('.pdf');
-
-  return (
-    <Box>
-      {isLoading && (
-        <Center h={300}>
-          <Loader />
-        </Center>
-      )}
-
-      {!isLoading && !error && dataNotFound && (
-        <Center h={300}>
-          <Text>No Images</Text>
-        </Center>
-      )}
-
-      {!isLoading && !error && !dataNotFound && (
-        <>
-          <Box pos="relative">
-            <ImageFullScreen
-              w="100%"
-              h={400}
-              fit="contain"
-              radius="sm"
-              src={
-                isPdf
-                  ? 'https://placehold.co/100x70/101113/FFF?text=pdf&font=lato'
-                  : `https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${selectedImage}`
-              }
-            />
-            <Tooltip label="Download">
-              <ActionIcon
-                color="blue"
-                size="lg"
-                radius="sm"
-                pos="absolute"
-                right={8}
-                top={8}
-                onClick={handleDownload}
-              >
-                <IconDownload strokeWidth={3} size={18} />
-              </ActionIcon>
-            </Tooltip>
-          </Box>
-          <Box h={8} />
-          <Group gap="xs">
-            {data?.response?.map((item, i) => {
-              const isPdf = item.toLowerCase().endsWith('.pdf');
-              const itemImage = isPdf
-                ? 'https://placehold.co/100x70/101113/FFF?text=pdf&font=lato'
-                : `https://dev.arieslibre.my.id/api/v1/public/invoice/download/${id}/${item}`;
-              return (
-                <Image
-                  onClick={() => setSelectedImage(item)}
-                  style={{
-                    cursor: 'pointer',
-                    border:
-                      selectedImage === item
-                        ? '2px solid var(--mantine-color-red-5)'
-                        : 'none',
-                    transform:
-                      selectedImage === item ? 'scale(1.2)' : 'scale(1)',
-                    transition: 'transform 0.1s ease-out', // Ease-in transition for smooth scaling
-                    width: 50,
-                    height: 50,
-                  }}
-                  w={50}
-                  h={50}
-                  bg={'dark.8'}
-                  fit="contain"
-                  radius="sm"
-                  src={itemImage}
-                />
-              );
-            })}
-          </Group>
-        </>
-      )}
-    </Box>
   );
 }
 

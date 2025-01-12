@@ -286,10 +286,12 @@ function FormInvoices() {
       onSuccess: (res) => {
         if (res?.response?.length > 0) {
           setFiles(
-            res?.response.map(
-              (item) =>
-                `https://dev.arieslibre.my.id/api/v1/public/invoice/download/${data?.id}/${item}`
-            )
+            res?.response.map((item) => {
+              const isPdf = item.toLowerCase().endsWith('.pdf');
+              return `https://dev.arieslibre.my.id/api/v1/public/invoice/${
+                isPdf ? 'view' : 'download'
+              }/${data?.id}/${item}`;
+            })
           );
         }
       },
@@ -674,8 +676,8 @@ function FormInvoices() {
               <UploadImage
                 disableActions={modeDetail}
                 hasDownload={modeDetail}
-                hImage={100}
-                wImage={100}
+                hImage={70}
+                wImage={70}
                 files={files}
                 setFiles={setFiles}
                 setDeletedFiles={setDeletedFiles}
