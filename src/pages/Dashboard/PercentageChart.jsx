@@ -1,7 +1,4 @@
-import {
-  DonutChart,
-  PieChart
-} from '@mantine/charts';
+import { DonutChart, PieChart } from '@mantine/charts';
 import {
   ActionIcon,
   Card,
@@ -12,23 +9,24 @@ import {
   Stack,
   Text,
   rem,
-  useMantineColorScheme
+  useMantineColorScheme,
 } from '@mantine/core';
 import { MonthPickerInput } from '@mantine/dates';
-import {
-  IconSearch
-} from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import moment from 'moment';
 import { useState } from 'react';
 import { useQuery } from 'react-query';
 import {
   useGetDashboardBarChart,
   useGetDashboardBarChartCategory,
-  useGetDashboardBarChartSubCategory
+  useGetDashboardBarChartSubCategory,
 } from '../../helpers/apiHelper';
 import randomColors from '../../helpers/randomColors';
 import shortCurrency from '../../helpers/shortCurrency';
 import classes from './index.module.css';
+import DonutChartExample from './ApexDonutChart';
+import ApexDonutChart from './ApexDonutChart';
+
 const TEN_MINUTES = 600000;
 
 const iconStyle = { width: rem(12), height: rem(12) };
@@ -143,11 +141,12 @@ function PercentageChart() {
   };
 
   return (
-    <Card withBorder radius="lg" pb={0} style={{ overflow: 'visible' }}>
+    <Card withBorder radius="lg" style={{ overflow: 'visible' }}>
       <Flex
         justify="space-between"
         gap="md"
         direction={{ base: 'column', md: 'row' }}
+        mb={{ base: 'xl', md: 0 }}
       >
         <Stack gap={2}>
           <Text>Percentage Pie Chart</Text>
@@ -181,7 +180,7 @@ function PercentageChart() {
         </Stack>
       </Flex>
       <Group justify="space-evenly">
-        <Skeleton flex={2} visible={isLoadingPieChart}>
+        <Skeleton flex={1.5} visible={isLoadingPieChart}>
           <Group
             gap="xs"
             align="center"
@@ -215,42 +214,74 @@ function PercentageChart() {
           </Group>
         </Skeleton>
         <Skeleton flex={1} visible={isLoadingPieChartCategory}>
-          <Center className={classes.adjustTooltip}>
-            {errorPieChartCategory ? (
-              <Text c="red">Error: {errorPieChartCategory?.message}</Text>
-            ) : (
-              <DonutChart
-                withLabelsLine
-                withLabels
-                valueFormatter={(value) => shortCurrency(value)}
-                style={{ width: 300 }}
-                paddingAngle={5}
-                withTooltip
-                labelsType="percent"
-                data={recordPieChartCategory || []}
-                chartLabel="Category"
+          {errorPieChartCategory ? (
+            <Text c="red">Error: {errorPieChartCategory?.message}</Text>
+          ) : (
+            // <DonutChart
+            //   withLabelsLine
+            //   withLabels
+            //   valueFormatter={(value) => shortCurrency(value)}
+            //   style={{ width: 300 }}
+            //   paddingAngle={5}
+            //   withTooltip
+            //   labelsType="percent"
+            //   data={recordPieChartCategory || []}
+            //   chartLabel="Category"
+            // />
+            <Flex
+              justify="center"
+              align="center"
+              direction={{ base: 'column', md: 'row' }}
+              gap="xs"
+            >
+              <Text>Categories</Text>
+              <ApexDonutChart
+                title="Category"
+                legendPosition="bottom"
+                series={(recordPieChartCategory || []).map(
+                  (item) => item.value
+                )}
+                labels={(recordPieChartCategory || []).map((item) => item.name)}
               />
-            )}
-          </Center>
+            </Flex>
+          )}
         </Skeleton>
         <Skeleton flex={1} visible={isLoadingPieChartSubCategory}>
-          <Center>
-            {errorPieChartSubCategory ? (
-              <Text c="red">Error: {errorPieChartSubCategory?.message}</Text>
-            ) : (
-              <DonutChart
-                withLabelsLine
-                withLabels
-                valueFormatter={(value) => shortCurrency(value, false)}
-                style={{ width: 300 }}
-                paddingAngle={5}
-                withTooltip
-                labelsType="percent"
-                data={recordPieChartSubCategory || []}
-                chartLabel="Sub Category"
+          {/* <Center> */}
+          {errorPieChartSubCategory ? (
+            <Text c="red">Error: {errorPieChartSubCategory?.message}</Text>
+          ) : (
+            // <DonutChart
+            //   withLabelsLine
+            //   withLabels
+            //   valueFormatter={(value) => shortCurrency(value, false)}
+            //   style={{ width: 300 }}
+            //   paddingAngle={5}
+            //   withTooltip
+            //   labelsType="percent"
+            //   data={recordPieChartSubCategory || []}
+            //   chartLabel="Sub Category"
+            // />
+            <Flex
+              justify="center"
+              align="center"
+              direction={{ base: 'column', md: 'row' }}
+              gap="xs"
+            >
+              <Text>Sub Categories</Text>
+              <ApexDonutChart
+                title="Sub Category"
+                legendPosition="bottom"
+                series={(recordPieChartSubCategory || []).map(
+                  (item) => item.value
+                )}
+                labels={(recordPieChartSubCategory || []).map(
+                  (item) => item.name
+                )}
               />
-            )}
-          </Center>
+            </Flex>
+          )}
+          {/* </Center> */}
         </Skeleton>
       </Group>
     </Card>

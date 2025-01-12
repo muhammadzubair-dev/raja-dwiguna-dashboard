@@ -136,7 +136,7 @@ function Login() {
     >
       <Center style={{ height: '100%' }}>
         <form onSubmit={form.onSubmit(handleLogin)}>
-          <Paper withBorder shadow="md" p={30} miw={400} radius="md">
+          <Paper withBorder shadow="md" p={30} m={30} miw={300} radius="md">
             <Flex justify="center" align="center" gap="md" mb="md">
               <img height={100} src={logoImage} alt="logo" />
               <Box>
