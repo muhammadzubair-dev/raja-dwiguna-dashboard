@@ -65,6 +65,7 @@ import usePagination from '../../helpers/usePagination';
 import useSizeContainer from '../../helpers/useSizeContainer';
 import useFileUpload from '../../helpers/useUploadFile';
 import PrintInvoice from './PrintInvoice';
+import PreviewImages from '../../components/PreviewImages';
 function MakeATransaction({ data, refetchInvoices }) {
   const form = useForm({
     mode: 'controlled',
@@ -724,9 +725,9 @@ function Invoices() {
       title: 'View Images',
       centered: true,
       radius: 'md',
-
+      size: 'xl',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: <ViewImages id={id} />,
+      children: <PreviewImages keyImage="invoice" id={id} />,
     });
   };
 

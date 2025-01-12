@@ -34,14 +34,6 @@ function UploadImage(props) {
   } = props;
 
   const previews = files.map((file, index) => {
-    const isImageUrl = typeof file === 'string';
-    let isPdf = false;
-    if (isImageUrl) {
-      isPdf = file.toLowerCase().endsWith('.pdf');
-    } else {
-      isPdf = file.type === PDF_MIME_TYPE[0];
-    }
-
     const handleDownload = () => {
       const a = document.createElement('a');
       a.href = file;
@@ -94,20 +86,11 @@ function UploadImage(props) {
         <ImageFullScreen
           radius="sm"
           key={index}
-          src={
-            isPdf
-              ? 'https://placehold.co/100x70/101113/FFF?text=pdf&font=lato'
-              : isImageUrl
-              ? file
-              : URL.createObjectURL(file)
-          }
+          src={file}
           w={wImage}
           fit="contain"
           bg="dark.9"
           h={hImage}
-          onLoad={() =>
-            !isImageUrl && URL.revokeObjectURL(URL.createObjectURL(file))
-          }
         />
       </Box>
     );

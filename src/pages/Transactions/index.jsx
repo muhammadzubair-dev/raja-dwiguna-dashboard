@@ -62,6 +62,7 @@ import UploadImage from '../../components/UploadImage';
 import { v4 as uuidv4 } from 'uuid';
 import useFileUpload from '../../helpers/useUploadFile';
 import ImageFullScreen from '../../components/ImageFullScreen';
+import PreviewImages from '../../components/PreviewImages';
 
 function AddAndEditTransaction({ data, refetchTransactions }) {
   const isAdd = data ? false : true;
@@ -112,10 +113,12 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
       onSuccess: (res) => {
         if (res?.response?.length > 0) {
           setFiles(
-            res?.response.map(
-              (item) =>
-                `https://dev.arieslibre.my.id/api/v1/public/transaction/download/${data?.id}/${item}`
-            )
+            res?.response.map((item) => {
+              const isPdf = item.toLowerCase().endsWith('.pdf');
+              return `https://dev.arieslibre.my.id/api/v1/public/transaction/${
+                isPdf ? 'view' : 'download'
+              }/${data?.id}/${item}`;
+            })
           );
         }
       },
@@ -323,111 +326,6 @@ function AddAndEditTransaction({ data, refetchTransactions }) {
         </Flex>
       )}
     </form>
-  );
-}
-
-function ViewImages({ id }) {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const { data, isLoading, error, isFetching } = useQuery(
-    ['transaction-images', id],
-    () => useGetTransactionImage(id),
-    {
-      onSuccess: (res) => {
-        if (res?.code === 200 && res?.response?.length > 0) {
-          setSelectedImage(res?.response[0]);
-        }
-      },
-    }
-  );
-
-  const handleDownload = () => {
-    const imageUrl = `https://dev.arieslibre.my.id/api/v1/public/transaction/download/${id}/${selectedImage}`;
-    const a = document.createElement('a');
-    a.href = imageUrl;
-    a.download = selectedImage;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
-  const dataNotFound = data?.response?.length === 0;
-  const isPdf = (selectedImage || '').toLowerCase().endsWith('.pdf');
-
-  return (
-    <Box>
-      {isLoading && (
-        <Center h={300}>
-          <Loader />
-        </Center>
-      )}
-
-      {!isLoading && !error && dataNotFound && (
-        <Center h={300}>
-          <Text>No Images</Text>
-        </Center>
-      )}
-
-      {!isLoading && !error && !dataNotFound && (
-        <>
-          <Box pos="relative">
-            <ImageFullScreen
-              w="100%"
-              h={400}
-              fit="contain"
-              radius="sm"
-              src={
-                isPdf
-                  ? 'https://placehold.co/100x70/101113/FFF?text=pdf&font=lato'
-                  : `https://dev.arieslibre.my.id/api/v1/public/transaction/download/${id}/${selectedImage}`
-              }
-            />
-            <Tooltip label="Download">
-              <ActionIcon
-                color="blue"
-                size="lg"
-                radius="sm"
-                pos="absolute"
-                right={8}
-                top={8}
-                onClick={handleDownload}
-              >
-                <IconDownload strokeWidth={3} size={18} />
-              </ActionIcon>
-            </Tooltip>
-          </Box>
-          <Box h={8} />
-          <Group gap="xs">
-            {data?.response?.map((item, i) => {
-              const isPdf = item.toLowerCase().endsWith('.pdf');
-              const itemImage = isPdf
-                ? 'https://placehold.co/100x70/101113/FFF?text=pdf&font=lato'
-                : `https://dev.arieslibre.my.id/api/v1/public/transaction/download/${id}/${item}`;
-              return (
-                <Image
-                  onClick={() => setSelectedImage(item)}
-                  style={{
-                    cursor: 'pointer',
-                    border:
-                      selectedImage === item
-                        ? '2px solid var(--mantine-color-red-5)'
-                        : 'none',
-                    transform:
-                      selectedImage === item ? 'scale(1.2)' : 'scale(1)',
-                    transition: 'transform 0.1s ease-out', // Ease-in transition for smooth scaling
-                  }}
-                  w={50}
-                  h={50}
-                  bg={'dark.8'}
-                  fit="contain"
-                  radius="sm"
-                  src={itemImage}
-                />
-              );
-            })}
-          </Group>
-        </>
-      )}
-    </Box>
   );
 }
 
@@ -640,9 +538,9 @@ function Transactions() {
       title: 'View Images',
       centered: true,
       radius: 'md',
-
+      size: 'xl',
       overlayProps: { backgroundOpacity: 0.55, blur: 5 },
-      children: <ViewImages id={id} />,
+      children: <PreviewImages keyImage="transaction" id={id} />,
     });
   };
 
